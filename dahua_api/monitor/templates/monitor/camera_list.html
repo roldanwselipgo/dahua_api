@@ -1,0 +1,75 @@
+{% extends 'monitor/base.html' %} {% block title %}Monitor camaras{% endblock %}{% block content %}
+{% load static %}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li>
+                <div>
+    <img style="width:50px;" src="{% static 'monitor/elipgo_logo2.png' %}" alt="Imagen capturada">
+                </div>
+            </li>
+            <li class="nav-item">
+
+                <a class="navbar-brand" href="#">Monitor</a>
+
+            </li>
+            <li class="nav-item active">
+                <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Camaras</a>
+
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Otro</a>
+            </li>
+
+        </ul>
+        <a href="{% url 'admin:index'%}" type="button" class="nav-link">Admin</a>
+        <button href="{% url 'camera:cameras'}" class="btn btn-danger my-2 my-sm-0" type="submit">Salir</button>
+    </div>
+</nav>
+<main role="main">
+    ....
+    {% block contentss %}
+            {% endblock %}
+    ...
+
+    <div class="container mb-4">
+        <h3>Bienvenido {{ username|capfirst }}</h3>
+        <br>
+        <div align="left" class="btn_crear mb-3">
+            <a href="{% url 'camera:add-camera'%}" type="button" class="btn btn-success">Agregar camara</a>
+        </div>
+        <div class="row">
+            {% for camera in camera_list %} 
+            <div class="col-4">
+                <div class="card">
+                    <!-- <iframe src="rtsp://test:test$2022@elipgomexico.ddns.net:1938/cam/realmonitor?channel=1&subtype=1"></iframe> -->
+                    <img src="{% static 'monitor/snapshot.jpg' %}" alt="Imagen capturada">
+                    <div class="card-body">
+                        <h5 class="card-title">Camera: {{camera.id}}</h5>
+
+                        {% if camera.serial_no == '0' %}
+                        <div class="text-danger">Sin Conexion </div> {% else %}
+                        <div class="text-success">{{camera.serial_no}} </div>{% endif %}
+
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"> {{camera.ip}}</li>
+
+                    </ul>
+                    <div class="card-body">
+                        <a class="btn btn-primary" href="{% url 'camera:camera' camera.id %}" title="Ver" type="button" class="card-link">Mas informacion </a>
+                        <a class="btn btn-primary" href="{% url 'camera:video-encode' camera.videoencode_config_id.id camera.id%}" title="Ver" type="button" class="card-link">Ver configuraciones </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'monitor/base.html' %} {% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Monitor</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Camaras</a>
+
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Otro</a>
+            </li>
+
+        </ul>
+        <a href="{% url 'admin:index'%}" type="button" class="nav-link">Admin</a>
+        <button href="{% url 'camera:cameras'}" class="btn btn-danger my-2 my-sm-0" type="submit">Salir</button>
+    </div>
+</nav>
+
+
+<main role="main">
+    <div class="container mb-4">
+        <h2 class="m-10">Detalle camara</h2>
+        <p>Id: {{camera.id}}</p>
+        <p>Usuario: {{camera.usuario|striptags|safe|truncatechars:"200"}}</p>
+        <p>Ip: {{camera.ip|striptags|safe|truncatechars:"200"}}</p>
+        <p>puerto: {{camera.puerto|striptags|safe|truncatechars:"200"}}</p>
+
+        <h5>Informacion general: </h5>
+        <ul>
+            {% for key,value in general.items %}
+            <li>
+                {{ key }} : {{ value }}
+            </li>
+            {% endfor %}
+        </ul>
+        <h5>Hora actual: </h5>
+        <ul>
+            {% for key,value in current_time.items %}
+            <li>
+                {{ key }} : {{ value }}
+            </li>
+            {% endfor %}
+        </ul>
+        <h5>Locales: </h5>
+        <ul>
+            {% for key,value in locales.items %}
+            <li>
+                {{ key }} : {{ value }}
+            </li>
+            {% endfor %}
+        </ul>
+        <p>Tipo del dispositivo: </p>
+        <ul>
+            {% for key,value in device_type.items %}
+            <li>
+                {{ key }} : {{ value }}
+            </li>
+            {% endfor %}
+        </ul>
+        <p>Nombre de la maquina: {{machine_name}} </p>
+
+        <p>Motion Settings: </p>
+        <ul>
+            {% for key,value in motion_settings.items %}
+            <li>
+                {{ key }} : {{ value }}
+            </li>
+            {% endfor %}
+        </ul>
+
+        <p>Imagen capturada:</p>
+        {% load static %}
+        <img src="{% static 'monitor/snapshot.jpg' %}" alt="Imagen capturada">
+
+    </div>
+</main>
+{% endblock %}

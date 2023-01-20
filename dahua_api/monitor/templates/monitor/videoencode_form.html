@@ -1,0 +1,15 @@
+{% extends 'monitor/videoencode_detail.html' %} {% block title %} Crear cli{% endblock %} {% block content_form %}
+
+
+<main>
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+        <!-- obtiene datos del modelo -->
+        {{ form.as_p }}
+
+
+        <button type="submit" class="btn btn-primary">Conectar</button>
+        <a href="./" type="submit" class="btn btn-primary">Cancelar</a>
+
+    </form>
+</main>
+{% endblock %}

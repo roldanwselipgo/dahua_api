@@ -1,0 +1,260 @@
+{% extends 'monitor/base.html' %} {% block title %}Monitor camaras{% endblock %}{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Monitor</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Camaras</a>
+
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Otro</a>
+            </li>
+
+        </ul>
+        <a href="{% url 'admin:index'%}" type="button" class="nav-link">Admin</a>
+        <button href="{% url 'camera:cameras'}" class="btn btn-danger my-2 my-sm-0" type="submit">Salir</button>
+    </div>
+</nav>
+<main role="main">
+
+
+    
+
+
+
+    <div class="container mb-4">
+        <h3> ... </h3>
+        
+            
+        <br>
+       
+        <div class="row">
+            <div class="col-6">
+
+
+                <h4 class="mb-5">Current configuration</h4>
+                <hr>
+
+                <div>
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#ch0">Channel 0</a></li>
+                        <li><a data-toggle="tab" href="#ch1">Channel 1</a></li>
+                        <li><a data-toggle="tab" href="#ch2">Channel 2</a></li>
+                        <li><a data-toggle="tab" href="#menu3">Channel 3</a></li>
+                      </ul>
+                    
+                      <div class="tab-content">
+                        <div id="ch0" class="tab-pane  active" >
+                            <table class="table">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Mainstream</th>
+                                    <th scope="col"></th>
+            
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key,value in current_config_mainstream.items %}
+                                    <tr>
+                                        <td><label class="compresion">{{ key }}</label> </td>
+                                        <td> <label class="compresion">{{ value }}</label> </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <table class="table">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Substream</th>
+                                    <th scope="col"></th>
+            
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key,value in current_config_substream.items %}
+                                    <tr>
+                                        <td><label class="compresion">{{ key }}</label> </td>
+                                        <td> <label class="compresion">{{ value }}</label> </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                        <div id="ch1" class="tab-pane fade">
+                          ...
+                        </div>
+                        <div id="ch2" class="tab-pane fade">
+                            ...
+                        </div>
+                        <div id="menu3" class="tab-pane fade">
+                            ...
+                        </div>
+                      </div>
+                </div>
+
+                
+               
+                
+                    <!-- <tr>
+                        <td>Type : <label class="compresion">General</label> </td>
+                        <td>Video Enable : <label class="compresion">on</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Compresion : <label class="">-</label> </td>
+                        <td>Compresion : <label class="">-</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Resolution : <label class="">-</label> </td>
+                        <td>Resolution : <label class="">-</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Frame Rate (FPS) : <label class="">-</label> </td>
+                        <td>Frame Rate (FPS) : <label class="">-</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Bit Rate Type : <label class="">-</label> </td>
+                        <td>Bit Rate Type : <label class="">-</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Image Quality : <label class="">-</label> </td>
+                        <td>Image Quality : <label class="">-</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Bit Rate : <label class="">-</label> </td>
+                        <td>Bit Rate : <label class="">-</label> </td>
+                    </tr> -->
+                    
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-5 ml-5 ">
+                <h4 class="mb-5">Default configuration</h4>
+                <hr>
+                <form class="form-horizontal">
+                    <div class="row ">
+                        <div class="form-group col-4 ">
+                            <label class="control-label ">Channel</label>
+                            <select class="form-control channel ">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-4 ">
+                            <label class="control-label ">Type</label>
+                            <select name="type" class="form-control channel ">
+                                <option value="0">Regular encode </option>
+                                <option value="1">Motion detection encode</option>
+                                <option value="2">Alarm encode</option>
+                                <option value="3">Emergency encode</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group col-4 ">
+                            <div class="">
+                                <label class="checkbox-inline">
+                                    <input name="channel" type="checkbox" value="all" checked> Todos los canales.
+                                </label>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <div class="form-group">
+                        
+                        <div class="mt-1">
+                            <label class="control-label ">Compression</label>
+                            <select  class="form-control">
+                                <option>{{videoencode.Compression}}</option>
+                                <option>--</option>
+                            </select>
+                        </div>
+                        <div class="mt-1">
+                            <label class="control-label ">Resolution</label>
+                            <select class="form-control">
+                                <option>{{videoencode.CustomResolutionName}}</option>
+                            </select>
+                        </div>
+
+                        <div class="mt-1">
+                            <label class="control-label ">Smart Codec</label>
+                            <select class="form-control">
+                                <option>{{videoencode.SmartCodec}}</option>
+                            </select>
+                        </div>
+                        <div class="mt-1">
+                            <label class="control-label ">FPS</label>
+                            <select class="form-control">
+                                <option>{{videoencode.FPS}}</option>
+                                <option>5</option>
+                            </select>
+                        </div>
+                        <div class="mt-1">
+                            <label class="control-label ">Bit Rate Type</label>
+                            <select class="form-control">
+                                <option>{{videoencode.BitRateControl}}</option>
+                            </select>
+                        </div>
+
+                        <div class="mt-1">
+                            <label class="control-label ">Quality</label>
+                            <select class="form-control">
+                                <option>{{videoencode.Quality}}</option>
+                            </select>
+                        </div>
+                        <div class="mt-1">
+                            <label class="control-label ">Bit rate</label>
+                            <select class="form-control">
+                                <option>{{videoencode.BitRate}}</option>
+                            </select>
+                        </div>
+                        <div class="mt-1">
+                            <label class="control-label ">Language</label>
+                            <select class="form-control">
+                                <option>{{videoencode.Language}}</option>
+                            </select>
+                        </div>
+                        <div class="mt-1">
+                            <label class="control-label ">CurrentTime</label>
+                            <select class="form-control">
+                                <option>{{videoencode.CurrentTime}}</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <br>
+                    <div class="form-group text-center">
+                        <div class="">
+                            <input type="submit" class="btn btn-primary col-5" value="Aplicar Configuracion">
+                            <input type="reset" class="btn btn-light col-5" value="Limpiar">
+                        </div>
+                    </div>
+                </form>
+               
+                
+                <!-- Contenido del form-->
+                {% block content_form %} {% endblock %}
+                
+                
+            </div>
+        </div>
+
+    </div>
+
+
+    </div>
+</main>
+
+{% endblock %}
