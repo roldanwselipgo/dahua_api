@@ -211,11 +211,21 @@ class VideoEncodeDetailView(DetailView):
         
         #---------- Obtener Configuracion de video -------------
         current_config_mainstream, current_config_substream = config.GetMediaEncodeAutoConfig(0,0)
-        print("CCF",current_config_mainstream, ":" ,current_config_substream)
+        prob = config.GetMediaEncodeAutoConfig(0,0)
+        print("CCF", prob)
 
+        configs_mainstream = []
+        configs_substream = []
 
+        """configs_mainstream.append(config.GetMediaEncodeAutoConfig(0,0))
+        configs_mainstream.append(config.GetMediaEncodeAutoConfig(1,0))
+        configs_mainstream.append(config.GetMediaEncodeAutoConfig(2,0))
+        configs_mainstream.append(config.GetMediaEncodeAutoConfig(3,0))
+        configs_mainstream.append(config.GetMediaEncodeAutoConfig(4,0))
+        configs_mainstream.append(config.GetMediaEncodeAutoConfig(5,0))"""
         
-        
+
+        context['current_config_stream']=prob
         context['current_config_mainstream']=current_config_mainstream
         context['current_config_substream']=current_config_substream
         return context

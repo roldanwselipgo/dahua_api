@@ -1,18 +1,29 @@
 {% extends 'monitor/base.html' %} {% block title %}Monitor camaras{% endblock %}{% block content %}
+{% load static %}
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">Monitor</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+    
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
         <ul class="navbar-nav mr-auto">
+            
+            <li>
+                <div>
+                    <img style="width:50px;" src="{% static 'monitor/elipgo_logo2.png' %}" alt="Imagen capturada">
+                </div>
+            </li>
+            <li class="nav-item">
+
+                <a class="navbar-brand" href="{% url 'camera:cameras'%}">Monitor</a>
+
+            </li>
             <li class="nav-item active">
                 <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Camaras</a>
 
             </li>
             <li class="nav-item">
-                <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Otro</a>
+                <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Configuracion</a>
             </li>
 
         </ul>
@@ -88,7 +99,40 @@
 
                         </div>
                         <div id="ch1" class="tab-pane fade">
-                          ...
+                            <table class="table">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Mainstream</th>
+                                    <th scope="col"></th>
+            
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key,value in current_config_mainstream.items %}
+                                    <tr>
+                                        <td><label class="compresion">{{ key }}</label> </td>
+                                        <td> <label class="compresion">{{ value }}</label> </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <table class="table">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col">Substream</th>
+                                    <th scope="col"></th>
+            
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key,value in current_config_substream.items %}
+                                    <tr>
+                                        <td><label class="compresion">{{ key }}</label> </td>
+                                        <td> <label class="compresion">{{ value }}</label> </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                         <div id="ch2" class="tab-pane fade">
                             ...
