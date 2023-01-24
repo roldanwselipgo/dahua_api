@@ -46,17 +46,14 @@
             <div class="col-4">
                 <div class="card">
                     <!-- <iframe src="rtsp://test:test$2022@elipgomexico.ddns.net:1938/cam/realmonitor?channel=1&subtype=1"></iframe> -->
-                    <img src="{% static 'monitor/snapshot.jpg' %}" alt="Imagen capturada">
                     <div class="card-body">
-                        <h5 class="card-title">Camera: {{camera.id}}</h5>
+                        <h5 class="card-title">Device: {{camera.id}}</h5>
 
-                        {% if camera.serial_no == '0' %}
-                        <div class="text-danger">Sin Conexion </div> {% else %}
-                        <div class="text-success">{{camera.serial_no}} </div>{% endif %}
+                        
 
                     </div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"> {{camera.ip}}</li>
+                        <li class="list-group-item text-success"> {{camera.ip}}:{{camera.puerto}}</li>
 
                     </ul>
                     <div class="card-body">

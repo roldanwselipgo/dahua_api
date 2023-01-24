@@ -16,7 +16,7 @@ from   datetime import datetime
 from   requests.auth import HTTPDigestAuth, HTTPBasicAuth
 from   icmplib       import ping
 from   decimal       import Decimal
-from   monitor.DahuaClasses.dahua_parse   import DahuaParse
+from   monitor.dahuaClasses.dahua_parse   import DahuaParse
 
 
 
@@ -68,7 +68,8 @@ DAHUA_MFIND_NEXT    = '/cgi-bin/mediaFileFind.cgi?action=findNextFile'
 DAHUA_SUB_EVENT     = '/cgi-bin/eventManager.cgi?action=attach'
 DAHUA_GETMENCODE    = '/cgi-bin/configManager.cgi?action=getConfig&name=Encode'
 DAHUA_SETMENCODE    = '/cgi-bin/configManager.cgi?action=setConfig'
-DAHUA_SETLANGUAGE    = '/cgi-bin/configManager.cgi?action=setConfig'
+DAHUA_SETLANGUAGE   = '/cgi-bin/configManager.cgi?action=setConfig'
+DAHUA_GETLANGUAGE   = '/cgi-bin/configManager.cgi?action=getConfig&name=Language'
 DAHUA_GETAUDIOCN    = '/cgi-bin/devAudioOutput.cgi?action=getCollect'
 DAHUA_POSTAUDIO     = '/cgi-bin/audio.cgi?action=postAudio'
 DAHUA_OPENDOOR      = '/cgi-bin/accessControl.cgi?action=openDoor'
@@ -82,7 +83,7 @@ DAHUA_MEDIAGLOBAL   = '/cgi-bin/configManager.cgi?action=getConfig&name=MediaGlo
 
 #DAHUA_TIMEOUT      = 120
 #DAHUA_TIMEOUT      = 300
-DAHUA_TIMEOUT      = 300
+DAHUA_TIMEOUT      = 20
 DAHUA_PORT1        = 8011
 DAHUA_PORT2        = 8012
 DAHUA_PORT3        = 8013
@@ -288,11 +289,47 @@ class Dahua:
    def CommonCall(self, API, timeout=DAHUA_TIMEOUT):
       req = 'http://%s:%d%s' % (self.url, self.port, API)
       #print (">> CommonCall:", req, timeout)
-
       response = ''
       rdict = {}
       try:
          response = requests.get(req, auth=HTTPDigestAuth(self.user, self.password),timeout = timeout)
+
+         rdict['status_code'] = response.status_code
+         #print(">>RSP: ", response)
+      except Exception:
+         #print(">>Excep: ", response)
+         rdict['status_code'] = 0
+         pass
+
+      if rdict['status_code'] == 200:
+      #if response.status_code == 200:
+         list = response.text.split(sep='\r\n')
+         try:
+            for rec in list:
+               srec  = rec.split(sep='=')
+               if srec[0] != '':
+                  rdict[srec[0]] = srec[1]
+            return rdict
+
+         except Exception:
+            pass
+      return rdict
+
+   # Common Call2
+   def CommonCall2(self, API, timeout=DAHUA_TIMEOUT):
+      req = 'http://%s:%d%s' % (self.sitio, self.port, API)
+      #print (">> CommonCall:", req, timeout)
+      response = ''
+      rdict = {}
+
+      try:
+         url = req.split('?')
+         response = requests.get(url=url[0],params =url[1],auth=HTTPDigestAuth(self.user, self.password), timeout = timeout)
+         print("RESPONSE>>>", response)
+         print("RESPONSE>>>", response)
+         print("RESPONSE>>>", response)
+         print("RESPONSE>>>", response)
+         #response = requests.get(req, auth=HTTPDigestAuth(self.user, self.password),timeout = timeout)
 
          rdict['status_code'] = response.status_code
          #print(">>RSP: ", response)
@@ -360,7 +397,7 @@ class Dahua:
    # Get Serial Number
    def GetDeviceType(self):
       #print(">> GetDeviceType")
-      response = self.CommonCall(DAHUA_GETDEVTYPE)
+      response = self.CommonCall2(DAHUA_GETDEVTYPE)
 
       self.DevType = ""
       #if response != "":
@@ -368,6 +405,8 @@ class Dahua:
          self.DevType = response['type'] if 'type' in response else ""
       else:
          print("Response:", response['status_code'])
+         print("Response:", response)
+      return response 
 
 
    # Get Device Info
@@ -702,9 +741,10 @@ class Dahua:
    ###############################################################################
    def GetCurrentTime(self, timeout=DAHUA_TIMEOUT):
       #print(">> GetCurrentTime")
-      response = self.CommonCall(DAHUA_GETCURTIME, timeout)
+      response = self.CommonCall2(DAHUA_GETCURTIME, timeout)
       print ("RSP: ", response)
-      return response
+      curtime = response['result']  if 'result' in response else ""
+      return curtime
       #self.HardwareVer = ""
       #if response != "":
       #if response.status_code == 200:
@@ -1063,7 +1103,8 @@ class Dahua:
       print(req)
       url = req.split('?')
       try:
-         response = requests.get(url=url[0],params =url[1],auth=HTTPDigestAuth(self.user, self.password), timeout=3)
+         response = requests.get(url=url[0],params =url[1],auth=HTTPDigestAuth(self.user, self.password), timeout=10)
+         print("Response SetMediaConfig", response,response.text)
          if response.status_code == 200:
             return(response.status_code)
          else:
@@ -1083,12 +1124,26 @@ class Dahua:
       
       print(req)
       url = req.split('?')
-      response = requests.get(url=url[0],params =url[1],auth=HTTPDigestAuth(self.user, self.password))
+      response = requests.get(url=url[0],params =url[1],auth=HTTPDigestAuth(self.user, self.password), timeout=DAHUA_TIMEOUT)
       print(response,response.text)
       if response.status_code == 200:
          return(response.text)
       else:
          return 0
+
+   def GetLanguage(self):
+      print("GetLanguage() del sitio '%s'" % (self.sitio))
+      req ='http://%s:%d%s' % (self.sitio, self.port, DAHUA_GETLANGUAGE)
+      print(req)
+      url = req.split('?') 
+      response = requests.get(url=url[0],params =url[1],auth=HTTPDigestAuth(self.user, self.password), timeout=DAHUA_TIMEOUT)
+      rdict = self.ResponseToDict(response)
+      Langauge = rdict['table.Language']  if 'table.Language' in rdict else ""
+      print(response,response.text, Langauge)
+      return Langauge
+
+   
+   
 
    def SetCurrentTime2(self, timeStamp):
       print("SetCurrentTime2() del sitio '%s'" % (self.sitio))
@@ -1104,8 +1159,27 @@ class Dahua:
       else:
          return 0
 
+   def getcurtime(self):
+      print("GetLanguage() del sitio '%s'" % (self.sitio))
+      req ='http://%s:%d%s' % (self.sitio, self.port, DAHUA_GETLANGUAGE)
+      print(req)
+      url = req.split('?') 
+      response = requests.get(url=url[0],params =url[1],auth=HTTPDigestAuth(self.user, self.password), timeout=DAHUA_TIMEOUT)
+      rdict = self.ResponseToDict(response)
+      Langauge = rdict['table.Language']  if 'table.Language' in rdict else ""
+      print(response,response.text, Langauge)
+      return Langauge
 
 
+   def ResponseToDict(self, response):
+      rdict = {}
+      if response.status_code == 200:
+         list = response.text.split(sep='\r\n')
+         for rec in list:
+            srec  = rec.split(sep='=')
+            if srec[0] != '':
+               rdict[srec[0]] = srec[1]
+      return rdict
 
    def SetFileHoldTime(self, index = 0, holdTime = 30):
       print("SetFileHoldTime(%s, %s) del sitio '%s'" % (index, holdTime, self.sitio))

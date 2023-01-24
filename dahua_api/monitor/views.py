@@ -18,8 +18,8 @@ from monitor.Monitor.Comunicacion import Comunicacion
 from monitor.Monitor.Variable import Variable
 from monitor.Monitor.Camera import Camera as Cam
 
-from monitor.DahuaClasses.dahua_config import Config
-from monitor.DahuaClasses.dahua_class import Dahua
+from monitor.dahuaClasses.dahua_config import Config
+from monitor.dahuaClasses.dahua_class import Dahua
 
 
 
@@ -88,6 +88,7 @@ class CameraListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         cameras = []
+        """
         for camera in self.object_list:
             
             puerto = Interfaz("api {}".format(camera.usuario))
@@ -113,8 +114,8 @@ class CameraListView(ListView):
             else:
                 camera.serial_no = '0'
                 camera.save()
-
-        context['cameras_serial_no']=cameras
+        """
+        #context['cameras_serial_no']=cameras
         return context
 
 class CameraCreateView(CreateView):
@@ -129,21 +130,16 @@ def videoencodeform(request):
 class VideoEncodeDetailView(DetailView):
     """ Vista encargada de mostrar la configuracion de video """
     model = VideoEncode
-    form_class = VideoEncodeForm
-
+    #form_class = VideoEncodeForm
+    #success_url = reverse_lazy('camera:video-encode')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         cameras = []
-        #context['callback_form'] = CallBackForm(initial={'HouseId': self.object.id})
-
         #Conexion
-        print("ol",self.request)
-        print("ol",self.request.GET)
-        print("ol",self.request.GET.get('typesss') )
-        print("ol",self.request.path)
+        #print("path:",self.request.path)
 
-
+        #Obtener camara
         camara_id = None
         if "camera" in self.request.path:
             path = self.request.path.split("=")
@@ -160,6 +156,7 @@ class VideoEncodeDetailView(DetailView):
         port = camera.puerto
         user = camera.usuario
         password = camera.password
+
 
         #host = "10.200.3.20"
         #port = 1938
@@ -197,35 +194,79 @@ class VideoEncodeDetailView(DetailView):
 
         config = Config(default_media_config, default_general_config, dvr)
         
-        
-
-
-        #---------- Actualizar configuracion si llego la peticion-------------
-        tipo = self.request.GET.get('type')
-        channel = self.request.GET.get('channel')
-        if tipo and channel:
-            print("Comenzar actualizacion") 
-            #config.set_default_config()
-            config.set_default_config_all_channels_all_streams()
-
-        
+       
         #---------- Obtener Configuracion de video -------------
-        current_config_mainstream, current_config_substream = config.GetMediaEncodeAutoConfig(0,0)
-        prob = config.GetMediaEncodeAutoConfig(0,0)
-        print("CCF", prob)
+        array_config = []
+        channels = config.ChannelCount()
+        if channels:
+            for channel in range(0,channels):
+                array_config.append(config.GetMediaEncodeConfig(channel,0))
+        
+        langauge = config.getLanguage()
+        current_time = config.getCurrentTime()
+        device_type = config.getDeviceType()
+        print("Language >> ", langauge)                  
+        print("CurTime >> ", current_time)                  
+        print("Device Type >> ", device_type)    
+        device_type_name = 'DVR' if 'DH-' in device_type else "Camera" 
+
+        print("ARRAY CONFIG >>", array_config)
+
+        #Validacion form
+        default_data = {
+            "Compression": default_media_config["Compression"],
+            "CustomResolutionName": default_media_config["CustomResolutionName"],
+            "SmartCodec": default_media_config["SmartCodec"],
+            "FPS": default_media_config["FPS"],
+            "BitRateControl": default_media_config["BitRateControl"],
+            "Quality": default_media_config["Quality"],
+            "BitRate": default_media_config["BitRate"],
+            "Language": default_general_config["Language"],
+            "VideoEnable": "true",
+            "CurrentTime": current_time,
+        }
+        form = VideoEncodeForm(default_data)
+        if self.request.method == "GET":
+            #form = VideoEncodeForm(data=self.request.GET)
+            if form.is_valid():
+                compresion = self.request.GET.get('Compression','')
+                checkbox = self.request.GET.get('0','')
+                print("Values....",compresion,checkbox)
+
+                #---------- Actualizar configuracion si llego la peticion-------------
+                tipo = self.request.GET.get('type')
+                ch = self.request.GET.get('channel')
+                #if tipo and ch:
+                if 1:
+                    print("Comenzar actualizacion") 
+                    channels = config.ChannelCount()
+                    if channels:
+                        for channel in range(0,channels):
+                            if self.request.GET.get(str(channel),''):
+                                print("Configurando canal: ",channel)
+                                FPS = self.request.GET.get('FPS','')
+                                print("Ejemplo FPS: ", FPS)
+                                config.default_media_config["FPS"] = FPS
+                                config.setDefaultMediaEncode(channel,0, "MainFormat")
+                                #config.setDefaultMediaEncode(channel,0, "ExtraFormat")
+                                #config.setCurrentTime()
+                                #config.setLanguage()
+
+            else:
+                print(form.is_valid())
+
+
+
+        
 
         configs_mainstream = []
         configs_substream = []
 
-        """configs_mainstream.append(config.GetMediaEncodeAutoConfig(0,0))
-        configs_mainstream.append(config.GetMediaEncodeAutoConfig(1,0))
-        configs_mainstream.append(config.GetMediaEncodeAutoConfig(2,0))
-        configs_mainstream.append(config.GetMediaEncodeAutoConfig(3,0))
-        configs_mainstream.append(config.GetMediaEncodeAutoConfig(4,0))
-        configs_mainstream.append(config.GetMediaEncodeAutoConfig(5,0))"""
-        
-
-        context['current_config_stream']=prob
-        context['current_config_mainstream']=current_config_mainstream
-        context['current_config_substream']=current_config_substream
+        context['device_type']=device_type
+        context['device_type_name']=device_type_name
+        context['language']=langauge
+        context['current_time']=current_time
+        context['channel_count']=len(array_config)
+        context['array_config']=array_config
+        context['form']=form
         return context

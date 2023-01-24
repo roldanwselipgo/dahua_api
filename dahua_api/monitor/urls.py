@@ -6,5 +6,6 @@ camera_patterns = ([
     path('camera/<int:pk>', CameraDetailView.as_view(), name='camera'),
     path('add-camera/', CameraCreateView.as_view(), name='add-camera'),
     path('videoEncode/<int:pk>/camera=<int:camera>', VideoEncodeDetailView.as_view(), name='video-encode'),
+    path('videoEncode/<int:pk>/camera=<int:camera>', VideoEncodeDetailView.as_view(), name='video-encode'),
 
 ], 'camera')

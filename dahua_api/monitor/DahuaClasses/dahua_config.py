@@ -1,5 +1,5 @@
 #from dahua_class import Dahua
-from monitor.DahuaClasses.dahua_class import Dahua
+from monitor.dahuaClasses.dahua_class import Dahua
 
 from datetime import datetime
 
@@ -12,28 +12,70 @@ class Config():
         self.default_media_config = default_media_config
         self.default_general_config = default_general_config
 
-    def GetMediaEncodeAutoConfig(self, channel = 0, type = 0):
+    def ChannelCount(self):
         rdict = self.dvr.GetMediaEncode() 
+        channels = 0
         for el in rdict:
-            print(el)
-            if 'Encode[%d].MainFormat[%d]' % (channel, type) in el:
-                self.current_media_config_mainstream["Compression"] = rdict['table.Encode[%d].MainFormat[%d].Video.Compression'  % (channel, type)]
-                self.current_media_config_mainstream["CustomResolutionName"] = rdict['table.Encode[%d].MainFormat[%d].Video.CustomResolutionName'   % (channel, type)]
-                self.current_media_config_mainstream["FPS"] = rdict['table.Encode[%d].MainFormat[%d].Video.FPS'          % (channel, type)]
-                self.current_media_config_mainstream["Quality"] = rdict['table.Encode[%d].MainFormat[%d].Video.Quality'      % (channel, type)]
-                self.current_media_config_mainstream["BitRateControl"] = rdict['table.Encode[%d].MainFormat[%d].Video.BitRateControl'      % (channel, type)]
-                self.current_media_config_mainstream["BitRate"] = rdict['table.Encode[%d].MainFormat[%d].Video.BitRate'      % (channel, type)]
-            
-            if 'Encode[%d].ExtraFormat[%d]' % (channel, type) in el:
-                self.current_media_config_substream["Compression"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.Compression'  % (channel, type)]
-                self.current_media_config_substream["CustomResolutionName"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.CustomResolutionName'   % (channel, type)]
-                self.current_media_config_substream["FPS"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.FPS'          % (channel, type)]
-                self.current_media_config_substream["Quality"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.Quality'      % (channel, type)]
-                self.current_media_config_substream["BitRateControl"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.BitRateControl'      % (channel, type)]
-                self.current_media_config_substream["BitRate"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.BitRate'      % (channel, type)]
+            if 'Encode[%d]' % (channels) in el:
+                channels = channels + 1
+        print("Channels: ",channels)
+        return channels
             
 
-        print("current_media_config_mainstream",self.current_media_config_mainstream)
+
+
+    def GetMediaEncodeConfig(self, channel = 0, type = 0):
+        rdict = self.dvr.GetMediaEncode()
+        #Inicializar Mainstream
+        self.current_media_config_mainstream["Compression"] = None
+        self.current_media_config_mainstream["CustomResolutionName"] = None
+        self.current_media_config_mainstream["FPS"] = None
+        self.current_media_config_mainstream["Quality"] = None
+        self.current_media_config_mainstream["BitRateControl"] = None
+        self.current_media_config_mainstream["BitRate"] = None
+        #Inicializar Substream
+        self.current_media_config_substream["Compression"] = None
+        self.current_media_config_substream["CustomResolutionName"] = None
+        self.current_media_config_substream["FPS"] = None
+        self.current_media_config_substream["Quality"] = None
+        self.current_media_config_substream["BitRateControl"] = None
+        self.current_media_config_substream["BitRate"] = None
+        self.current_media_config_substream["VideoEnable"] = None
+        for el in rdict:
+            #print(el)
+            if 'Encode[%d].MainFormat[%d]' % (channel, type) in el:
+                if 'Encode[%d].MainFormat[%d].Video.Compression' % (channel, type) in el:
+                    self.current_media_config_mainstream["Compression"] = rdict['table.Encode[%d].MainFormat[%d].Video.Compression'  % (channel, type)] 
+                if 'Encode[%d].MainFormat[%d].Video.CustomResolutionName' % (channel, type) in el:
+                    self.current_media_config_mainstream["CustomResolutionName"] = rdict['table.Encode[%d].MainFormat[%d].Video.CustomResolutionName'   % (channel, type)]
+                if 'Encode[%d].MainFormat[%d].Video.FPS' % (channel, type) in el:
+                    self.current_media_config_mainstream["FPS"] = rdict['table.Encode[%d].MainFormat[%d].Video.FPS'          % (channel, type)]
+                if 'Encode[%d].MainFormat[%d].Video.Quality' % (channel, type) in el:
+                    self.current_media_config_mainstream["Quality"] = rdict['table.Encode[%d].MainFormat[%d].Video.Quality'      % (channel, type)]
+                if 'Encode[%d].MainFormat[%d].Video.BitRateControl' % (channel, type) in el:
+                    self.current_media_config_mainstream["BitRateControl"] = rdict['table.Encode[%d].MainFormat[%d].Video.BitRateControl'      % (channel, type)]
+                if 'Encode[%d].MainFormat[%d].Video.BitRate' % (channel, type) in el:
+                    self.current_media_config_mainstream["BitRate"] = rdict['table.Encode[%d].MainFormat[%d].Video.BitRate'      % (channel, type)]
+            
+            if 'Encode[%d].ExtraFormat[%d]' % (channel, type) in el:
+                #print(el)
+                if 'Encode[%d].ExtraFormat[%d].Video.Compression' % (channel, type) in el:
+                    self.current_media_config_substream["Compression"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.Compression'  % (channel, type)]
+                if 'Encode[%d].ExtraFormat[%d].Video.CustomResolutionName' % (channel, type) in el:
+                    self.current_media_config_substream["CustomResolutionName"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.CustomResolutionName'   % (channel, type)]
+                if 'Encode[%d].ExtraFormat[%d].Video.FPS' % (channel, type) in el:
+                    self.current_media_config_substream["FPS"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.FPS'          % (channel, type)]
+                if 'Encode[%d].ExtraFormat[%d].Video.Quality' % (channel, type) in el:
+                    self.current_media_config_substream["Quality"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.Quality'      % (channel, type)]
+                if 'Encode[%d].ExtraFormat[%d].Video.BitRateControl' % (channel, type) in el:
+                    self.current_media_config_substream["BitRateControl"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.BitRateControl'      % (channel, type)]
+                if 'Encode[%d].ExtraFormat[%d].Video.BitRate' % (channel, type) in el:
+                    self.current_media_config_substream["BitRate"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.BitRate'      % (channel, type)]
+                if 'Encode[%d].ExtraFormat[%d].VideoEnable' % (channel, type) in el:
+                    self.current_media_config_substream["VideoEnable"] = rdict['table.Encode[%d].ExtraFormat[%d].VideoEnable'      % (channel, type)]
+
+
+        #print("current_media_config_mainstream",self.current_media_config_mainstream)
         return self.current_media_config_mainstream, self.current_media_config_substream
         
         
@@ -45,11 +87,24 @@ class Config():
         BitRateControl = self.default_media_config["BitRateControl"]
         Quality = self.default_media_config["Quality"]
         BitRate = self.default_media_config["BitRate"]
+        print("SE envia CONFIGURACION >>>> ", FPS)
         self.dvr.SetMediaEncode(channel,type, Compression, CustomResolutionName, FPS, BitRateControl, Quality, BitRate, stream)
 
     def setLanguage(self):
         Language = self.default_general_config["Language"]
         self.dvr.SetLanguage(Language)
+    
+    def getLanguage(self):
+        language = self.dvr.GetLanguage()
+        return language
+
+    def getDeviceType(self):
+        print("getDeviceType()")
+        rdict = self.dvr.GetDeviceType()
+        device_type = rdict['type']  if 'type'  in rdict else ""
+        return device_type
+
+    
 
     def setCurrentTime(self):
         #random_time = "2023-01-19 09:12:00"
@@ -58,13 +113,18 @@ class Config():
         print("Curr ", current_time)
         self.dvr.SetCurrentTime2(current_time)
 
+
+    def getCurrentTime(self):
+        current_time = self.dvr.GetCurrentTime()
+        print("Curr ", current_time)
+        return current_time
     
     def set_default_config(self):
-        print(">> Current Config:",self.GetMediaEncodeAutoConfig(0,0))
+        print(">> Current Config:",self.GetMediaEncodeConfig(0,0))
         response = self.setDefaultMediaEncode(0,0)
         if response:
             print("Conf Success 200")
-        print(">> Current Config:",self.GetMediaEncodeAutoConfig(0,0))
+        print(">> Current Config:",self.GetMediaEncodeConfig(0,0))
 
         #self.setDefaultMediaEncode(0,2)
         #self.setDefaultMediaEncode(0,3)
@@ -72,25 +132,7 @@ class Config():
         #self.setDefaultMediaEncode(0,5)
         self.setLanguage()
         self.setCurrentTime()
-        print(">> Current Config:",self.GetMediaEncodeAutoConfig(0,0))
-
-    def set_default_config_all_channels_all_streams(self):
-        self.setDefaultMediaEncode(0,0, "MainFormat")
-        self.setDefaultMediaEncode(1,0, "MainFormat")
-        self.setDefaultMediaEncode(2,0, "MainFormat")
-        self.setDefaultMediaEncode(3,0, "MainFormat")
-        self.setDefaultMediaEncode(4,0, "MainFormat")
-        self.setDefaultMediaEncode(5,0, "MainFormat")
-
-        self.setDefaultMediaEncode(0,0, "ExtraFormat")
-        self.setDefaultMediaEncode(1,0, "ExtraFormat")
-        self.setDefaultMediaEncode(2,0, "ExtraFormat")
-        self.setDefaultMediaEncode(3,0, "ExtraFormat")
-        self.setDefaultMediaEncode(4,0, "ExtraFormat")
-        self.setDefaultMediaEncode(5,0, "ExtraFormat")
-        
-        self.setLanguage()
-        self.setCurrentTime()
+        print(">> Current Config:",self.GetMediaEncodeConfig(0,0))
 
 
 def main():
