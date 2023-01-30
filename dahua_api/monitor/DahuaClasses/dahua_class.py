@@ -742,8 +742,9 @@ class Dahua:
    def GetCurrentTime(self, timeout=DAHUA_TIMEOUT):
       #print(">> GetCurrentTime")
       response = self.CommonCall2(DAHUA_GETCURTIME, timeout)
-      print ("RSP: ", response)
+      print ("RSP time: ", response)
       curtime = response['result']  if 'result' in response else ""
+      print("RSP result", curtime)
       return curtime
       #self.HardwareVer = ""
       #if response != "":
@@ -1084,15 +1085,17 @@ class Dahua:
       #return(response)
 
    # Set Media encode
-   def SetMediaEncode(self, channel, typeEncode, Compression, CustomResolutionName, FPS, BitRateControl, Quality, BitRate, stream ):
+   def SetMediaEncode(self, channel, typeEncode, Compression, resolution, FPS, BitRateControl, Quality, BitRate, VideoEnable, stream ):
       print("SetMediaEncode() del sitio '%s'" % (self.sitio))
       req ='http://%s:%d%s' % (self.sitio, self.port, DAHUA_SETMENCODE)
       req = req + '&Encode[%d].%s[%d].Video.Compression=%s'  % (channel, stream, typeEncode ,Compression)
-      req = req + '&Encode[%d].%s[%d].Video.CustomResolutionName=%s'  % (channel, stream, typeEncode ,CustomResolutionName)
+      req = req + '&Encode[%d].%s[%d].Video.resolution=%s'  % (channel, stream, typeEncode ,resolution)
+      #req = req + '&Encode[%d].%s[%d].Video.CustomResolutionName=%s'  % (channel, stream, typeEncode ,CustomResolutionName)
       req = req + '&Encode[%d].%s[%d].Video.FPS=%s'  % (channel, stream, typeEncode ,FPS)
       req = req + '&Encode[%d].%s[%d].Video.BitRateControl=%s'   % (channel, stream, typeEncode ,BitRateControl)
       req = req + '&Encode[%d].%s[%d].Video.Quality=%s'   % (channel, stream, typeEncode ,Quality)
       req = req + '&Encode[%d].%s[%d].Video.BitRate=%s'   % (channel, stream, typeEncode ,BitRate)
+      req = req + '&Encode[%d].%s[%d].VideoEnable=%s'   % (channel, stream, typeEncode ,VideoEnable)
       
       #req = req + '&Encode[%d].MainFormat[%d].Video.UserName=%s'  % (channel, typeEncode ,userName)
       #req = req + '&Encode[%d].MainFormat[%d].Video.Password=%s'  % (channel, typeEncode ,password)

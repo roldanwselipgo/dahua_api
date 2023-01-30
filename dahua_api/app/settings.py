@@ -36,9 +36,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'monitor',
-    'bootstrap4',
+    'core',
+    #'monitor',
     'crispy_forms',
+    'sitios',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -107,6 +109,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+TIME_ZONE = 'America/Mexico_City'
+
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
@@ -125,3 +129,23 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_REDIRECT_URL = 'camera:cameras'
+LOGOUT_REDIRECT_URL = 'camera:cameras'
+
+
+# Celery Configuration Options
+CELERY_TIMEZONE = "America/Mexico_city"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+
+#CELERY_ACCEPT_CONTENT = ['json']
+#CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
+CELERY_RESULT_BACKEND = 'django-db'
+
+#CELERY_TASK_SERIALIZER = 'json'

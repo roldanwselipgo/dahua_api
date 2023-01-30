@@ -18,12 +18,12 @@ class CameraForm(forms.ModelForm):
         }
 
 """
-class VideoEncodeForm(forms.Form):
+class ConfigForm(forms.Form):
     Compression = forms.CharField(label = "Compression", required=True, widget=forms.TextInput(
         attrs={'class':'form-control', 'placeholder':'Compression'}
     ))
-    CustomResolutionName = forms.CharField(label = "CustomResolutionName", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'CustomResolutionName'}
+    resolution = forms.CharField(label = "resolution", required=True, widget=forms.TextInput(
+        attrs={'class':'form-control', 'placeholder':'resolution'}
     ))
     SmartCodec = forms.CharField(label = "SmartCodec", required=True, widget=forms.TextInput(
         attrs={'class':'form-control', 'placeholder':'SmartCodec'}
@@ -51,12 +51,12 @@ class VideoEncodeForm(forms.Form):
     ))  
 """
         
-class VideoEncodeForm(forms.Form):
+class ConfigForm(forms.Form):
     Compression = forms.CharField(label = "Compression", required=True, widget=forms.TextInput(
         attrs={'class':'form-control', 'placeholder':'Compression'}
     ))
-    CustomResolutionName = forms.CharField(label = "CustomResolutionName", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'CustomResolutionName'}
+    resolution = forms.CharField(label = "resolution", required=True, widget=forms.TextInput(
+        attrs={'class':'form-control', 'placeholder':'resolution'}
     ))
     SmartCodec = forms.CharField(label = "SmartCodec", required=True, widget=forms.TextInput(
         attrs={'class':'form-control', 'placeholder':'SmartCodec'}
@@ -80,5 +80,5 @@ class VideoEncodeForm(forms.Form):
         attrs={'class':'form-control', 'placeholder':'VideoEnable'}
     ))  
     CurrentTime = forms.CharField(label = "CurrentTime", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'CurrentTime'}
+        attrs={'class':'form-control input-current', 'placeholder':'Y-m-d H:M:S'}
     ))  

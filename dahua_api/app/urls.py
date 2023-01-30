@@ -15,13 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from monitor.urls import camera_patterns
+from django.contrib.auth import urls
+from core.urls import core_patterns
+#from monitor.urls import camera_patterns
+from sitios.urls import sitio_patterns
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include(camera_patterns)),
-
+    path('accounts/', include(urls)),
+    path('', include(core_patterns)),
+#    path('', include(camera_patterns)),
+    path('', include(sitio_patterns)),
 ]
 
 

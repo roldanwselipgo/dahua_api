@@ -1,52 +1,12 @@
-{% extends 'monitor/base.html' %} {% block title %}Monitor camaras{% endblock %}{% block content %}
+{% extends 'core/base.html' %} {% block title %}Monitor camaras{% endblock %}{% block content %}
 {% load static %}
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-
-        <ul class="navbar-nav mr-auto">
-            
-            <li>
-                <div>
-                    <img style="width:50px;" src="{% static 'monitor/elipgo_logo2.png' %}" alt="Imagen capturada">
-                </div>
-            </li>
-            <li class="nav-item">
-
-                <a class="navbar-brand" href="{% url 'camera:cameras'%}">Monitor</a>
-
-            </li>
-            <li class="nav-item active">
-                <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Camaras</a>
-
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'camera:cameras'%}" type="button" class="nav-link">Configuracion</a>
-            </li>
-
-        </ul>
-        <a href="{% url 'admin:index'%}" type="button" class="nav-link">Admin</a>
-        <button href="{% url 'camera:cameras'}" class="btn btn-danger my-2 my-sm-0" type="submit">Salir</button>
-    </div>
-</nav>
 <main role="main">
-
-
-    
-
-
-
-    <div class="container mb-4">
-            
+    <div class="container-fluid mb-4">
         <br>
-       
         <div class="row">
             <div class="col-6">
-                <h4 class="mb-5">Current configuration</h4>
-                
-                        
+                <h4 class="mb-5">Current configuration</h4> 
                 <hr>
                 <table class="table">
                     <thead class="thead-light">
@@ -105,7 +65,7 @@
                             <table class="table">
                                 <thead class="thead-light">
                                 <tr>
-                                    {% if forloop.counter0 == 0%}
+                                    {% if forloop.counter0 == 0 %}
                                     <th scope="col">Mainstream</th>
                                     <th scope="col"></th>
 
@@ -119,8 +79,8 @@
                                 <tbody>
                                     {% for key,value in element.items %}
                                     <tr>
-                                        <td><label class="compresion">{{ key }}</label> </td>
-                                        <td> <label class="compresion">{{ value }}</label> </td>
+                                        <td><label class="">{{ key }}</label> </td>
+                                        <td> <label class="">{{ value }}</label> </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -197,15 +157,16 @@
                         <div class="row">
                             
                             {% for tupla in array_config %}
-                            <div class="col-4">
+                            <div class="col-3">
+                                <!-- <label class="checkbox-inline"> -->
                                 <label class="checkbox-inline">
-                                    <input name="{{forloop.counter0}}" type="checkbox" value=1 checked> <h5>{{forloop.counter0}}</h5>
+                                    <input class="checkbox-f" name="{{forloop.counter0}}" type="checkbox" value=1 checked> <h5>{{forloop.counter0}}</h5>
                                 </label>
                             </div>
                             {% endfor %}
-                            <div class="col-4">
+                            <div class="col-3">
                                 <label class="checkbox-inline">
-                                    <input name="channel" type="checkbox" value="all" checked> <h5>All channels</h5>
+                                    <input  id="checkbox-all" name="channel" type="checkbox" value="all" checked>  <h5 class="ml-4">All channels</h5>
                                 </label>
                             </div>
                         </div>
@@ -215,11 +176,14 @@
 
                     <!-- obtiene datos del modelo -->
                     {{ form|crispy }}
-            
-                    <button type="submit" class="btn btn-primary">Conectar</button>
+                    <div class="col-4">
+                        <label class="checkbox-inline ">
+                            <input id="checkbox-time" name="checkbox-time" type="checkbox" value="time" checked> <h5  class="ml-5">Now</h5>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
                     <!-- <a href="./" type="submit" class="btn btn-primary">Cancelar</a> -->
                 </form>
-                {{request.GET.Compression}}
                 
 
                 

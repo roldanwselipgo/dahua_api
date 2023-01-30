@@ -2,14 +2,14 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.decorators import method_decorator
 import os
 import shutil
-from .models import Camera
-from .models import VideoEncode
-from .forms import CameraForm, VideoEncodeForm
+from .models import Camera, Config
+from .forms import CameraForm, ConfigForm
 import requests,json
 from requests.auth import HTTPDigestAuth
 
@@ -18,8 +18,10 @@ from monitor.Monitor.Comunicacion import Comunicacion
 from monitor.Monitor.Variable import Variable
 from monitor.Monitor.Camera import Camera as Cam
 
-from monitor.dahuaClasses.dahua_config import Config
+from monitor.dahuaClasses.dahua_config import Config as Conf
 from monitor.dahuaClasses.dahua_class import Dahua
+
+from monitor.db import BDBDatabase
 
 
 
@@ -88,34 +90,58 @@ class CameraListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         cameras = []
-        """
-        for camera in self.object_list:
-            
-            puerto = Interfaz("api {}".format(camera.usuario))
-            puerto.modificarConfiguracion(
-                                    dispositivo = Interfaz.CAMARA_DAHUA, 
-                                    protocolo = 'http', 
-                                    servidor = camera.ip, 
-                                    puerto = camera.puerto, 
-                                    usuario = camera.usuario, 
-                                    password = camera.password,
-                                    )
-            comunicacion = Comunicacion ()
-            puerto.inicializar()
-            cam = Cam("Camera 1", "CAM-{}".format(camera.id), "En camara")
-            cam.establecerPuerto(puerto)
-            cam.establecerComunicacion (comunicacion)
-            if cam.obtener_serial_no():
-                #print("sn",cam.obtener_serial_no())
-                serial_no = cam.variables[2].obtenerDescripcion()
-                cameras.append(serial_no)
-                camera.serial_no = serial_no
-                camera.save()
-            else:
-                camera.serial_no = '0'
-                camera.save()
-        """
-        #context['cameras_serial_no']=cameras
+        bd = BDBDatabase()
+        vc = Config.objects.filter(id=1).first()
+
+        """proyecto = 'MC'
+        id_sitio = 675
+        ip = f"mc{id_sitio}.c5cdmx.elipgodns.com:8011"
+        status = 'ups'
+        is_alive = None
+        last_update = "2022-08-13 21:02:45"
+        vc = Config.objects.filter(id=1).first()
+        obj, created = Sitio.objects.update_or_create(
+                sitio=id_sitio,proyecto=proyecto, ip=ip,
+                status=status,is_alive=is_alive,last_update=last_update,
+                videoencode_config_id=vc
+            )
+        print(obj,created)"""
+
+        if bd:
+            #print("Conection success mysql")
+            sitios = bd.GetSitios()
+            for sitio in sitios:
+                if 0:
+                #if len(sitio):
+                    proyecto = sitio[0]
+                    id_sitio = sitio[1]
+                    ip = f"mc{id_sitio}.c5cdmx.elipgodns.com:8011"
+                    status = sitio[3]
+                    is_alive = sitio[4]
+                    last_update = sitio[5]
+                    data = {
+                        'sitio':id_sitio,
+                        'proyecto':proyecto,
+                        'ip':ip,
+                        'status':status,
+                        'is_alive':is_alive,
+                        'last_update':last_update,
+                        'videoencode_config_id':vc,
+                    }
+                    print(sitio,len(sitio))
+                    print(id_sitio,proyecto,ip,status,is_alive,last_update,vc)
+                    #obj, created = Sitio.objects.update_or_create(data)
+                    try:
+                        obj, created = Sitio.objects.update_or_create(
+                            sitio=id_sitio,proyecto=proyecto, ip=ip,
+                            status=status,is_alive=is_alive,last_update=last_update,
+                            videoencode_config_id=vc
+                        )
+                        print(obj,created)
+                    except:
+                        print("Failed Unique constraint >> ", sitio)
+            #context['sitios'] = Sitio.objects.all()
+            context['sitios'] = ""
         return context
 
 class CameraCreateView(CreateView):
@@ -124,18 +150,22 @@ class CameraCreateView(CreateView):
     success_url = reverse_lazy('camera:cameras')
 
 def videoencodeform(request):
-    videoencodeform_form = VideoEncodeForm()
+    videoencodeform_form = ConfigForm()
     return render(request, "monitor/videoencode_form.html", {"form":videoencodeform_form})
 
-class VideoEncodeDetailView(DetailView):
+class ConfigDetailView(DetailView):
     """ Vista encargada de mostrar la configuracion de video """
-    model = VideoEncode
-    #form_class = VideoEncodeForm
+    model = Config
+    #form_class = ConfigForm
     #success_url = reverse_lazy('camera:video-encode')
+    #fields = ['Compression']
+    #get_success_url = reverse_lazy('camera:video-encode')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         cameras = []
+        import time
+        time.sleep(5)
         #Conexion
         #print("path:",self.request.path)
 
@@ -157,12 +187,10 @@ class VideoEncodeDetailView(DetailView):
         user = camera.usuario
         password = camera.password
 
-
         #host = "10.200.3.20"
         #port = 1938
         #user = "admin"
         #password = "Elipgo$123
-
         #---------- Conexion a camara -------------
         dvr = Dahua(host, port, user, password)
 
@@ -173,7 +201,7 @@ class VideoEncodeDetailView(DetailView):
         print("compression: ",self.object.Compression)
 
         """default_media_config["Compression"] = "H.264"
-        default_media_config["CustomResolutionName"] = "720P"
+        default_media_config["resolution"] = "720P"
         default_media_config["SmartCodec"] = "Off"
         default_media_config["FPS"] = 5
         default_media_config["BitRateControl"] = "VBR"
@@ -181,25 +209,26 @@ class VideoEncodeDetailView(DetailView):
         default_media_config["BitRate"] = 512"""
 
         default_media_config["Compression"] = self.object.Compression
-        default_media_config["CustomResolutionName"] = self.object.CustomResolutionName
+        default_media_config["resolution"] = self.object.CustomResolutionName
         default_media_config["SmartCodec"] = "Off"
         default_media_config["FPS"] = self.object.FPS
         default_media_config["BitRateControl"] = self.object.BitRateControl
         default_media_config["Quality"] = self.object.Quality
         default_media_config["BitRate"] = self.object.BitRate
+        default_media_config["VideoEnable"] = self.object.VideoEnable
         
-
         #General config
         default_general_config["Language"] = "English"
 
-        config = Config(default_media_config, default_general_config, dvr)
+        config = Conf(default_media_config, default_general_config, dvr)
         
        
         #---------- Obtener Configuracion de video -------------
-        array_config = []
         channels = config.ChannelCount()
+        array_config = []
         if channels:
             for channel in range(0,channels):
+                print("chian",channel)
                 array_config.append(config.GetMediaEncodeConfig(channel,0))
         
         langauge = config.getLanguage()
@@ -215,49 +244,72 @@ class VideoEncodeDetailView(DetailView):
         #Validacion form
         default_data = {
             "Compression": default_media_config["Compression"],
-            "CustomResolutionName": default_media_config["CustomResolutionName"],
+            "resolution": default_media_config["resolution"],
             "SmartCodec": default_media_config["SmartCodec"],
             "FPS": default_media_config["FPS"],
             "BitRateControl": default_media_config["BitRateControl"],
             "Quality": default_media_config["Quality"],
             "BitRate": default_media_config["BitRate"],
+            "VideoEnable": default_media_config["VideoEnable"],
             "Language": default_general_config["Language"],
             "VideoEnable": "true",
             "CurrentTime": current_time,
         }
-        form = VideoEncodeForm(default_data)
+        form = ConfigForm(default_data)
         if self.request.method == "GET":
-            #form = VideoEncodeForm(data=self.request.GET)
+            #form = ConfigForm(data=self.request.GET)
             if form.is_valid():
+                print(">>>>Entrando a post:")
                 compresion = self.request.GET.get('Compression','')
                 checkbox = self.request.GET.get('0','')
-                print("Values....",compresion,checkbox)
+                print("Values prob....",compresion,checkbox)
 
                 #---------- Actualizar configuracion si llego la peticion-------------
-                tipo = self.request.GET.get('type')
-                ch = self.request.GET.get('channel')
+                #tipo = self.request.GET.get('type')
+                #ch = self.request.GET.get('channel')
                 #if tipo and ch:
-                if 1:
-                    print("Comenzar actualizacion") 
-                    channels = config.ChannelCount()
-                    if channels:
-                        for channel in range(0,channels):
-                            if self.request.GET.get(str(channel),''):
-                                print("Configurando canal: ",channel)
-                                FPS = self.request.GET.get('FPS','')
-                                print("Ejemplo FPS: ", FPS)
-                                config.default_media_config["FPS"] = FPS
-                                config.setDefaultMediaEncode(channel,0, "MainFormat")
-                                #config.setDefaultMediaEncode(channel,0, "ExtraFormat")
-                                #config.setCurrentTime()
-                                #config.setLanguage()
+                print("Comenzar actualizacion") 
+                channels = config.ChannelCount()
+                if channels:
+                    for channel in range(0,channels):
+                        if self.request.GET.get(str(channel),''):
+                            print("Configurando canal: ",channel)
+                            config.default_media_config["Compression"] = self.request.GET.get('Compression','')
+                            config.default_media_config["resolution"] = self.request.GET.get('resolution','')
+                            config.default_media_config["FPS"] = self.request.GET.get('FPS','')
+                            config.default_media_config["Quality"] = self.request.GET.get('Quality','')
+                            config.default_media_config["BitRateControl"] = self.request.GET.get('BitRateControl','')
+                            config.default_media_config["BitRate"] = self.request.GET.get('BitRate','')
+                            config.default_media_config["VideoEnable"] = self.request.GET.get('VideoEnable','')
+                            print(self.request.GET.get('VideoEnable',''), ">>>>>VideoEnable") 
+                            print(self.request.GET.get('BitRate',''), ">>>>>BITR") 
+                            config.default_general_config["Language"] = self.request.GET.get('Language','')
+                            config.setDefaultMediaEncode(channel,0, "MainFormat")
+                            config.setDefaultMediaEncode(channel,0, "ExtraFormat")
+                            if self.request.GET.get('checkbox-time',''):
+                                print("Enviar hora actual")
+                                config.setCurrentTime()
+                            else:
+                                print("Enviar hora del formulario", self.request.GET.get('CurrentTime','') )
+                                config.setCurrentTime(self.request.GET.get('CurrentTime',''))
+                                print(self.request.GET.get('CurrentTime',''))
+                            #config.setCurrentTime()
+                            config.setLanguage()
+                            
+                    #----------Volver a obtener Configuracion de video -------------
+                    if self.request.GET.get('Compression',''):
+                        channels = config.ChannelCount()
+                        array_config = []
+                        if channels:
+                            for channel in range(0,channels):
+                                print("chian",channel)
+                                array_config.append(config.GetMediaEncodeConfig(channel,0))
+
+                            
 
             else:
                 print(form.is_valid())
 
-
-
-        
 
         configs_mainstream = []
         configs_substream = []
@@ -270,3 +322,4 @@ class VideoEncodeDetailView(DetailView):
         context['array_config']=array_config
         context['form']=form
         return context
+
