@@ -3,14 +3,28 @@
 
 <main role="main">
     <div class="container mb-4">
-        <h2 class="m-10">Detalle device</h2>
+        <h2 class="m-10">Device details</h2>
         <div class="row">
             <div class="col-6">
-                <p>Id: {{device.id}}</p>
-                <p>Usuario: {{device.usuario|striptags|safe|truncatechars:"200"}}</p>
+
+                
                 <p>Ip: {{device.ip|striptags|safe|truncatechars:"200"}}</p>
                 <p>puerto: {{device.puerto|striptags|safe|truncatechars:"200"}}</p>
-                <h5>Informacion general: </h5>
+                <p>Usuario: {{device.usuario|striptags|safe|truncatechars:"200"}}</p>
+                
+
+                <p>Hardware version: {{hardware_version}}</p>
+               
+
+                <p>Serial number:  {{serial_number}} </p>
+              
+
+                <p>Hora actual:  {{ current_time }} </p>
+                
+                
+                <p>Tipo del dispositivo: {{device_type}} </p>
+                
+                <p>Informacion general: </p>
                 <ul>
                     {% for key,value in general.items %}
                     <li>
@@ -18,27 +32,13 @@
                     </li>
                     {% endfor %}
                 </ul>
-                <h5>Hora actual: </h5>
-                <ul>
-                    {% for key,value in current_time.items %}
-                    <li>
-                        {{ key }} : {{ value }}
-                    </li>
-                    {% endfor %}
-                </ul>
                 
-                <p>Tipo del dispositivo: </p>
-                <ul>
-                    {% for key,value in device_type.items %}
-                    <li>
-                        {{ key }} : {{ value }}
-                    </li>
-                    {% endfor %}
-                </ul>
 
                 <p>Imagen capturada:</p>
                 {% load static %}
                 <img src="{% static 'device/snapshot.jpg' %}" style="width:100%;" alt="Img">
+
+                
             </div>
             <div class="col-6">
                 <p>Video Encode Settings: </p>

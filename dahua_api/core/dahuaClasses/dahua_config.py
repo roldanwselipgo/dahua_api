@@ -21,6 +21,18 @@ class Config():
         print("Channels: ",channels)
         return channels
             
+    def ChannelDetect(self):
+        channels = []
+        rdict = self.dvr.GetMediaEncode() 
+        for el in rdict:
+            for i in range(0,50):
+                if 'Encode[%d]' % (i) in el:
+                    if i not in channels:
+                        channels.append(i)
+                    break
+            
+        print("Channels>>>:",channels)
+        return channels
 
     def GetAllMediaEncodeConfig(self, channel = 0, type = 0):
         rdict = self.dvr.GetMediaEncode()
@@ -30,16 +42,19 @@ class Config():
         rdict = self.dvr.GetMediaEncode()
 
         #Conteo canales
-        channels = 0
+        channels = []
         for el in rdict:
-            if 'Encode[%d]' % (channels) in el:
-                channels = channels + 1
+            for i in range(0,50):
+                if 'Encode[%d]' % (i) in el:
+                    if i not in channels:
+                        channels.append(i)
+                    break
         print("Channels: ",channels)
 
         #Recorrer informacion por canal
         result = []
         
-        for channel in range(0,channels):
+        for channel in channels:
             configs = []
             self.current_media_config_mainstream={}
             self.current_media_config_substream={}

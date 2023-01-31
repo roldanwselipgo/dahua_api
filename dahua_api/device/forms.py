@@ -51,32 +51,32 @@ class ConfigForm(forms.Form):
         
 class DefaultConfigForm(forms.Form):
     Compression = forms.CharField(label = "Compression", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'Compression'}
+        attrs={'class':'', 'placeholder':'Compression'}
     ))
     resolution = forms.CharField(label = "resolution", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'resolution'}
+        attrs={'class':'', 'placeholder':'resolution'}
     ))
     SmartCodec = forms.CharField(label = "SmartCodec", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'SmartCodec'}
+        attrs={'class':'', 'placeholder':'SmartCodec'}
     ))
     FPS = forms.CharField(label = "FPS", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'FPS'}
+        attrs={'class':'', 'placeholder':'FPS'}
     ))
     BitRateControl = forms.CharField(label = "BitRateControl", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'BitRateControl'}
+        attrs={'class':'', 'placeholder':'BitRateControl'}
     ))
     Quality = forms.CharField(label = "Quality", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'Quality'}
+        attrs={'class':'', 'placeholder':'Quality'}
     ))
     BitRate = forms.CharField(label = "BitRate", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'BitRate'}
+        attrs={'class':'', 'placeholder':'BitRate'}
     ))
     Language = forms.CharField(label = "Language", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'Language'}
+        attrs={'class':'', 'placeholder':'Language'}
     ))
     VideoEnable = forms.CharField(label = "VideoEnable", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'VideoEnable'}
+        attrs={'class':'', 'placeholder':'VideoEnable'}
     ))  
     CurrentTime = forms.CharField(label = "CurrentTime", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control input-current', 'placeholder':'Y-m-d H:M:S'}
+        attrs={'class':' input-current', 'placeholder':'Y-m-d H:M:S'}
     ))  

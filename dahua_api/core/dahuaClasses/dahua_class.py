@@ -325,20 +325,14 @@ class Dahua:
       try:
          url = req.split('?')
          response = requests.get(url=url[0],params =url[1],auth=HTTPDigestAuth(self.user, self.password), timeout = timeout)
-         print("RESPONSE>>>", response)
-         print("RESPONSE>>>", response)
-         print("RESPONSE>>>", response)
-         print("RESPONSE>>>", response)
          #response = requests.get(req, auth=HTTPDigestAuth(self.user, self.password),timeout = timeout)
 
-         rdict['status_code'] = response.status_code
          #print(">>RSP: ", response)
       except Exception:
          #print(">>Excep: ", response)
-         rdict['status_code'] = 0
          pass
 
-      if rdict['status_code'] == 200:
+      if response.status_code == 200:
       #if response.status_code == 200:
          list = response.text.split(sep='\r\n')
          try:
@@ -350,48 +344,55 @@ class Dahua:
 
          except Exception:
             pass
+      else: 
+         return 0
       return rdict
 
 
    # Get General Config
    def GetGeneralConfig(self):
-      #print(">> GetGeneralConfig")
-      response = self.CommonCall(DAHUA_GETGRALCONF)
+      print(">> GetGeneralConfig")
+      response = self.CommonCall2(DAHUA_GETGRALCONF)
       print(response)
 
       self.Name = ""
       #if response != "":
-      if response['status_code'] == 200:
+      if response:
          self.Name = response['table.General.MachineName'] if 'table.General.MachineName' in response else ""
       else:
          print("Response:", response['status_code'])
+      return response 
 
 
    # Get Hardware Version
    def GetHardwareVersion(self):
       #print(">> GetHardwareVersion")
-      response = self.CommonCall(DAHUA_GETHARDVER)
+      response = self.CommonCall2(DAHUA_GETHARDVER)
       print ("RSP: ", response)
 
       self.HardwareVer = ""
       #if response != "":
-      if response['status_code'] == 200:
+      if response:
          self.HardwareVer = response['version'] if 'version' in response else ""
       else:
          print("Response:", response['status_code'])
+      return response 
+      
 
 
    # Get Serial Number
    def GetSerialNumber(self):
       #print(">> GetSerialNumber")
-      response = self.CommonCall(DAHUA_GETSERIALNO)
+      response = self.CommonCall2(DAHUA_GETSERIALNO)
 
       self.SerialNo = ""
       #if response != "":
-      if response['status_code'] == 200:
+      if response:
          self.SerialNo = response['sn'] if 'sn' in response else ""
       else:
          print("Response:", response['status_code'])
+      return response 
+
 
 
    # Get Serial Number
@@ -401,7 +402,7 @@ class Dahua:
 
       self.DevType = ""
       #if response != "":
-      if response['status_code'] == 200:
+      if response:
          self.DevType = response['type'] if 'type' in response else ""
       else:
          print("Response:", response['status_code'])

@@ -36,15 +36,24 @@ class DeviceDetailView(DetailView):
         dvr = Dahua(host, port, user, password) 
         
 
-        general = "device1.obtener_datos_generales()"
-        current_time = "device1.obtener_current_time()"
+        general = dvr.GetGeneralConfig()
+        device_type = dvr.GetDeviceType()
+        device_type = device_type['type']  if 'type' in device_type else ""
+
+        hardware_version = dvr.GetHardwareVersion()
+        hardware_version = hardware_version['version']  if 'version' in hardware_version else ""
+
+        serial_number = dvr.GetSerialNumber()
+        serial_number = serial_number['sn']  if 'sn' in serial_number else ""
+
+        current_time = dvr.GetCurrentTime()
         locales = "device1.obtener_locales_config()"
-        device_type = "device1.obtener_device_type()"
-        machine_name = "device1.obtener_machine_name()"
         
+        di = dvr.GetDeviceInfo() 
         video_encode_settings = dvr.GetMediaEncode() 
         snapshot = dvr.GetSnapshot() 
         print("snap", snapshot.raw)
+        print("gral", general)
         if snapshot.status_code == 200:
             #print(video_encode_settings, type(video_encode_settings))
             with open("device/static/device/snapshot.jpg", 'wb') as f:
@@ -57,7 +66,8 @@ class DeviceDetailView(DetailView):
         context['current_time']=current_time
         context['locales']=locales
         context['device_type']=device_type
-        context['machine_name']="machine_name.text"
+        context['serial_number']=serial_number
+        context['hardware_version']=hardware_version
         context['video_encode_settings']=video_encode_settings
         return context
 
@@ -66,7 +76,7 @@ class DeviceDetailView(DetailView):
         current_time = camera1.obtener_current_time()
         locales = camera1.obtener_locales_config()
         device_type = camera1.obtener_device_type()
-        machine_name = camera1.obtener_machine_name()
+        hardware_version = camera1.obtener_hardware_version()
         
         camera1.actualizar_motion_settings(estado="true")
         motion_settings = camera1.obtener_motion_settings()
@@ -81,7 +91,7 @@ class DeviceDetailView(DetailView):
         context['current_time']=current_time
         context['locales']=locales
         context['device_type']=device_type
-        context['machine_name']=machine_name.text
+        context['hardware_version']=hardware_version.text
         context['motion_settings']=motion_settings
         return context
         """
@@ -132,6 +142,7 @@ class DefaultConfigTemplateView(TemplateView):
         print(device.ip)
         print(device.puerto)
 
+        id = device.id
         host = device.ip
         port = device.puerto
         user = device.usuario
@@ -174,7 +185,8 @@ class DefaultConfigTemplateView(TemplateView):
         
        
         #---------- Obtener Configuracion de video -------------
-        channels = config.ChannelCount()
+        #channels = config.ChannelCount()
+        channels = config.ChannelDetect()
         array_config = config.GetMediaEncodeConfig()
         """if channels:
             for channel in range(0,channels):
@@ -184,6 +196,7 @@ class DefaultConfigTemplateView(TemplateView):
         langauge = config.getLanguage()
         current_time = config.getCurrentTime()
         device_type = config.getDeviceType()
+        print("Channels >> ", channels)                  
         print("Language >> ", langauge)                  
         print("CurTime >> ", current_time)                  
         print("Device Type >> ", device_type)    
@@ -219,9 +232,9 @@ class DefaultConfigTemplateView(TemplateView):
                 #ch = self.request.GET.get('channel')
                 #if tipo and ch:
                 print("Comenzar actualizacion") 
-                channels = config.ChannelCount()
-                if channels:
-                    for channel in range(0,channels):
+                channels_count = len(channels)
+                if channels_count: 
+                    for channel in range(0,channels_count):
                         if self.request.GET.get(str(channel),''):
                             print("Configurando canal: ",channel)
                             config.default_media_config["Compression"] = self.request.GET.get('Compression','')
@@ -234,8 +247,12 @@ class DefaultConfigTemplateView(TemplateView):
                             print(self.request.GET.get('VideoEnable',''), ">>>>>VideoEnable") 
                             print(self.request.GET.get('BitRate',''), ">>>>>BITR") 
                             config.default_general_config["Language"] = self.request.GET.get('Language','')
-                            config.setDefaultMediaEncode(channel,0, "MainFormat")
-                            config.setDefaultMediaEncode(channel,0, "ExtraFormat")
+                            if self.request.GET.get('mainstream',''):
+                                print("Se incluye mainstream")
+                                config.setDefaultMediaEncode(channel,0, "MainFormat")
+                            if self.request.GET.get('substream',''):
+                                print("Se incluye substream")
+                                config.setDefaultMediaEncode(channel,0, "ExtraFormat")
                             if self.request.GET.get('checkbox-time',''):
                                 print("Enviar hora actual")
                                 config.setCurrentTime()
@@ -248,7 +265,7 @@ class DefaultConfigTemplateView(TemplateView):
                             
                     #----------Volver a obtener Configuracion de video -------------
                     if self.request.GET.get('Compression',''):
-                        channels = config.ChannelCount()
+                        #channels = config.ChannelCount()
                         array_config = config.GetMediaEncodeConfig()
                         """if channels:
                             for channel in range(0,channels):
@@ -264,12 +281,14 @@ class DefaultConfigTemplateView(TemplateView):
         configs_mainstream = []
         configs_substream = []
 
+        context['id']=id
         context['ip']=host
         context['device_type']=device_type
         context['device_type_name']=device_type_name
         context['language']=langauge
         context['current_time']=current_time
-        context['channel_count']=len(array_config)
+        context['channels']=channels
+        context['channels_reverse']=channels[::-1]
         context['array_config']=array_config
         context['form']=form
         return context

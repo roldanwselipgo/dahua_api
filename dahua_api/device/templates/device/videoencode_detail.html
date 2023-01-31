@@ -1,6 +1,6 @@
 {% extends 'core/base.html' %} {% block title %}Conf devices{% endblock %}{% block content %}
 {% load static %}
-
+{% load util %}
 <main role="main">
     <div class="container-fluid mb-4">
         <br>
@@ -18,7 +18,7 @@
                     <tbody>
                         <tr>
                             <td><label class="">Ip</label> </td>
-                            <td> <label class="">{{ ip }}</label> </td>
+                            <td> <label class=""><a target="blank" class="link" href="{% url 'device:device' id %}"> {{ip}}</a></label> </td>
                         </tr>
                         <tr>
                             <td><label class="">Language</label> </td>
@@ -75,8 +75,18 @@
     Large
   </div> -->
 
+<select id="size_select">
+    {% for channel in channels %}
+    <option value="ch{{channel}}">Channel {{channel}}</option> 
+    {% for element in channels %}
+         
+        {% endfor %}
+    {% endfor %}
+    
+  </select>
 
-  <select id="size_select">
+
+  <!-- <select id="size_select">
     {% for channels in array_config %}
     <option value="ch{{forloop.counter0}}">Channel{{forloop.counter0}}</option> 
     {% for element in channels %}
@@ -85,12 +95,19 @@
     {% endfor %}
     
   </select>
-  
+   -->
   <!--Size dropdown content-->
-  {% for channels in array_config %}
-  <div id="ch{{forloop.counter0}}" class="size_chart">
-    ..  
-    {% for element in channels %}
+
+  <!-- {% for channels_config in array_config %}
+  {{ channels|index:forloop.counter0 }}   
+
+  {% endfor %} -->
+
+
+
+  {% for channels_config in array_config %}
+  <div id="ch{{channels|index:forloop.counter0}}" class="size_chart">
+    {% for element in channels_config %}
     <table class="table">
         <thead class="thead-light">
         <tr>
@@ -118,96 +135,10 @@
 
   </div>
   {% endfor %}
+  
 
-
-<!--                 
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    {% for tupla in array_config %}
-                      
-                    <li class="nav-item"><a class="nav-link " id="home-tab" data-toggle="tab" href="#ch{{forloop.counter0}}" role="tab" aria-controls="home" aria-selected="true">Channel {{ forloop.counter0}}</a></li>
-
-
-                    {% for element in tupla %}
-
-                        {% endfor %}
-                    {% endfor %}
-
-                  </ul>
-
-                  <div class="tab-content" id="myTabContent">
-                    
-                        {% for tupla in array_config %}
-                        <div class="tab-pane fade" id="ch{{forloop.counter0}}" role="tabpanel" aria-labelledby="home-tab">
-                                <h1>asu</h1>
-                            {% for element in tupla %}
-                            <table class="table">
-                                <thead class="thead-light">
-                                <tr>
-                                    {% if forloop.counter0 == 0 %}
-                                    <th scope="col">Mainstream</th>
-                                    <th scope="col"></th>
-
-                                    {% else %}
-                                    <th scope="col">Substream</th>
-                                    <th scope="col"></th>
-                                    {% endif %}
-
-                                </tr>
-                                </thead>
-                                <tbody>
-                                    {% for key,value in element.items %}
-                                    <tr>
-                                        <td><label class="">{{ key }}</label> </td>
-                                        <td> <label class="">{{ value }}</label> </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                            {% endfor %}
-                         </div>
-
-                        {% endfor %}
-
-                  </div> -->
-
-                 
+  {{array_config  }}
                 
-                {{array_config  }}
-                
-
-                
-
-                
-               
-                
-                    <!-- <tr>
-                        <td>Type : <label class="compresion">General</label> </td>
-                        <td>Video Enable : <label class="compresion">on</label> </td>
-                    </tr>
-                    <tr>
-                        <td>Compresion : <label class="">-</label> </td>
-                        <td>Compresion : <label class="">-</label> </td>
-                    </tr>
-                    <tr>
-                        <td>Resolution : <label class="">-</label> </td>
-                        <td>Resolution : <label class="">-</label> </td>
-                    </tr>
-                    <tr>
-                        <td>Frame Rate (FPS) : <label class="">-</label> </td>
-                        <td>Frame Rate (FPS) : <label class="">-</label> </td>
-                    </tr>
-                    <tr>
-                        <td>Bit Rate Type : <label class="">-</label> </td>
-                        <td>Bit Rate Type : <label class="">-</label> </td>
-                    </tr>
-                    <tr>
-                        <td>Image Quality : <label class="">-</label> </td>
-                        <td>Image Quality : <label class="">-</label> </td>
-                    </tr>
-                    <tr>
-                        <td>Bit Rate : <label class="">-</label> </td>
-                        <td>Bit Rate : <label class="">-</label> </td>
-                    </tr> -->
                     
                     </tbody>
                 </table>
@@ -221,9 +152,9 @@
                 {%load crispy_forms_tags %} 
                 <form action="" method="GET" enctype="multipart/form-data">{% csrf_token %}
 
-                    <div class="form-group col-12 ">
+                    <div class="form-group col-12 mb-3">
                         <label class="control-label ">Type</label>
-                        <select name="type" class="form-control channel ">
+                        <select name="type" class=" channel ">
                             <option value="0">Regular encode </option>
                             <option value="1">Motion detection encode</option>
                             <option value="2">Alarm encode</option>
@@ -239,13 +170,24 @@
                             <div class="col-3">
                                 <!-- <label class="checkbox-inline"> -->
                                 <label class="checkbox-inline">
-                                    <input class="checkbox-f" name="{{forloop.counter0}}" type="checkbox" value=1 checked> <h5>{{forloop.counter0}}</h5>
+                                    <input class="checkbox-f" name="{{channels|index:forloop.counter0}}" type="checkbox" value=1 checked> ch{{channels|index:forloop.counter0}}
                                 </label>
                             </div>
                             {% endfor %}
+                            
                             <div class="col-3">
                                 <label class="checkbox-inline">
-                                    <input  id="checkbox-all" name="channel" type="checkbox" value="all" checked>  <h5 class="ml-4">All channels</h5>
+                                    <input   name="mainstream" type="checkbox" value=1 checked> Main Stream
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <label class="checkbox-inline">
+                                    <input   name="substream" type="checkbox" value=1 checked>  Substream
+                                </label>
+                            </div>
+                            <div class="col-3">
+                                <label class="checkbox-inline">
+                                    <input  id="checkbox-all" name="channel" type="checkbox" value="all" checked>  All
                                 </label>
                             </div>
                         </div>
