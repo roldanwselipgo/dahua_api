@@ -5,7 +5,6 @@
     <div class="container mb-4">
         <h2 class="m-10">Device details</h2>
         <div class="row">
-            <div class="col-6">
 
                 
                 <p>Ip: {{device.ip|striptags|safe|truncatechars:"200"}}</p>
@@ -38,10 +37,8 @@
                 {% load static %}
                 <img src="{% static 'device/snapshot.jpg' %}" style="width:100%;" alt="Img">
 
-                
-            </div>
-            <div class="col-6">
-                <p>Video Encode Settings: </p>
+
+                <p class="mt-5">Video Encode Settings: </p>
                 <ul>
                     {% for key,value in video_encode_settings.items %}
                     <li>
@@ -49,7 +46,6 @@
                     </li>
                     {% endfor %}
                 </ul>
-            </div>
         </div>
         
 
