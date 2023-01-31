@@ -16,7 +16,7 @@ from   datetime import datetime
 from   requests.auth import HTTPDigestAuth, HTTPBasicAuth
 from   icmplib       import ping
 from   decimal       import Decimal
-from   monitor.dahuaClasses.dahua_parse   import DahuaParse
+from   .dahua_parse   import DahuaParse
 
 
 
@@ -951,17 +951,20 @@ class Dahua:
    def GetSnapshot(self, channel = 1):
       print("GetSnapshot ", channel)
 
-      req = 'http://%s:%d%s' % (self.url, self.port, DAHUA_GETSNAPSHOT)
+      req = 'http://%s:%d%s' % (self.sitio, self.port, DAHUA_GETSNAPSHOT)
       req = req + '&channel=%d' % (channel)
       print(req)
 
       response = requests.get(req, auth=HTTPDigestAuth(self.user, self.password), timeout=DAHUA_TIMEOUT, stream=True)
+      """
       print(response)
       if response.status_code == 200:
          #print(response.raw)
          with open('S%s_%d.jpg' % (self.sitio, channel), 'wb') as f:
             response.raw.decode_content = True
             shutil.copyfileobj(response.raw, f)
+      """
+      return response
 
 
    def AddUser(self, userName, userPassword, userGroup, userSharable='true', userMemo='', userReserved='false'):

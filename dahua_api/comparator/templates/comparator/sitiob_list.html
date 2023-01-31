@@ -1,0 +1,82 @@
+{% extends 'core/base.html' %} {% block title %}Monitor camaras{% endblock %}{% block content %}
+{% load static %}
+
+<main role="main">
+  <h1>Config B vs Conf Actual</h1>
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div align="right" class="btn_crear mb-3">
+                Reload <a href="{% url 'sitio:update-config-sites'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-right"></i></a>
+
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-controll">
+                        <label for="search"><i class="icon-search"></i></label>
+                        <!-- <input class="table-filter" type="search" data-table="advanced-web-table" placeholder="Search..."> -->
+                      </div>
+                      <!--  Table  -->
+                      <div class="table-responsive">
+                        <table id="sitios-remotos-table" class="advanced-web-table">
+                          <thead>
+                            <tr>
+                              <th>HostB</th>
+                              <th>StatusB</th>
+                              <th>Last UpdateB</th>
+                              <th>OpcionesB</th>
+                              
+                              <th>Host</th>
+                              <th>Status</th>
+                              <th>Last Update</th>
+                              <th>Opciones</th>
+                              <th>Diffs</th>
+
+
+                              
+                              
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for sitio in configs %} 
+                            <tr>
+                              <td>{{sitio.ip}}</td>
+                                <td>{{sitio.status}}</td>
+                                <td>{{sitio.last_update}}</td>
+
+                                <td>
+                                  <button class="btn btn-sm btn-primary show-hide-config">Hide</button>
+                                  <div class="config">
+                                    <p >-{{sitio.conf|safe}}</p>
+                                  </div>
+                                </td>
+
+
+                                <td>{{sitio.ip}}</td>
+                                <td>{{sitio.status}}</td>
+                                <td>{{sitio.last_update}}</td>
+
+                                <td>
+                                  <button class="btn btn-sm btn-primary show-hide-config">Hide</button>
+                                  <div class="config" hidden>
+                                    <p >-{{sitio.conf|safe}}</p>
+                                  </div>
+                                </td>
+                                <td>0</td>
+                            </tr>
+                            {% endfor %}
+
+                            
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</main>
+{% endblock %}

@@ -4,9 +4,9 @@ from .models import Config, Stream, Channel
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.urls import reverse, reverse_lazy
-from monitor.dahuaClasses.dahua_class import Dahua
-from monitor.db import BDBDatabase
-from monitor.dahuaClasses.dahua_config import Config as Conf
+from core.dahuaClasses.dahua_class import Dahua
+from core.db import BDBDatabase
+from core.dahuaClasses.dahua_config import Config as Conf
 from sitios import tasks
 import time
 from django.http import HttpResponse
@@ -20,11 +20,11 @@ class SitioListView(ListView):
         sitios=Sitio.objects.all()
         return sitios
 
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sitios = []
-        bd = BDBDatabase()
-        vc = Config.objects.filter(id=1).first()
+        
         """
         proyecto = 'MF'
         id_sitio = 1
@@ -40,8 +40,10 @@ class SitioListView(ListView):
             )"""
 
         
-        if bd:
+        if 0:
             #print("Conection success mysql")
+            bd = BDBDatabase()
+            vc = Config.objects.filter(id=1).first()
             sitios = bd.GetSitios()
             for sitio in sitios:
                 if 0:
@@ -79,7 +81,6 @@ class SitioListView(ListView):
                         )
                     print(item)
                     
-
             context['sitios'] = Sitio.objects.all()
         return context
 

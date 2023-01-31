@@ -19,6 +19,8 @@ from django.contrib.auth import urls
 from core.urls import core_patterns
 #from monitor.urls import camera_patterns
 from sitios.urls import sitio_patterns
+from comparator.urls import comparator_patterns
+from device.urls import device_patterns
 
 
 urlpatterns = [
@@ -27,6 +29,9 @@ urlpatterns = [
     path('', include(core_patterns)),
 #    path('', include(camera_patterns)),
     path('', include(sitio_patterns)),
+    path('', include(comparator_patterns)),
+    path('', include(device_patterns)),
+    
 ]
 
 

@@ -37,18 +37,65 @@
 })(document);
 
 
+// $(document).ready(function(){
+//     $('#myTable').dataTable();
+//   });
+
+ $(document).ready(function(){
+   $('#sitios-remotos-table').dataTable();
+ });
+ $(document).ready(function(){
+   $('#sitios-local-table').dataTable();
+ });
+
+ $(document).ready(function(){
+	$('.show-hide-config').on("click", function(){
+		if ($(".config").is(":visible")){
+			$(".config").hide();
+			$(".show-hide-config").text("Show")
+		
+		}else{
+			$(".config").show();
+			$(".show-hide-config").text("Hide")
+		}
+	});
+  });
+
+ 
+
+  $(document).on("click", "#checkbox-time", function() {
+	if ($('#checkbox-time').is(':checked')) {
+		$( ".input-current" ).prop( "disabled", true );
+	}
+	else{
+		$( ".input-current" ).prop( "disabled", false );
+	}
+});
+
+
+
+$(document).on("click", "#checkbox-all", function() {
+
+    $('.checkbox-f').prop('checked', this.checked);
+});
+
+
+
+
 $(document).ready(function(){
-    $('#myTable').dataTable();
-  });
 
-  $(document).ready(function(){
-    $('#sitios-remotos-table').dataTable();
+	//hides dropdown content
+	$(".size_chart").hide();
+	
+	//unhides first option content
+	$("#ch0").show();
+	
+	//listen to dropdown for change
+	$("#size_select").change(function(){
+	  //rehide content on change
+	  $('.size_chart').hide();
+	  //unhides current item
+	  $('#'+$(this).val()).show();
+	});
+	
   });
- 
-  $(document).ready(function(){
-    $('#sitios-local-table').dataTable();
-  });
- 
-
-
-  

@@ -1,0 +1,62 @@
+{% extends 'core/base.html' %} {% block title %}Monitor camaras{% endblock %}{% block content %}
+{% load static %}
+
+<main role="main">
+  <h1>Sucursales</h1>
+
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <h3 align="left">Local {{ username|capfirst }}</h3>
+            <div align="right" class="btn_crear mb-3">
+              Add <a href="{% url 'device:create'%}" type="button" class="btn btn-success"><i class="fa-solid fa-plus"></i></a>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-controll">
+                        <label for="search"><i class="icon-search"></i></label>
+                        <input class="table-filter" type="search" data-table="advanced-web-table" placeholder="Search...">
+                      </div>
+                      <!--  Table  -->
+                      <div class="table-responsive">
+                        <table id="sitios-local-table" class="advanced-web-table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>host</th>
+                              <th>Status</th>
+                              <th>Opciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for device in device_list %} 
+                            <tr>
+                              <td>{{device.id}}</td>
+                              <td>{{device.ip}}:{{device.puerto}}</td>
+                              <td>Online</td>
+                              <td><a class="btn  btn-xs btn-primary btn-sm" href="{% url 'device:device' device.id %}" title="Ver" type="button" class="card-link">Info </a>
+                                <a class="btn  btn-xs btn-secondary btn-sm" href="{% url 'device:video-encode' device.id %}" title="Ver" type="button" class="card-link">Configuracion </a>
+                              </td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+</main>
+{% endblock %}

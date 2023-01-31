@@ -2,11 +2,12 @@
 
 from celery import shared_task
 import time
-from monitor.dahuaClasses.dahua_class import Dahua
-from monitor.db import BDBDatabase
-from monitor.dahuaClasses.dahua_config import Config as Conf
+from core.dahuaClasses.dahua_class import Dahua
+from core.db import BDBDatabase
+from core.dahuaClasses.dahua_config import Config as Conf
 
-bd = BDBDatabase()
+if 0:
+    bd = BDBDatabase()
 
 @shared_task(name="GetMediaEncode", time_limit=4)
 def GetMediaEncode(host, port, user, password):

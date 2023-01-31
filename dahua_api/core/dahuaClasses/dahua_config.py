@@ -1,5 +1,5 @@
 #from dahua_class import Dahua
-from monitor.dahuaClasses.dahua_class import Dahua
+from .dahua_class import Dahua
 
 from datetime import datetime
 
@@ -171,6 +171,7 @@ class Config():
         print(">> Current Config:",self.GetMediaEncodeConfig(0,0))
 
 
+"""
 def main():
     #print("Dahua config---")
     
@@ -199,4 +200,6 @@ def main():
     
 
 if __name__ == '__main__':
-    main()
+    #main()
+    pass
+"""
