@@ -23,6 +23,7 @@
                             <button class="btn btn-sm btn-primary show-hide-config">Show config</button>
 
                             <tr>
+                              <th>Id</th>
                               <th>HostB</th>
                               <th>StatusB</th>
                               <th>Last UpdateB</th>
@@ -44,30 +45,33 @@
                             </tr>
                           </thead>
                           <tbody>
-                            {% for sitio in configsB %} 
+                            {% for sitio in configs %} 
                             <tr>
-                              <td>{{sitio.ip}}</td>
-                                <td>{{sitio.status}}</td>
-                                <td>{{sitio.last_update}}</td>
+                              <td>{{sitio.idB}}</td>
+                              <td>{{sitio.ipB}}</td>
+                                <td>{{sitio.statusB}}</td>
+                                <td>{{sitio.last_updateB}}</td>
 
                                 <td>
                                   <div class="config" >
-                                    <p >-{{sitio.conf|safe}}</p>
+                                    <p >-{{sitio.confB|safe}}</p>
                                   </div>
                                 </td>
 
 
-                                <td>{{sitio.ip}}</td>
-                                <td>{{sitio.status}}</td>
-                                <td>{{sitio.last_update}}</td>
+                                <td>{{sitio.ipA}}</td>
+                                <td>{{sitio.statusA}}</td>
+                                <td>{{sitio.last_updateA}}</td>
 
                                 <td>
                                   <div class="config" >
-                                    <p >-{{sitio.conf|safe}}</p>
+                                    <p >-{{sitio.confA|safe}}</p>
                                   </div>
                                 </td>
-                                {% if 1%}
-                                <td class="text-white text-center bg-success">0</td>
+                                {% if sitio.diff %}
+                                <td class="text-white text-center bg-danger">{{sitio.diff}}</td>
+                                {% else %}
+                                <td class="text-white text-center bg-success">{{sitio.diff}}</td>
                                 {% endif %}
                             </tr>
                             {% endfor %}
