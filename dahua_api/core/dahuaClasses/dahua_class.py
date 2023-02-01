@@ -33,6 +33,7 @@ DAHUA_GETHARDVER    = '/cgi-bin/magicBox.cgi?action=getHardwareVersion'
 DAHUA_GETDEVTYPE    =  '/cgi-bin/magicBox.cgi?action=getDeviceType'
 DAHUA_GETCURTIME    = '/cgi-bin/global.cgi?action=getCurrentTime'
 DAHUA_SETCURTIME    = '/cgi-bin/global.cgi?action=setCurrentTime'
+DAHUA_GETCONFCAPS   = '/cgi-bin/encode.cgi?action=getConfigCaps'
 DAHUA_SETCONFIG     = '/cgi-bin/configManager.cgi?action=setConfig'
 DAHUA_GETLOCALES    = '/cgi-bin/configManager.cgi?action=getConfig&name=Locales'
 DAHUA_SETLOCALES    = '/cgi-bin/configManager.cgi?action=setConfig'
@@ -1148,6 +1149,15 @@ class Dahua:
       Langauge = rdict['table.Language']  if 'table.Language' in rdict else ""
       print(response,response.text, Langauge)
       return Langauge
+   
+   def GetConfigCaps(self):
+      print("GetLanguage() del sitio '%s'" % (self.sitio))
+      req ='http://%s:%d%s' % (self.sitio, self.port, DAHUA_GETCONFCAPS)
+      print(req)
+      url = req.split('?') 
+      response = requests.get(url=url[0],params =url[1],auth=HTTPDigestAuth(self.user, self.password), timeout=DAHUA_TIMEOUT)
+      rdict = self.ResponseToDict(response)
+      return rdict
 
    
    

@@ -187,7 +187,7 @@ class DefaultConfigTemplateView(TemplateView):
         #---------- Obtener Configuracion de video -------------
         #channels = config.ChannelCount()
         channels = config.ChannelDetect()
-        array_config = config.GetMediaEncodeConfig()
+        array_config = config.GetMediaEncodeConfigCapability()
         """if channels:
             for channel in range(0,channels):
                 print("chian",channel)
@@ -266,7 +266,7 @@ class DefaultConfigTemplateView(TemplateView):
                     #----------Volver a obtener Configuracion de video -------------
                     if self.request.GET.get('Compression',''):
                         #channels = config.ChannelCount()
-                        array_config = config.GetMediaEncodeConfig()
+                        array_config = config.GetMediaEncodeConfigCapability()
                         """if channels:
                             for channel in range(0,channels):
                                 print("chian",channel)

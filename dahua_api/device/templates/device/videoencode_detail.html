@@ -75,9 +75,9 @@
     Large
   </div> -->
 
-<select id="size_select">
+<select class="bg-light text-primary mb-1" id="size_select">
     {% for channel in channels %}
-    <option value="ch{{channel}}">Channel {{channel}}</option> 
+    <option class="text-light" value="ch{{channel}}">Channel {{channel}}</option> 
     {% for element in channels %}
          
         {% endfor %}
@@ -104,20 +104,20 @@
   {% endfor %} -->
 
 
-
   {% for channels_config in array_config %}
   <div id="ch{{channels|index:forloop.counter0}}" class="size_chart">
     {% for element in channels_config %}
+
     <table class="table">
         <thead class="thead-light">
         <tr>
             {% if forloop.counter0 == 0 %}
-            <th scope="col">Mainstream</th>
-            <th scope="col"></th>
+            <th class="bg-light" scope="col">Mainstream</th>
+            <th class="bg-light" scope="col"></th>
 
             {% else %}
-            <th scope="col">Substream</th>
-            <th scope="col"></th>
+            <th class="bg-light" scope="col">Substream</th>
+            <th  class="bg-light" scope="col"></th>
             {% endif %}
 
         </tr>
@@ -126,18 +126,27 @@
             {% for key,value in element.items %}
             <tr>
                 <td><label class="">{{ key }}</label> </td>
-                <td> <label class="">{{ value }}</label> </td>
+                <td> 
+                <select id="size_select22">
+                    {% for capabilty_value in value %}
+                        <option value="option{{forloop.counter0}}">{{ capabilty_value }}</option>
+                    {% endfor %}
+
+                </select>
+                    <!-- <label class="">{{ value }}</label>  -->
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
     {% endfor %}
 
   </div>
   {% endfor %}
-  
 
-  {{array_config  }}
+
+
                 
                     
                     </tbody>
