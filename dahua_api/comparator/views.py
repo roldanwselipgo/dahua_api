@@ -32,7 +32,7 @@ class SitioBListView(ListView):
             #for i in range
             sitios=SitioB.objects.all().order_by('sitio')[:1000]
             for sitio in sitios:
-                configs = {}
+                configsB = {}
                 conf = "<br>"
                 #print(sitio.ip, sitio.status)
                 channels=ChannelB.objects.filter(sitio=sitio)
@@ -60,13 +60,53 @@ class SitioBListView(ListView):
                         conf = conf + f"Language: {cf.Language} <br>"
                         conf = conf + f"CurrentTime: {cf.CurrentTime} <br>"
             #print(conf)
-                configs["ip"] = sitio.ip
-                configs["status"] = sitio.status
-                configs["last_update"] = sitio.last_update
+                configsB["ip"] = sitio.ip
+                configsB["status"] = sitio.status
+                configsB["last_update"] = sitio.last_update
                 #print(conf)
-                configs["conf"] = conf
-                data.append(configs)
-        context["configs"] = data
+                configsB["conf"] = conf
+                data.append(configsB)
+
+            #Configuracion actuales basadas en las configsB (Base de datos de configuraciones)
+            """sitiosB=SitioB.objects.all().order_by('sitio')[:1000]
+            sitios=Sitio.objects.all().order_by('sitio')[:1000]
+            for sitio in sitios:
+                configsB = {}
+                conf = "<br>"
+                #print(sitio.ip, sitio.status)
+                channels=ChannelB.objects.filter(sitio=sitio)
+                #print(channels)
+                for channel in channels:
+                    #print(channel, channel.number)
+                    conf = conf + f"<h5>Channel {channel.number}: <h5>"
+                    #print (channel.streams[0], type(channel.streams))
+                    #stream = StreamB.objects.filter(channel.streams)
+                    streams = channel.streams.all().order_by('name')
+                    
+                    for stream in streams:
+                        st=StreamB.objects.filter(id=stream.id).first()
+                        cf=ConfigB.objects.filter(id=st.id_config.id).first()
+                        #print("stream>",st,cf.Compression)
+                        conf = conf + f"<h6>{st.name}:</h6> "
+                        conf = conf + f"Compression: {cf.Compression} <br>"
+                        conf = conf + f"Resolution: {cf.resolution} <br>"
+                        conf = conf + f"SmartCodec: {cf.SmartCodec} <br>"
+                        conf = conf + f"FPS: {cf.FPS} <br>"
+                        conf = conf + f"BitRateControl: {cf.BitRateControl} <br>"
+                        conf = conf + f"Quality: {cf.Quality} <br>"
+                        conf = conf + f"BitRate: {cf.BitRate} <br>"
+                        conf = conf + f"VideoEnable: {cf.VideoEnable} <br>"
+                        conf = conf + f"Language: {cf.Language} <br>"
+                        conf = conf + f"CurrentTime: {cf.CurrentTime} <br>"
+            #print(conf)
+                configsB["ip"] = sitio.ip
+                configsB["status"] = sitio.status
+                configsB["last_update"] = sitio.last_update
+                #print(conf)
+                configsB["conf"] = conf
+                data.append(configsB)
+            """
+        context["configsB"] = data
         print("Finished")
         return context
 

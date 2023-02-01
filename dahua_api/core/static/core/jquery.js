@@ -49,14 +49,28 @@
  });
 
  $(document).ready(function(){
+	$(".config").hide();
+
 	$('.show-hide-config').on("click", function(){
 		if ($(".config").is(":visible")){
 			$(".config").hide();
 			$(".show-hide-config").text("Show")
-		
 		}else{
 			$(".config").show();
 			$(".show-hide-config").text("Hide")
+		}
+	});
+  });
+
+
+  $(document).ready(function(){
+	$('.show-hide-configB').on("click", function(){
+		if ($(".configB").is(":visible")){
+			$(".configB").hide();
+			$(".show-hide-configB").text("Show")
+		}else{
+			$(".configB").show();
+			$(".show-hide-configB").text("Hide")
 		}
 	});
   });

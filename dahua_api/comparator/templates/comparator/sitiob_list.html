@@ -2,11 +2,11 @@
 {% load static %}
 
 <main role="main">
-  <h1>Config B vs Conf Actual</h1>
+  <h1>Config B vs Config </h1>
     <div id="page-content-wrapper">
         <div class="container-fluid">
             <div align="right" class="btn_crear mb-3">
-                Reload <a href="{% url 'sitio:update-config-sites'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-right"></i></a>
+                Actualizar configuraciones <a href="{% url 'sitio:update-config-sites'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-right"></i></a>
 
             </div>
             
@@ -20,16 +20,22 @@
                       <div class="table-responsive">
                         <table id="sitios-remotos-table" class="advanced-web-table">
                           <thead>
+                            <button class="btn btn-sm btn-primary show-hide-config">Show config</button>
+
                             <tr>
                               <th>HostB</th>
                               <th>StatusB</th>
                               <th>Last UpdateB</th>
-                              <th>OpcionesB</th>
+                              <th>ConfigurationsB
+                              </th>
                               
                               <th>Host</th>
                               <th>Status</th>
                               <th>Last Update</th>
-                              <th>Opciones</th>
+                              <th>
+                                Configurations 
+
+                              </th>
                               <th>Diffs</th>
 
 
@@ -38,15 +44,14 @@
                             </tr>
                           </thead>
                           <tbody>
-                            {% for sitio in configs %} 
+                            {% for sitio in configsB %} 
                             <tr>
                               <td>{{sitio.ip}}</td>
                                 <td>{{sitio.status}}</td>
                                 <td>{{sitio.last_update}}</td>
 
                                 <td>
-                                  <button class="btn btn-sm btn-primary show-hide-config">Hide</button>
-                                  <div class="config">
+                                  <div class="config" >
                                     <p >-{{sitio.conf|safe}}</p>
                                   </div>
                                 </td>
@@ -57,12 +62,13 @@
                                 <td>{{sitio.last_update}}</td>
 
                                 <td>
-                                  <button class="btn btn-sm btn-primary show-hide-config">Hide</button>
-                                  <div class="config" hidden>
+                                  <div class="config" >
                                     <p >-{{sitio.conf|safe}}</p>
                                   </div>
                                 </td>
-                                <td>0</td>
+                                {% if 1%}
+                                <td class="text-white text-center bg-success">0</td>
+                                {% endif %}
                             </tr>
                             {% endfor %}
 
