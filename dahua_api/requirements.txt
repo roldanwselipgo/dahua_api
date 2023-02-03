@@ -24,3 +24,7 @@ Redis
 flower
 mysqlclient
 
+
+#Vrec
+zeep
+pandas

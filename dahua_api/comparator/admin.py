@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import SitioB, ConfigB, StreamB, ChannelB
+from django.contrib.admin.models import LogEntry
 
 
 class SitioBAdmin(admin.ModelAdmin):
@@ -19,3 +20,5 @@ admin.site.register(SitioB,SitioBAdmin)
 admin.site.register(ConfigB,ConfigBAdmin)
 admin.site.register(StreamB,StreamBAdmin)
 admin.site.register(ChannelB,ChannelBAdmin)
+
+#admin.site.register(LogEntry)

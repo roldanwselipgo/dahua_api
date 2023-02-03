@@ -21,6 +21,8 @@ from core.urls import core_patterns
 from sitios.urls import sitio_patterns
 from comparator.urls import comparator_patterns
 from device.urls import device_patterns
+from logs.urls import logs_patterns
+from procedures.urls import procedures_patterns
 
 
 urlpatterns = [
@@ -31,6 +33,9 @@ urlpatterns = [
     path('', include(sitio_patterns)),
     path('', include(comparator_patterns)),
     path('', include(device_patterns)),
+    path('', include(logs_patterns)),
+    path('', include(procedures_patterns)),
+    
     
 ]
 

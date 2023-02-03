@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     #'monitor',
     'crispy_forms',
     'django_celery_results',
+    'logs',
+    'procedures',
 ]
 
 MIDDLEWARE = [
