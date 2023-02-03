@@ -60,8 +60,8 @@ class SitioBListView(ListView):
                 sitioA=Sitio.objects.filter(sitio=sitioB.sitio).first()
 
                 configs = {}
-                confB = "<br>"
-                confA = "<br>"
+                confB = "0"
+                confA = "0"
                 #print(sitio.ip, sitio.status)
                 channelsB=ChannelB.objects.filter(sitio=sitioB)
                 channelsA=Channel.objects.filter(sitio=sitioA)
@@ -126,10 +126,14 @@ class SitioBListView(ListView):
                 configs["last_updateA"] = sitioA.last_update
                 configs["confA"] = confA
 
+
                 if confB == confA:
                     configs["diff"] = 0
                 else: 
                     configs["diff"] = 1
+                
+                if confA == "0" and confB == "0":
+                    configs["diff"] = "n/a"
 
 
                 #dataB.append(configsB)

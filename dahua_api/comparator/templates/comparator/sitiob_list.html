@@ -65,14 +65,17 @@
 
                                 <td>
                                   <div class="config" >
-                                    <p >-{{sitio.confA|safe}}</p>
+                                    <p >- {{sitio.confA|safe}}</p>
                                   </div>
                                 </td>
-                                {% if sitio.diff %}
+                                {% if sitio.diff == 1 %}
                                 <td class="text-white text-center bg-danger">{{sitio.diff}}</td>
-                                {% else %}
+                                {% elif sitio.diff == 0 %}
                                 <td class="text-white text-center bg-success">{{sitio.diff}}</td>
+                                {% else %}
+                                <td class="text-white text-center bg-warning">{{sitio.diff}}</td>
                                 {% endif %}
+
                             </tr>
                             {% endfor %}
 

@@ -78,11 +78,22 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
+"""
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+"""
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'configuraciones',
+        'HOST': '10.200.3.80',
+        'PORT': '3306',
+        'USER': 'elipgo',
+        'PASSWORD': '3l1pg0$123',
     }
 }
 
@@ -150,4 +161,6 @@ CELERY_BROKER_URL = 'redis://localhost:6379/0'
 #CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
 CELERY_RESULT_BACKEND = 'django-db'
 
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 #CELERY_TASK_SERIALIZER = 'json'

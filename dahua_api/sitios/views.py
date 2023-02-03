@@ -10,6 +10,7 @@ from core.dahuaClasses.dahua_config import Config as Conf
 from sitios import tasks
 import time
 from django.http import HttpResponse
+import logging
 # Create your views here.
 
 
@@ -172,13 +173,154 @@ class SitioDetailView(DetailView):
         context['video_encode_settings']=video_encode_settings
         return context
 
-def update_config_sites(request):
-    print("QWESTAPASANDO")
+def truncate_model(model):
+    model.objects.all().delete()
+
+def registrar_configuracion_sitio(configs, sitio):
     config_sitios = ""
-    #sitios = Sitio.objects.filter(status="running").order_by('sitio')[:5]
-    sitios = Sitio.objects.filter(status="running").order_by('sitio')[:50]
-    print("len sitios: ",len(sitios)) 
     config_sitios = []
+    id_sitio = sitio.sitio
+    host = sitio.ip
+    print(sitio.ip)
+    if 1: 
+        #result = tasks.GetMediaEncodeA.delay(host, port, user, password, id_sitio)
+        #result = tasks.GetMediaEncodeA.delay(host, port, user, password, id_sitio)
+        #configs = result.get(timeout=5)
+        #configs = result.get()
+        if configs:
+            config_sitios.append(configs)
+            for channels in configs:
+                for stream in channels:
+                    dict2 = {}
+                    # Se pasa a entero ya que en ocasiones llega en float el valor de FPS
+                    fps_stream=int(float(stream['FPS'])) if stream['FPS'] else None
+                    quality_stream=int(float(stream['Quality'])) if stream['Quality'] else None
+                    bitrate_stream=int(float(stream['BitRate'])) if stream['BitRate'] else None
+                    dict2 = {
+                    'Compression' : stream['Compression'],
+                    'resolution' : stream['resolution'],
+                    'FPS' : fps_stream,
+                    'Quality' : quality_stream,
+                    'BitRateControl' : stream['BitRateControl'],
+                    'BitRate' : bitrate_stream
+                    }
+                    print("dict2>",dict2)
+                    #print("stream>",stream)
+                    if stream['Stream'] == "MainFormat":
+                        config = None
+                        # Buscamos si existe la configuracion, sino la creamos
+                        try:
+                            print("Antes de: ", dict2)
+                            config = Config.objects.get(**dict2)
+                            print("Se encontro Config>>>>")
+                        except Config.DoesNotExist:
+                            config = Config(**dict2)
+                            print("Se crea nueva config", stream['Channel'], stream['Stream'], config )
+                            config.save()
+                        
+                        # Buscamos si existe el stream, sino lo creamos
+                        try:
+                            streamsss = Stream.objects.filter(name="MainFormat", id_config=config)
+                            print("Streamssss y cantidad y config", len(streamsss), streamsss, config)
+                            stream_obj_main = Stream.objects.get(name="MainFormat", id_config=config)
+                            print("Se encontro MainStream>>>>", stream_obj_main)
+                        except Stream.DoesNotExist:
+                            stream_obj_main = Stream(name="MainFormat", id_config=config)
+                            print("Se crea nuevo Stream", stream['Channel'], stream['Stream'], stream_obj_main )
+                            stream_obj_main.save()
+                        
+                        
+                    elif stream['Stream'] == "ExtraFormat":
+                        try:
+                            config = Config.objects.get(**dict2)
+                            print("Se encontro Config>>>>")
+                        except Config.DoesNotExist:
+                            config = Config(**dict2)
+                            print("Se crea nueva config", stream['Channel'], stream['Stream'], config )
+                            config.save()
+
+                        
+                        # Buscamos si existe el stream, sino lo creamos
+                        try:
+                            stream_obj_extra = Stream.objects.get(name="ExtraFormat", id_config=config)
+                            print("Se encontro ExtraStream>>>>",stream_obj_extra)
+                        except Stream.DoesNotExist:
+                            stream_obj_extra = Stream(name="ExtraFormat", id_config=config)
+                            print("Se crea nuevo Stream", stream['Channel'], stream['Stream'], stream_obj_extra )
+                            stream_obj_extra.save()
+                
+
+                s = Sitio.objects.filter(sitio=id_sitio).first()
+                print("Channel : > , id_sitio > , s > stream_obj >", channels[0]['Channel'], id_sitio, s, stream_obj_main, stream_obj_extra )
+
+                #Buscamos si existe el canal, sino lo creamos 
+                #try:
+                #    s = Sitio.objects.filter(sitio=id_sitio).first()
+                #    channel = Channel.objects.get(number=stream['Channel'], streams=stream_obj_main, sitio=s)
+                #    print("Se encontro Channel>>>>")
+                #except Channel.DoesNotExist:
+                if 1:
+                    channel = Channel(number=stream['Channel'], sitio = s)
+                    channel.save()
+                    #channel.sitios.add(s)
+                    channel.streams.add(stream_obj_main,stream_obj_extra)
+                    print("Se crea nuevo channel", stream['Channel'], channel )
+                    #channel.save()
+                    
+
+    #except Exception as e:
+        #logging.exception("La except es: ")
+    #    print("Err: ", e, type(e))
+
+def update_config_sites(request):
+    #Borramos la configuracion existente
+    Channel.objects.all().delete()
+    Config.objects.all().delete()
+    Stream.objects.all().delete()
+    #return 0
+
+    #sitios = Sitio.objects.filter(status="running").order_by('sitio')[:5]
+    sitios = Sitio.objects.filter(status="running").order_by('sitio')
+    print("len sitios: ",len(sitios)) 
+    task_queue = []
+
+    for sitio in sitios:
+        print(sitio.ip)
+        id_sitio = sitio.sitio
+        host = sitio.ip
+        port = 8011
+        user = "admin"
+        password = "Elipgo$123"
+        #if 1:  
+        task = tasks.GetMediaEncodeA.delay(host, port, user, password, id_sitio)
+        task_queue.append((task,sitio))
+
+    print("len task_queue:", len(task_queue))
+    while len(task_queue):
+        for i,task in enumerate(task_queue):
+            #print("Scanning in: ", i)
+            if task[0].ready():
+                print(f"Tarea {task} terminada")
+                try:
+                    result = task[0].get()
+                    #print("Resultado de tarea: ", result)
+                    task_queue.remove(task)
+                    print("\nlen task_queue:", len(task_queue))
+                except Exception as e: 
+                    print(f"Err en {task}: ", e)
+                    task_queue.remove(task)
+                    print("len task_queue:", len(task_queue))
+                    break
+                finally:
+                    registrar_configuracion_sitio(result, task[1])
+                    break
+
+
+                
+    
+    return HttpResponse("Success "+str(len(sitios)), content_type='text/plain')
+    
+
     for sitio in sitios:
         print(sitio.ip)
         id_sitio = sitio.sitio
@@ -187,93 +329,14 @@ def update_config_sites(request):
         user = "admin"
         password = "Elipgo$123"
         #if 1: 
-        try: 
-            result = tasks.GetMediaEncode.delay(host, port, user, password)
-            #configs = result.get(timeout=5)
-            """configs = result.get()
-            if configs:
-                config_sitios.append(configs)
-                for channels in configs:
-                    for stream in channels:
-                        dict2 = {}
-                        dict2 = {
-                        'Compression' : stream['Compression'],
-                        'resolution' : stream['resolution'],
-                        'FPS' : stream['FPS'],
-                        'Quality' : stream['Quality'],
-                        'BitRateControl' : stream['BitRateControl'],
-                        'BitRate' : stream['BitRate']
-                        }
-                        print("dict2>",dict2)
-                        print("stream>",stream)
-                        if stream['Stream'] == "MainFormat":
-                            config = None
-                            # Buscamos si existe la configuracion, sino la creamos
-                            try:
-                                config = Config.objects.get(**dict2)
-                                print("Se encontro Config>>>>")
-                            except Config.DoesNotExist:
-                                config = Config(**dict2)
-                                print("Se crea nueva config", stream['Channel'], stream['Stream'], config )
-                                config.save()
-                            
-                            # Buscamos si existe el stream, sino lo creamos
-                            try:
-                                stream_obj_main = Stream.objects.get(name="MainFormat", id_config=config)
-                                print("Se encontro Stream>>>>")
-                            except Stream.DoesNotExist:
-                                stream_obj_main = Stream(name="MainFormat", id_config=config)
-                                print("Se crea nuevo Stream", stream['Channel'], stream['Stream'], stream_obj_main )
-                                stream_obj_main.save()
-                            
-                            
-                        elif stream['Stream'] == "ExtraFormat":
-                            try:
-                                config = Config.objects.get(**dict2)
-                                print("Se encontro Config>>>>")
-                            except Config.DoesNotExist:
-                                config = Config(**dict2)
-                                print("Se crea nueva config", stream['Channel'], stream['Stream'], config )
-                                config.save()
+        
 
-                            
-                            # Buscamos si existe el stream, sino lo creamos
-                            try:
-                                stream_obj_extra = Stream.objects.get(name="ExtraFormat", id_config=config)
-                                print("Se encontro Stream>>>>")
-                            except Stream.DoesNotExist:
-                                stream_obj_extra = Stream(name="ExtraFormat", id_config=config)
-                                print("Se crea nuevo Stream", stream['Channel'], stream['Stream'], stream_obj_extra )
-                                stream_obj_extra.save()
-                    
-
-                    s = Sitio.objects.filter(sitio=id_sitio).first()
-                    print("Channel : > , id_sitio > , s > stream_obj >", channels[0]['Channel'], id_sitio, s, stream_obj_main, stream_obj_extra )
-
-                    #Buscamos si existe el canal, sino lo creamos 
-                    try:
-                        s = Sitio.objects.filter(sitio=id_sitio).first()
-                        channel = Channel.objects.get(number=stream['Channel'], streams=stream_obj_main, sitio=s)
-                        print("Se encontro Channel>>>>")
-                    except Channel.DoesNotExist:
-                        channel = Channel(number=stream['Channel'], sitio = s)
-                        channel.save()
-                        #channel.sitios.add(s)
-                        channel.streams.add(stream_obj_main,stream_obj_extra)
-                        print("Se crea nuevo channel", stream['Channel'], channel )
-                        #channel.save()
-            """            
-
-        except:
-            print("TimeoutError 5 secs")
-        else:
-            pass
             #print("Result task Get all >>> ", config_sitios)
 
-    for sitios in config_sitios:
-        for channel in sitios:
+    #for sitios in config_sitios:
+    #    for channel in sitios:
             #print(channel)
-            pass
+    #        pass
 
     return HttpResponse(config_sitios, content_type='text/plain')
     #try: 
