@@ -16,6 +16,7 @@ icmplib
 Django
 django-bootstrap4==22.3
 mysql-connector-python
+django-crispy-forms
 
 sqlalchemy>=1.2.18
 celery>=5.0.5

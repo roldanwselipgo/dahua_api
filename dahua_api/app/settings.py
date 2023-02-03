@@ -145,8 +145,8 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = 'camera:cameras'
-LOGOUT_REDIRECT_URL = 'camera:cameras'
+LOGIN_REDIRECT_URL = 'sitio:sitios'
+LOGOUT_REDIRECT_URL = 'sitio:sitios'
 
 
 # Celery Configuration Options
