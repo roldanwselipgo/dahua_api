@@ -119,8 +119,14 @@ def videoencodeform(request):
 #class DefaultConfigDetailView(DetailView):
     """ Vista encargada de mostrar la configuracion de video """
 #    model = DefaultConfig
+
+
+
+
 class DefaultConfigTemplateView(TemplateView):
     template_name = "device/videoencode_detail.html"
+       
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         cameras = []
@@ -159,15 +165,6 @@ class DefaultConfigTemplateView(TemplateView):
         default_media_config = {}
         default_general_config = {}
         
-        #print("compression: ",self.object.Compression)
-
-        """default_media_config["Compression"] = "H.264"
-        default_media_config["resolution"] = "720P"
-        default_media_config["SmartCodec"] = "Off"
-        default_media_config["FPS"] = 5
-        default_media_config["BitRateControl"] = "VBR"
-        default_media_config["Quality"] = 4
-        default_media_config["BitRate"] = 512"""
         default_config=DefaultConfig.objects.all().first()
         default_media_config["Compression"] = default_config.Compression
         default_media_config["resolution"] = default_config.resolution
@@ -185,13 +182,12 @@ class DefaultConfigTemplateView(TemplateView):
         
        
         #---------- Obtener Configuracion de video -------------
-        #channels = config.ChannelCount()
         channels = config.ChannelDetect()
+         
+        
+
         array_config = config.GetMediaEncodeConfigCapability()
-        """if channels:
-            for channel in range(0,channels):
-                print("chian",channel)
-                array_config.append(config.GetMediaEncodeConfig(channel,0))"""
+
         
         langauge = config.getLanguage()
         current_time = config.getCurrentTime()
@@ -221,6 +217,19 @@ class DefaultConfigTemplateView(TemplateView):
         form = DefaultConfigForm(default_data)
         if self.request.method == "GET":
             #form = ConfigForm(data=self.request.GET)
+            if self.request.GET.get('snapshots',''):
+                #GetSnapshot
+                paths = []
+                for channel in channels:
+                    snapshot = dvr.GetSnapshot(channel) 
+                    if snapshot.status_code == 200:
+                        with open(f"device/static/device/snapshots/ch{channel}.jpg", 'wb') as f:
+                            snapshot.raw.decode_contesnt = True
+                            shutil.copyfileobj(snapshot.raw, f)
+                            path = f"ch{channel}"
+                            paths.append(path)
+                context['snapshots'] = paths
+
             if form.is_valid():
                 print(">>>>Entrando a post:")
                 compresion = self.request.GET.get('Compression','')

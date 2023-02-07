@@ -67,7 +67,7 @@ class Config():
             self.current_media_config_mainstream["Stream"] = ["MainFormat"]
             self.current_media_config_mainstream["Compression"] = []
             self.current_media_config_mainstream["resolution"] = []
-            self.current_media_config_mainstream["FPS"] = []
+            self.current_media_config_mainstream["FPS"] = None
             self.current_media_config_mainstream["Quality"] = None
             self.current_media_config_mainstream["BitRateControl"] = None
             self.current_media_config_mainstream["BitRate"] = []
@@ -106,7 +106,7 @@ class Config():
                                     for option in options : self.current_media_config_mainstream["resolution"].append(option) 
 
                     if 'Encode[%d].MainFormat[%d].Video.FPS' % (channel, type) in el:
-                        self.current_media_config_mainstream["FPS"] = rdict['table.Encode[%d].MainFormat[%d].Video.FPS'          % (channel, type)] 
+                        self.current_media_config_mainstream["FPS"] = rdict['table.Encode[%d].MainFormat[%d].Video.FPS'          % (channel, type)] , 0
                     if 'Encode[%d].MainFormat[%d].Video.Quality' % (channel, type) in el:
                         self.current_media_config_mainstream["Quality"] = rdict['table.Encode[%d].MainFormat[%d].Video.Quality'      % (channel, type)] , 0
                     if 'Encode[%d].MainFormat[%d].Video.BitRateControl' % (channel, type) in el:

@@ -2,17 +2,22 @@
 {% load static %}
 {% load util %}
 <main role="main">
+
     <div class="container-fluid mb-4">
+        
         <br>
         <div class="row">
             <div class="col-6">
                 <h4 class="mb-5">Current configuration</h4> 
+                <div align="left" class="btn_crear mb-3">
+                    Reload <a href="{% url 'device:video-encode' id%}" type="sumbit" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a>
+                </div>
                 <hr>
                 <table class="table">
                     <thead class="thead-light">
                     <tr>
-                        <th scope="col">General Info</th>
-                        <th scope="col"></th>
+                        <th  class="bg-light" scope="col">General Info</th>
+                        <th  class="bg-light" scope="col"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -154,6 +159,7 @@
             </div>
             <div class="col-5 ml-5 ">
                 <h4 class="mb-5">Default configuration</h4>
+                <br>
                 <hr>
                 
                 
@@ -161,57 +167,119 @@
                 {%load crispy_forms_tags %} 
                 <form action="" method="GET" enctype="multipart/form-data">{% csrf_token %}
 
-                    <div class="form-group col-12 mb-3">
-                        <label class="control-label ">Type</label>
-                        <select name="type" class=" channel ">
-                            <option value="0">Regular encode </option>
-                            <option value="1">Motion detection encode</option>
-                            <option value="2">Alarm encode</option>
-                            <option value="3">Emergency encode</option>
+                    <table class="table">
+                        <thead class="thead-light">
+                        <tr>
+                            <th class="bg-light" scope="col">Edit General</th>
+                            <th class="bg-light" scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr> 
+                                <td><label class="">Type</label> </td>
+                                <td>
+                                    <select name="type" class=" channel ">
+                                        <option value="0">Regular encode </option>
+                                        <option value="1">Motion detection encode</option>
+                                        <option value="2">Alarm encode</option>
+                                        <option value="3">Emergency encode</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">Language</label> </td>
+                                <td>{{form.Language}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">CurrentTime </label>
+                                </td>
+                                <td >{{form.CurrentTime}} 
+                                    <label align="right" class="checkbox-inline">
+                                    <input id="checkbox-time" name="checkbox-time" type="checkbox" value="time" checked> Now
+                                </label>
+                                </td>
+                            </tr>
+                           
+                        </tbody>
+                    </table>
 
-                        </select>
-                    </div>
-
-                    <div class="form-group col-12 ">
-                        <div class="row">
-                            
-                            {% for tupla in array_config %}
-                            <div class="col-3">
-                                <!-- <label class="checkbox-inline"> -->
-                                <label class="checkbox-inline">
-                                    <input class="checkbox-f" name="{{channels|index:forloop.counter0}}" type="checkbox" value=1 checked> ch{{channels|index:forloop.counter0}}
-                                </label>
-                            </div>
-                            {% endfor %}
-                            
-                            <div class="col-3">
-                                <label class="checkbox-inline">
-                                    <input   name="mainstream" type="checkbox" value=1 checked> Main Stream
-                                </label>
-                            </div>
-                            <div class="col-3">
-                                <label class="checkbox-inline">
-                                    <input   name="substream" type="checkbox" value=1 checked>  Substream
-                                </label>
-                            </div>
-                            <div class="col-3">
-                                <label class="checkbox-inline">
-                                    <input  id="checkbox-all" name="channel" type="checkbox" value="all" checked>  All
-                                </label>
-                            </div>
-                        </div>
-                        
-                            
-                    </div>
+                    
 
                     <!-- obtiene datos del modelo -->
-                    {{ form|crispy }}
-                    <div class="col-4">
-                        <label class="checkbox-inline ">
-                            <input id="checkbox-time" name="checkbox-time" type="checkbox" value="time" checked> <h5  class="ml-5">Now</h5>
-                        </label>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Enviar</button>
+                    
+                    
+
+                    <table class="table">
+                        <thead class="thead-light">
+                        <tr>
+                            <th class="bg-light" scope="col">Edit</th>
+                            <th class="bg-light" scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><label for="">Filters</label></td>
+                                <td>
+                                    <div class="form-group col-12 ">
+                                        <div class="row">
+                                            {% for tupla in array_config %}
+                                            <div class="col-3">
+                                                <!-- <label class="checkbox-inline"> -->
+                                                <label class="checkbox-inline"><input class="checkbox-f" name="{{channels|index:forloop.counter0}}" type="checkbox" value=1 checked>ch{{channels|index:forloop.counter0}}</label>
+                                            </div>
+                                            {% endfor %}
+                                            <div class="col-3">
+                                                <label class="checkbox-inline"><input   name="mainstream" type="checkbox" value=1 checked>Main</label>
+                                            </div>
+                                            <div class="col-3">
+                                                <label class="checkbox-inline"><input   name="substream" type="checkbox" value=1 checked>Extra</label>
+                                            </div>
+                                            <div class="col-3">
+                                                <label class="checkbox-inline"><input  id="checkbox-all" name="channel" type="checkbox" value="all" checked>  All</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label class="">Compression</label> </td>
+                                <td>{{form.Compression}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">Resolution</label> </td>
+                                <td>{{form.resolution}}</td>
+                            </tr>
+                            
+                            <tr> 
+                                <td><label class="">SmartCodec</label> </td>
+                                <td>{{form.SmartCodec}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">FPS</label> </td>
+                                <td>{{form.FPS}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">BitRateControl</label> </td>
+                                <td>{{form.BitRateControl}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">Quality</label> </td>
+                                <td>{{form.Quality}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">BitRate</label> </td>
+                                <td>{{form.BitRate}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">VideoEnable</label> </td>
+                                <td>{{form.VideoEnable}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- {{ form|crispy }}  -->
+                    
+                    <button  type="submit" class="btn  btn-outline-success">Enviar</button>
                     <!-- <a href="./" type="submit" class="btn btn-primary">Cancelar</a> -->
                 </form>
                 
@@ -221,10 +289,31 @@
         </div>
 
     </div>
-
-        
-
     </div>
+
+    
+        <div class="row">
+            <h4 class="mb-5">Channels Snapshots</h4> 
+            {% if not request.GET.snapshots %}
+            <form class="mb-5" action="" method="GET">
+                <label class="" hidden><input name="snapshots" type="text" value=1>snaps</label>
+                <!-- Obtener snapshotss <a type="sumbit" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a> -->
+                <button  type="submit" class="btn  btn-outline-success">Get snapshots</button>
+            </form>
+            {% endif %}
+
+            {% for snapshot in snapshots %}
+            <div class="col-3">
+                <div class="card">
+                    {{snapshot}}
+                    {% with 'device/snapshots/'|add:snapshot|add:'.jpg' as image_static %}
+                    <img class="card-img-top" src="{% static image_static %}" alt="{{snapshot}}">
+                    {% endwith %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
 </main>
 
 {% endblock %}
