@@ -34,8 +34,12 @@
                               <td>{{device.id}}</td>
                               <td>{{device.ip}}:{{device.puerto}}</td>
                               <td>Online</td>
-                              <td><a class="btn  btn-xs btn-primary btn-sm" href="{% url 'device:device' device.id %}" title="Ver" type="button" class="card-link">Info </a>
-                                <a class="btn  btn-xs btn-secondary btn-sm" href="{% url 'device:video-encode' device.id %}" title="Ver" type="button" class="card-link">Configuracion </a>
+                              <td>
+                                <a href="{% url 'device:device' device.id%}" type="button" class="btn btn-success btn-sm">   <i class="fa-solid fa-circle-info"> </i></a>
+                                <a href="{% url 'device:update' device.id%}" type="button" class="btn btn-primary btn-sm">   <i class="fa-solid fa-pen"></i></a>
+                                <a href="{% url 'device:delete' device.id%}" type="button" class="btn btn-danger btn-sm">  <i class="fa-solid fa-trash"></i></a>
+
+                                <a class="btn  btn-xs btn-secondary btn-sm" href="{% url 'device:video-encode' device.id %}" title="Ver" type="button" class="card-link"> Config <i class="fa-solid fa-gear"></i> </a>
                               </td>
                             </tr>
                             {% endfor %}

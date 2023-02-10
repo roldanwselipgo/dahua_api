@@ -2,9 +2,11 @@
 
 from celery import shared_task
 import time
-
+from celery.result import allow_join_result
 from .models import Procedure
 from procedures.Vrec.XVR import XVR 
+import logging
+#from procedures.views import update_lost 
 
 """@shared_task(name="GetMediaEncodeA", time_limit=60)
 def GetMediaEncodeA(host, port, user, password, id_sitio):
@@ -29,7 +31,47 @@ def GetAllMediaEncode(host, port, user, password):
 
 
 
-xvr = XVR()
+
+
+
+
+@shared_task(name="task_video_lost")
+def task_video_lost():
+    xvr = XVR()
+    task_queue = []
+    xvr.truncate_table('camara_video_lost')
+    for sucursal in xvr.XVRIP[:5]:
+        print("Sucursal: ",sucursal)
+        task = update_sucursal_cameras.delay(sucursal)
+        print("Task added: ", task)
+        task_queue.append((task,sucursal))
+    
+    print(">>>>>>TASKS: ", task_queue)
+    print("task_queue:", task_queue)
+    logging.warning("Init while:")    
+    while len(task_queue):
+        for i,task in enumerate(task_queue):
+            #print("Scanning in: ", i)
+            #if task[0].ready():
+            #print(f"result : {task[0].state} state <--")
+            if task[0].state == "SUCCESS":
+                
+                print(f"Tarea {task} terminada")
+                if 1:
+                    with allow_join_result():
+                        result = task[0].get()
+                    #print("Resultado de tarea: ", result)
+                    task_queue.remove(task)
+                    print("\nlen task_queue:", len(task_queue))
+                #except Exception as e: 
+                #    print(f"Err en {task}: ", e)
+                #    task_queue.remove(task)
+                #    print("len task_queue:", len(task_queue))
+                #    break
+                #finally:
+                    xvr.update_video_lost(result)
+                    break
+
 @shared_task(name="update_sucursal_cameras_status")
 def update_sucursal_cameras_status(sucursal):
     start_time = time.time()
@@ -47,6 +89,15 @@ def update_sucursal_cameras_status(sucursal):
     return str(end_time - start_time)
 
 
+@shared_task(name="update_sucursal_cameras")
+def update_sucursal_cameras(sucursal):
+    xvr = XVR()
+    start_time = time.time()
+    if 1:
+        cameraInfo = xvr.update_sucursal_cameras(sucursal) 
+    end_time = time.time()
+    print("time:", end_time - start_time)
+    return cameraInfo
 """    
 @shared_task(name="celery.get_sucursales")
 @app.route('/sucursales')

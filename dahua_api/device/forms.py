@@ -16,39 +16,20 @@ class DeviceForm(forms.ModelForm):
         }
 
 """
-class ConfigForm(forms.Form):
-    Compression = forms.CharField(label = "Compression", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'Compression'}
-    ))
-    resolution = forms.CharField(label = "resolution", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'resolution'}
-    ))
-    SmartCodec = forms.CharField(label = "SmartCodec", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'SmartCodec'}
-    ))
-    FPS = forms.CharField(label = "FPS", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'FPS'}
-    ))
-    BitRateControl = forms.CharField(label = "BitRateControl", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'BitRateControl'}
-    ))
-    Quality = forms.CharField(label = "Quality", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'Quality'}
-    ))
-    BitRate = forms.CharField(label = "BitRate", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'BitRate'}
-    ))
-    Language = forms.CharField(label = "Language", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'Language'}
-    ))
-    VideoEnable = forms.CharField(label = "VideoEnable", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'VideoEnable'}
-    ))  
-    CurrentTime = forms.CharField(label = "CurrentTime", required=True, widget=forms.TextInput(
-        attrs={'class':'form-control', 'placeholder':'CurrentTime'}
-    ))  
+class CustomerForm(forms.ModelForm):
+
+    class Meta:
+        model = Customer
+        fields = ['name', 'paternal_surname', 'email']
+        widgets = {
+            'name': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Nombre'}),
+            'paternal_surname': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Apellido Paterno'}),
+            'email': forms.EmailInput(attrs={'class':'form-control', 'placeholder':'Correo  '}),
+        }
+        labels = {
+            'name':'', 'email':'', 'paternal_surname': ''
+        }
 """
-        
 class DefaultConfigForm(forms.Form):
     Compression = forms.CharField(label = "Compression", required=True, widget=forms.TextInput(
         attrs={'class':'', 'placeholder':'Compression'}

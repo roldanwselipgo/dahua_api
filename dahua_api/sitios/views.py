@@ -11,6 +11,7 @@ from sitios import tasks
 import time
 from django.http import HttpResponse
 import logging
+import shutil
 # Create your views here.
 
 
@@ -129,6 +130,55 @@ class SitioDetailView(DetailView):
     model = Sitio
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        #---------- Conexion a device -------------
+        host = self.object.ip
+        port = 8011
+        user = "admin"
+        password = "Elipgo$123"
+        dvr = Dahua(host, port, user, password) 
+        
+
+        general = dvr.GetGeneralConfig()
+        device_type = dvr.GetDeviceType()
+        device_type = device_type['type']  if 'type' in device_type else ""
+
+        hardware_version = dvr.GetHardwareVersion()
+        hardware_version = hardware_version['version']  if 'version' in hardware_version else ""
+
+        serial_number = dvr.GetSerialNumber()
+        serial_number = serial_number['sn']  if 'sn' in serial_number else ""
+
+        current_time = dvr.GetCurrentTime()
+        locales = "device1.obtener_locales_config()"
+        
+        di = dvr.GetDeviceInfo() 
+        video_encode_settings = dvr.GetMediaEncode() 
+        snapshot = dvr.GetSnapshot() 
+        print("snap", snapshot.raw)
+        print("gral", general)
+        if snapshot.status_code == 200:
+            #print(video_encode_settings, type(video_encode_settings))
+            with open("device/static/device/snapshot.jpg", 'wb') as f:
+                snapshot.raw.decode_content = True
+                shutil.copyfileobj(snapshot.raw, f) 
+
+
+
+        context['general']=general
+        context['current_time']=current_time
+        context['locales']=locales
+        context['device_type']=device_type
+        context['serial_number']=serial_number
+        context['hardware_version']=hardware_version
+        context['video_encode_settings']=video_encode_settings
+        return context
+
+'''
+class SitioDetailView(DetailView):
+    """ Vista encargada de detallar el dispositivo seleccionado """
+    model = Sitio
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         
         #---------- Conexion a camara -------------
 
@@ -172,6 +222,7 @@ class SitioDetailView(DetailView):
         context['machine_name']="machine_name.text"
         context['video_encode_settings']=video_encode_settings
         return context
+'''
 
 def truncate_model(model):
     model.objects.all().delete()
@@ -315,9 +366,6 @@ def update_config_sites(request):
                     registrar_configuracion_sitio(result, task[1])
                     break
 
-
-                
-    
     return HttpResponse("Success "+str(len(sitios)), content_type='text/plain')
     
 

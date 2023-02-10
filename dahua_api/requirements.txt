@@ -24,6 +24,7 @@ django-celery-results
 Redis
 flower
 mysqlclient
+django-celery-beat
 
 
 #Vrec

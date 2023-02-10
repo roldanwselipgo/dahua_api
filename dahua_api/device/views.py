@@ -6,6 +6,8 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponse
+
 import os
 import shutil
 from .models import Device, DefaultConfig
@@ -15,6 +17,7 @@ from requests.auth import HTTPDigestAuth
 
 from core.dahuaClasses.dahua_config import Config as Conf
 from core.dahuaClasses.dahua_class import Dahua
+
 
 from core.db import BDBDatabase
 # Create your views here.
@@ -103,23 +106,67 @@ class DeviceListView(ListView):
         device=Device.objects.all()
         return device
 
-    
 
 class DeviceCreateView(CreateView):
     model = Device
     form_class = DeviceForm
     success_url = reverse_lazy('device:devices')
 
+class DeviceUpdateView(UpdateView):
+    model = Device
+    form_class = DeviceForm
+    template_name_suffix = '_update_form'
+    def get_success_url(self):
+        return reverse_lazy('device:update', args=[self.object.id]) + '?ok'
+
+class DeviceDeleteView(DeleteView):
+    model = Device
+    success_url = reverse_lazy('device:devices')
+
+
+
 def videoencodeform(request):
     videoencodeform_form = ConfigForm()
     return render(request, "device/videoencode_form.html", {"form":videoencodeform_form})
 
+def update_one(request):
+    print(f"update_one()")
+    if request.method == "GET":
+        print("Entamos a get")
+        #form = ConfigForm(data=self.request.GET)
+        channel = request.GET.get('channel','')
+        key = request.GET.get('key','')
+        val = request.GET.get('val','')
+        stream = request.GET.get('stream','')
+        device_id = request.GET.get('device_id','')
+        if val and key and device_id:
+            print("Data: ", channel, key, val)
+            device=Device.objects.filter(id = device_id).first()
+            print(device.ip)
+            print(device.puerto)
 
+            id = device.id
+            host = device.ip
+            port = device.puerto
+            user = device.usuario
+            password = device.password
 
-#class DefaultConfigDetailView(DetailView):
-    """ Vista encargada de mostrar la configuracion de video """
-#    model = DefaultConfig
+            #host = "10.200.3.20"
+            #port = 1938
+            #user = "admin"
+            #password = "Elipgo$123
+            #---------- Conexion a camara -------------
+            dvr = Dahua(host, port, user, password)
+            if key == "Compression":
+                values = val.split(" ")
+                if len(values) == 2:
+                    print("A punto de mandar Profiles: ", values)
+                    dvr.SetOneMediaEncode(int(channel),0,"Compression",values[0],stream)
+                    dvr.SetOneMediaEncode(int(channel),0,"Profile",values[1],stream)
+                    return HttpResponse("Update one ", content_type='text/plain')
 
+            dvr.SetOneMediaEncode(int(channel),0,key,val,stream)
+    return HttpResponse("Update one ", content_type='text/plain')
 
 
 
@@ -198,7 +245,7 @@ class DefaultConfigTemplateView(TemplateView):
         print("Device Type >> ", device_type)    
         device_type_name = 'DVR' if 'DH-' in device_type else "Device" 
 
-        print("ARRAY CONFIG >>", array_config)
+        #print("ARRAY CONFIG >>", array_config)
 
         #Validacion form
         default_data = {
@@ -221,8 +268,13 @@ class DefaultConfigTemplateView(TemplateView):
                 #GetSnapshot
                 paths = []
                 for channel in channels:
+                    channel = channel + 1
                     snapshot = dvr.GetSnapshot(channel) 
                     if snapshot.status_code == 200:
+                        print(f"device/static/device/snapshots/ch{channel}.jpg")
+                        print(f"device/static/device/snapshots/ch{channel}.jpg")
+                        print(f"device/static/device/snapshots/ch{channel}.jpg")
+                        print(f"device/static/device/snapshots/ch{channel}.jpg")
                         with open(f"device/static/device/snapshots/ch{channel}.jpg", 'wb') as f:
                             snapshot.raw.decode_contesnt = True
                             shutil.copyfileobj(snapshot.raw, f)
@@ -231,7 +283,6 @@ class DefaultConfigTemplateView(TemplateView):
                 context['snapshots'] = paths
 
             if form.is_valid():
-                print(">>>>Entrando a post:")
                 compresion = self.request.GET.get('Compression','')
                 checkbox = self.request.GET.get('0','')
                 print("Values prob....",compresion,checkbox)

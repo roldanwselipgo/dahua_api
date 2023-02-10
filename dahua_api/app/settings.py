@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'logs',
     'procedures',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -154,8 +155,11 @@ CELERY_TIMEZONE = "America/Mexico_city"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
-
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+
+
+
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
 

@@ -5,9 +5,6 @@ from datetime import datetime
 # Create your models here.
 class SitioB(models.Model):
     sitio = models.IntegerField(primary_key=True,verbose_name='SitioB')
-    #no_local = models.IntegerField(verbose_name='LocalNo', null=False, blank=False)
-    #machine_name = models.CharField(max_length=200, verbose_name = 'Machine name', null=True, blank=True)
-    #machine_adress = models.CharField(max_length=200, verbose_name = 'Machine address', null=True, blank=True)
     proyecto = models.CharField(max_length=20, verbose_name = 'Proyecto', null=True, blank=True)
     ip = models.CharField(max_length=80, verbose_name = 'Ip', null=True, blank=True)
     status = models.CharField(max_length=50, verbose_name = 'Status', null=True, blank=True)
@@ -41,13 +38,8 @@ class ConfigB(models.Model):
     Language = models.CharField(max_length=100, verbose_name = 'Language', null=True, blank=True, default="English")
     CurrentTime = models.DateTimeField(verbose_name = 'CurrentTime', default = now)
 
-    #ChannelB = models.IntegerField(verbose_name='ChannelB', null=False, blank=False, default=0)
-    #TypeEncode = models.IntegerField(verbose_name='TypeEncode', null=False, blank=False, default=0)
-    #TypeStreamB = models.CharField(max_length=100, verbose_name = 'TypeStreamB', null=False, blank=False, default="MainFormat")
-
     created = models.DateTimeField(verbose_name = 'Fecha creacion', default = now)
     updated = models.DateTimeField(auto_now=True, verbose_name = 'Ultima modificacion')
-    #sitio_id = models.ForeignKey(SitioB, verbose_name = 'SitioB', related_name='get_config', on_delete = models.CASCADE)
     class Meta:
         verbose_name = 'ConfigB'
         verbose_name_plural = 'ConfigsB'
@@ -76,10 +68,7 @@ class ChannelB(models.Model):
     number = models.IntegerField(verbose_name='Number', null=False, blank=False)
     created = models.DateTimeField(verbose_name = 'Fecha creacion', default = now)
     updated = models.DateTimeField(auto_now=True, verbose_name = 'Ultima modificacion')
-    #id_config = models.ForeignKey(ConfigB, verbose_name = 'ConfigB', related_name='get_channel', on_delete = models.CASCADE)
-    #id_config = models.ForeignKey(ConfigB, verbose_name = 'ConfigB', related_name='get_channel', on_delete = models.CASCADE)
     sitio = models.ForeignKey(SitioB, verbose_name = 'SitioB', related_name='get_channel', on_delete = models.CASCADE)
-    #sitios = models.ManyToManyField(SitioB,verbose_name = 'SitioBs')
     streams = models.ManyToManyField(StreamB,verbose_name = 'StreamsB')
     class Meta:
         verbose_name = 'ChannelB'

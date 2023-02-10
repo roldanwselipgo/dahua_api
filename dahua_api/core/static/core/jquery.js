@@ -102,7 +102,7 @@ $(document).ready(function(){
 	$(".size_chart").hide();
 	
 	//unhides first option content
-	$("#ch0").show();
+	$("#0").show();
 	
 	//listen to dropdown for change
 	$("#size_select").change(function(){
@@ -113,3 +113,6 @@ $(document).ready(function(){
 	});
 	
   });
+
+
+

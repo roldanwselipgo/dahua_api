@@ -130,7 +130,6 @@ class VRecWSClient():
         
         response = self.client.service.CameraConfiguration_GetCameraList()
         #print(str(response))
-
         if (response['CameraConfiguration_GetCameraListResult'] == 'OK'):
             if (response['cameraIDList']):
                 self.cameraList = response['cameraIDList']['string']

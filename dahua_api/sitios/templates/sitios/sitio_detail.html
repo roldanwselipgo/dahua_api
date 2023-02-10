@@ -2,62 +2,51 @@
 
 <main role="main">
     <div class="container mb-4">
-        <h2 class="m-10">Detalle camara</h2>
-        <p>Id: {{sitio.sitio}}</p>
-        <p>Proyecto: {{sitio.proyecto|striptags|safe|truncatechars:"200"}}</p>
-        <p>ip: {{sitio.ip|striptags|safe|truncatechars:"200"}}</p>
-        <p>status: {{sitio.status|striptags|safe|truncatechars:"200"}}</p>
-        <p>is_alive: {{sitio.is_alive|striptags|safe|truncatechars:"200"}}</p>
-        <p>last_update: {{sitio.last_update|striptags|safe|truncatechars:"200"}}</p>
+        <h2 class="m-10">sitio details</h2>
+        <div class="row">
 
-        <div>
-            <h5>Informacion general: </h5>
-            <ul>
-                {% for key,value in general.items %}
-                <li>
-                    {{ key }} : {{ value }}
-                </li>
-                {% endfor %}
-            </ul>
-            <h5>Hora actual: </h5>
+                
+                <p>Ip: {{sitio.ip|striptags|safe|truncatechars:"200"}}</p>
+                <p>puerto: {{sitio.puerto|striptags|safe|truncatechars:"200"}}</p>
+                <p>Usuario: {{sitio.usuario|striptags|safe|truncatechars:"200"}}</p>
+                
+
+                <p>Hardware version: {{hardware_version}}</p>
+               
+
+                <p>Serial number:  {{serial_number}} </p>
+              
+
+                <p>Hora actual:  {{ current_time }} </p>
+                
+                
+                <p>Tipo del dispositivo: {{device_type}} </p>
+                
+                <p>Informacion general: </p>
+                <ul>
+                    {% for key,value in general.items %}
+                    <li>
+                        {{ key }} : {{ value }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+
+                <p>Imagen capturada:</p>
+                {% load static %}
+                <img src="{% static 'device/snapshot.jpg' %}" style="width:100%;" alt="Img">
+
+
+                <p class="mt-5">Video Encode Settings: </p>
+                <ul>
+                    {% for key,value in video_encode_settings.items %}
+                    <li>
+                        {{ key }} : {{ value }}
+                    </li>
+                    {% endfor %}
+                </ul>
         </div>
-        <ul>
-            {% for key,value in current_time.items %}
-            <li>
-                {{ key }} : {{ value }}
-            </li>
-            {% endfor %}
-        </ul>
-        <h5>Video encode settings: </h5>
-        <ul class="list-group">
-            {% for key,value in video_encode_settings.items %}
-            <li class="list-group-item">{{ key }} : {{ value }}</li>
-            {% endfor %}
-          </ul>
-
-       
-        <p>Tipo del dispositivo: </p>
-        <ul>
-            {% for key,value in device_type.items %}
-            <li>
-                {{ key }} : {{ value }}
-            </li>
-            {% endfor %}
-        </ul>
-        <p>Nombre de la maquina: {{machine_name}} </p>
-
-        <p>Motion Settings: </p>
-        <ul>
-            {% for key,value in motion_settings.items %}
-            <li>
-                {{ key }} : {{ value }}
-            </li>
-            {% endfor %}
-        </ul>
-
-        <p>Imagen capturada:</p>
-        {% load static %}
-        <img src="{% static 'monitor/snapshot.jpg' %}" alt="Imagen capturada">
+        
 
     </div>
 </main>

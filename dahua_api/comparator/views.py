@@ -17,8 +17,6 @@ class SitioBListView(ListView):
     model = Sitio
     def get_queryset(self):
         sitios=SitioB.objects.all()
-        #for sitio in sitios:
-        #    print(">", sitio)
         return sitios
 
 
@@ -28,33 +26,10 @@ class SitioBListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         data = []
-        #dataA = []
-        #conf = ""
         #Obtener configuraciones del sitio
-
         if 1:
             #for i in range
             sitiosB=SitioB.objects.all().order_by('sitio')[:1000]
-            # sitiosA=Sitio.objects.all().order_by('sitio')[:1000]
-
-            # #Pruebas de comparacion
-            # #sitioPrueba=SitioB.objects.all().order_by('sitio')[:1000].first()
-            # #print("SitioPrueba",sitioPrueba)
-            # #sitioPruebaA=Sitio.objects.filter(sitio=sitioPrueba.sitio).first()
-            # #print("Sitios Prueba", sitioPrueba, sitioPruebaA)
-            # sitiosA = []
-            # for sitioB in sitiosB:
-            #     #sitioA=Sitio.objects.filter(sitio=sitioB.sitio).first()
-            #     sitioA=Sitio.objects.filter(sitio=sitioB.sitio).first()
-            #     sitiosA.append(sitioA) if sitioA else print("No haber sitio")
-            
-            # print("SitiosA: ",sitiosA)
-            # print("Cantidad SitiosA: ",len(sitiosA))
-                    
-
-            # for (sitio,sitioA) in zip(sitiosB,sitiosA):
-            #     #print(f"sitioB: {sitio} , sitioA:{sitioA}")
-            #     pass
 
             for sitioB in sitiosB:
                 sitioA=Sitio.objects.filter(sitio=sitioB.sitio).first()
@@ -69,8 +44,6 @@ class SitioBListView(ListView):
                 for channelB in channelsB:
                     #print(channel, channel.number)
                     confB = confB + f"<h5>Channel {channelB.number}: <h5>"
-                    #print (channel.streams[0], type(channel.streams))
-                    #stream = StreamB.objects.filter(channel.streams)
                     streamsB = channelB.streams.all().order_by('name')
                     
                     for streamB in streamsB:
@@ -90,15 +63,11 @@ class SitioBListView(ListView):
                         #confB = confB + f"CurrentTime: {cfb.CurrentTime} <br>"
 
                 for channelA in channelsA:
-                    #print(channel, channel.number)
                     confA = confA + f"<h5>Channel {channelA.number}: <h5>"
-                    #print (channel.streams[0], type(channel.streams))
-                    #stream = StreamB.objects.filter(channel.streams)
                     streamsA = channelA.streams.all().order_by('name')
                     for streamA in streamsA:
                         sta=Stream.objects.filter(id=streamA.id).first()
                         cfa=Config.objects.filter(id=sta.id_config.id).first()
-                        #print("stream>",st,cf.Compression)
                         confA = confA + f"<h6>{sta.name}:</h6> "
                         confA = confA + f"Compression: {cfa.Compression} <br>"
                         confA = confA + f"Resolution: {cfa.resolution} <br>"
@@ -109,7 +78,6 @@ class SitioBListView(ListView):
                         confA = confA + f"BitRate: {cfa.BitRate} <br>"
                         confA = confA + f"VideoEnable: {cfa.VideoEnable} <br>"
                         confA = confA + f"Language: {cfa.Language} <br>"
-                        #confA = confA + f"CurrentTime: {cfa.CurrentTime} <br>"
                 
                 #Config B
                 configs["idB"] = sitioB.sitio

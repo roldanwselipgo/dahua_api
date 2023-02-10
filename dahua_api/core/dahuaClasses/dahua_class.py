@@ -332,20 +332,22 @@ class Dahua:
       except Exception:
          #print(">>Excep: ", response)
          pass
+      if response:
+         if response.status_code == 200:
+         #if response.status_code == 200:
+            list = response.text.split(sep='\r\n')
+            try:
+               for rec in list:
+                  srec  = rec.split(sep='=')
+                  if srec[0] != '':
+                     rdict[srec[0]] = srec[1]
+               return rdict
 
-      if response.status_code == 200:
-      #if response.status_code == 200:
-         list = response.text.split(sep='\r\n')
-         try:
-            for rec in list:
-               srec  = rec.split(sep='=')
-               if srec[0] != '':
-                  rdict[srec[0]] = srec[1]
-            return rdict
-
-         except Exception:
-            pass
-      else: 
+            except Exception:
+               pass
+         else: 
+            return 0
+      else:
          return 0
       return rdict
 
@@ -1090,10 +1092,29 @@ class Dahua:
       #return(response)
 
    # Set Media encode
-   def SetMediaEncode(self, channel, typeEncode, Compression, resolution, FPS, BitRateControl, Quality, BitRate, VideoEnable, stream ):
+   def SetOneMediaEncode(self, channel, typeEncode, key, value, stream ):
+      print("SetMediaEncode() del sitio '%s'" % (self.sitio))
+      req ='http://%s:%d%s' % (self.sitio, self.port, DAHUA_SETMENCODE)
+      req = req + '&Encode[%d].%s[%d].Video.%s=%s'  % (channel, stream, typeEncode ,key,value)
+      print(req)
+      url = req.split('?')
+      try:
+         response = requests.get(url=url[0],params =url[1],auth=HTTPDigestAuth(self.user, self.password), timeout=10)
+         print("Response SetMediaConfig", response,response.text)
+         if response.status_code == 200:
+            return(response.status_code)
+         else:
+            return 0
+      except :
+         print("Exception")
+         return 0
+
+   # Set Media encode
+   def SetMediaEncode(self, channel, typeEncode, Compression, resolution, FPS, BitRateControl, Quality, BitRate, VideoEnable, stream, Profile="Main" ):
       print("SetMediaEncode() del sitio '%s'" % (self.sitio))
       req ='http://%s:%d%s' % (self.sitio, self.port, DAHUA_SETMENCODE)
       req = req + '&Encode[%d].%s[%d].Video.Compression=%s'  % (channel, stream, typeEncode ,Compression)
+      req = req + '&Encode[%d].%s[%d].Video.Profile=%s'  % (channel, stream, typeEncode ,Profile)
       req = req + '&Encode[%d].%s[%d].Video.resolution=%s'  % (channel, stream, typeEncode ,resolution)
       #req = req + '&Encode[%d].%s[%d].Video.CustomResolutionName=%s'  % (channel, stream, typeEncode ,CustomResolutionName)
       req = req + '&Encode[%d].%s[%d].Video.FPS=%s'  % (channel, stream, typeEncode ,FPS)

@@ -82,7 +82,7 @@
 
 <select class="text-primary mb-1" id="size_select">
     {% for channel in channels %}
-    <option  value="ch{{channel}}">Channel {{channel}}</option> 
+    <option  value="{{channel}}">Channel {{channel}}</option> 
     {% for element in channels %}
          
         {% endfor %}
@@ -109,18 +109,22 @@
   {% endfor %} -->
 
 
+
+
   {% for channels_config in array_config %}
-  <div id="ch{{channels|index:forloop.counter0}}" class="size_chart">
+  <div id="{{channels|index:forloop.counter0}}" value="{{channels|index:forloop.counter0}}" class="size_chart">
+
     {% for element in channels_config %}
 
     <table class="table">
         <thead class="thead-light">
-        <tr>
-            {% if forloop.counter0 == 0 %}
-            <th class="bg-light" scope="col">Mainstream</th>
+           
+            {% if forloop.counter0 == 0 %}           
+            <th class="bg-light" scope="col">Mainstream {{stream}}</th>
             <th class="bg-light" scope="col"></th>
 
             {% else %}
+
             <th class="bg-light" scope="col">Substream</th>
             <th  class="bg-light" scope="col"></th>
             {% endif %}
@@ -128,13 +132,14 @@
         </tr>
         </thead>
         <tbody>
+            {% if forloop.counter0 == 0 %}           
             {% for key,value in element.items %}
             <tr>
                 <td><label class="">{{ key }}</label> </td>
                 <td> 
-                <select id="size_select22">
+                <select id="size_select22" label="{{key}}" stream="MainFormat" class="opciones">
                     {% for capabilty_value in value %}
-                        <option value="option{{forloop.counter0}}">{{ capabilty_value }}</option>
+                        <option value="{{capabilty_value}}">{{ capabilty_value }}</option>
                     {% endfor %}
 
                 </select>
@@ -142,6 +147,23 @@
                 </td>
             </tr>
             {% endfor %}
+            {% else %}
+            {% for key,value in element.items %}
+            <tr>
+                <td><label class="">{{ key }}</label> </td>
+                <td> 
+                <select id="size_select22" label="{{key}}" stream="ExtraFormat" class="opciones">
+                    {% for capabilty_value in value %}
+                        <option value="{{capabilty_value}}">{{ capabilty_value }}</option>
+                    {% endfor %}
+
+                </select>
+                    <!-- <label class="">{{ value }}</label>  -->
+                </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+
         </tbody>
     </table>
 
@@ -149,7 +171,6 @@
 
   </div>
   {% endfor %}
-
 
 
                 
@@ -315,5 +336,35 @@
         </div>
 
 </main>
+
+<script>
+$(document).ready(function(){
+	//listen to dropdown for change
+	$(".opciones").change(function(){
+	  //rehide content on change
+	  //$('.size_chart').hide();
+	  //alert(this.url)
+	  //console.log(this.url)
+      this.key = $(this).attr("label")
+	  this.val = $(this).val();
+      this.channel =  $('#size_select').val()
+	  this.stream = $(this).attr("stream")
+
+	  $.ajax({
+		url: "update-one",
+		type: "GET",
+		data: { val: this.val, channel:this.channel, key:this.key, device_id:"{{id}}", stream:this.stream},
+		success: function () {
+			// something here on success
+		},
+		error: function () {
+		   // something here on error
+		}
+	});
+
+	});
+	
+  });
+</script>
 
 {% endblock %}

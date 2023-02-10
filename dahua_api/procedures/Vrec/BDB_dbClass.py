@@ -41,6 +41,28 @@ class BDBDatabase:
             else:
                 print(err)
 
+        """print("Conection success", self.GetXVRIP()[:5] )
+
+        if 1:
+            #print("Existe, se debe actualizar")
+            queryStr = f"UPDATE camara SET status='oked' " \
+                       f"WHERE sucursal=101 and camara=34882"
+
+        queryStr =  "INSERT INTO camara_video_lost VALUES(100, 7690, '2022-10-04 23:00:00','2022-10-07 01:00:00','0')"
+        print(queryStr)
+        #try:
+        if 1:
+            self.lock.acquire()
+            mycursor = self.connection.cursor()
+            mycursor.execute(queryStr)
+            self.connection.commit()
+            mycursor.close()
+            self.lock.release()
+        #except:
+        else:
+            pass
+            self.lock.release()"""
+
 
     def GetXVRIP(self):
         logging.info(f"GetXVRIP()")
@@ -117,6 +139,7 @@ class BDBDatabase:
 
         #print(queryStr)
         try:
+        #if 1:
             self.lock.acquire()
             mycursor = self.connection.cursor()
             mycursor.execute(queryStr)
@@ -124,6 +147,7 @@ class BDBDatabase:
             mycursor.close()
             self.lock.release()
         except:
+        #else:
             pass
             self.lock.release()
 
@@ -149,18 +173,22 @@ class BDBDatabase:
                 logging.info(f"Lost(): {cameraInfo['sucursal'] , cameraInfo['camara'] ,lost_segment } ")
                 if len(lost_segment) == 2:
                     queryStr = f"INSERT INTO camara_video_lost VALUES({cameraInfo['sucursal']}, {cameraInfo['camara']}, '{lost_segment[0]}'," \
-                            f"'{lost_segment[1]}','{0}')"
+                            f"'{lost_segment[1]}','{0}','{datetime.now()}')"
+
+                    
+                    
+                    #print(queryStr)
                     
                     #logging.info(f"Insertar:({queryStr})")
 
-                    try:
+                    if 1:
                         self.lock.acquire()
                         mycursor = self.connection.cursor()
                         mycursor.execute(queryStr)
                         self.connection.commit()
                         mycursor.close()
                         self.lock.release()
-                    except:
+                    else:
                         pass
                         self.lock.release()
             #else:

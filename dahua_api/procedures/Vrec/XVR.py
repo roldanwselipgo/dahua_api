@@ -10,12 +10,13 @@ from   .BDB_dbClass     import BDBDatabase
 
 
 
+
 class XVR():
     def __init__(self) -> None:
         count = 0
         self.bdb = BDBDatabase()
         self.XVRIP = self.bdb.GetVRecIP()
-        
+    
     def update_sucursal_cameras_status(self,sucursal):
         #logging.info(f"ProcessXVR.update_sucursal_cameras ({sucursal})")
         numeroSuc = sucursal[0]
@@ -44,7 +45,7 @@ class XVR():
         vrecPost  = sucursal[2]
         logging.info(f" Procesando Sucursal: {numeroSuc} {sucursal}")    
         vrec = VRecWSClient(vrecHost, port=vrecPost, sucursal=numeroSuc)
-        
+        camerasInfo = []
         if (vrec.client): # and numeroSuc == 105):
             cameras = vrec.GetCameraList()
             for cameraId in cameras:
@@ -71,10 +72,20 @@ class XVR():
                     camaraInfo['firstDate']      = str(firstDate)
                     camaraInfo['lastDate']       = str(lastDate)
                     camaraInfo['lost']           = lost
+                    camerasInfo.append(camaraInfo)
 
-                    self.bdb.UpdateCameraRecord(camaraInfo)
-                    self.bdb.UpdateCameraLost(camaraInfo, lost)
-        return "Terminado"
+                    #self.bdb.UpdateCameraRecord(camaraInfo)
+                    #self.bdb.UpdateCameraLost(camaraInfo, lost)
+        return camerasInfo
+    
+
+    def update_video_lost(self, sucursalCameraInfo):
+        logging.info(f"ProcessXVR.update_video_lost ()")
+
+        for cameraInfo in sucursalCameraInfo:
+            self.bdb.UpdateCameraRecord(cameraInfo)
+            self.bdb.UpdateCameraLost(cameraInfo, cameraInfo['lost'])
+            #self.bdb.UpdateCameraLost(camaraInfo, lost)
 
     def truncate_table(self,table):
         logging.info(f"ProcessXVR.truncate_table ({table})")
