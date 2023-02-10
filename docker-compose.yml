@@ -1,38 +1,43 @@
 version: "3.7"
 
 services:
+  redis:
+    restart: always
+    image: 'redis'
+    ports:
+      - '6379:6379'
   app:
     restart: always
     container_name: app
-    build: ./dahua_api
+    build: ./webapp
     ports:
       - "8000:8000"
     depends_on:
       - redis
     volumes:
-      - ./dahua_api:/app
+      - ./webapp:/app
   
   cexporter:
     restart: always
     container_name: cexporter
-    build: ./dahua_api/celery_exporter
+    build: ./webapp/celery_exporter
     ports:
       - "5530:5530"
     depends_on:
       - redis
 
     volumes:
-      - ./dahua_api/celery_exporter:/app
+      - ./webapp/celery_exporter:/app
 
   worker:
     restart: always
     build:
-      context: ./dahua_api
+      context: ./webapp
     hostname: worker
     entrypoint: celery
     command: -A app worker --loglevel=info --autoscale=10,2
     volumes:
-      - ./dahua_api:/app
+      - ./webapp:/app
     depends_on:
       - redis
 
@@ -47,17 +52,13 @@ services:
 
   celery-beat:
     restart: always
-    build: ./dahua_api
+    build: ./webapp
     command: celery -A app beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
-      - ./dahua_api:/app
+      - ./webapp:/app
     environment:
       - DEBUG=1
     depends_on:
       - redis
   
-  redis:
-    restart: always
-    image: 'redis'
-    ports:
-      - '6379:6379'
+  

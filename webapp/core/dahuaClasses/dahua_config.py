@@ -155,12 +155,33 @@ class Config():
                     #print(el)
                     
                     if 'Encode[%d].ExtraFormat[%d].Video.Compression' % (channel, type) in el:
-                        self.current_media_config_substream["Compression"].append(rdict['table.Encode[%d].ExtraFormat[%d].Video.Compression'  % (channel, type)])
+                        
+                        """self.current_media_config_substream["Compression"].append(rdict['table.Encode[%d].ExtraFormat[%d].Video.Compression'  % (channel, type)])
                         for caps in rdict_caps:
                             if 'caps[%d].ExtraFormat[%d].Video.CompressionTypes' % (channel, type) in caps:
                                 options = rdict_caps['caps[%d].ExtraFormat[%d].Video.CompressionTypes'  % (channel, type)].split(",")
                                 if len(options) > 1:
-                                    for option in options : self.current_media_config_substream["Compression"].append(option) 
+                                    for option in options : self.current_media_config_substream["Compression"].append(option) """
+                        
+                        prof = "Main"
+                        for el in rdict:
+                            if 'Encode[%d].ExtraFormat[%d].Video.Profile' % (channel, type) in el:
+                                prof = rdict['table.Encode[%d].ExtraFormat[%d].Video.Profile'  % (channel, type)]
+                        self.current_media_config_substream["Compression"].append(rdict['table.Encode[%d].ExtraFormat[%d].Video.Compression'  % (channel, type)] + " "+prof)
+                        for caps in rdict_caps:
+                            if 'caps[%d].ExtraFormat[%d].Video.CompressionTypes' % (channel, type) in caps:
+                                options = rdict_caps['caps[%d].ExtraFormat[%d].Video.CompressionTypes'  % (channel, type)].split(",")
+                                if len(options) > 1:
+                                    for profile_index in range(0,3): #Busca los 3 perfiles (main, baseline, high):
+                                        for caps2 in rdict_caps:
+                                            if 'caps[%d].ExtraFormat[%d].Video.H264Profile[%d]' % (channel, type, profile_index) in caps2:
+                                                profile= rdict_caps['caps[%d].ExtraFormat[%d].Video.H264Profile[%d]' % (channel, type, profile_index)]
+                                                for option in options : 
+                                                    if option == "H.264": self.current_media_config_substream["Compression"].append(option+" "+profile)  
+                                                    else:
+                                                        if option not in self.current_media_config_substream["Compression"]:
+                                                            self.current_media_config_substream["Compression"].append(option)
+
 
                     if 'Encode[%d].ExtraFormat[%d].Video.resolution' % (channel, type) in el:
                         self.current_media_config_substream["resolution"].append(rdict['table.Encode[%d].ExtraFormat[%d].Video.resolution'   % (channel, type)])
