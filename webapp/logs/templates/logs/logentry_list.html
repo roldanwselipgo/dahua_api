@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %} {% block title %}Logs{% endblock %}{% block content %}
+{% load static %}
+
+<main role="main">
+  <h1>Logs </h1>
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+
+            <h5>Change Events:</h5>
+            <br>
+            {% for log in logs_list %} 
+            <p>  {{forloop.counter}}:  User {{log.user_id}}  --> {{log}} at {{log.action_time}} </p>
+            {% endfor %}
+            
+        </div>
+    </div>
+</main>
+{% endblock %}

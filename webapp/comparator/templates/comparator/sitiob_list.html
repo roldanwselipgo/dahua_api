@@ -1,0 +1,95 @@
+{% extends 'core/base.html' %} {% block title %}Monitor camaras{% endblock %}{% block content %}
+{% load static %}
+
+<main role="main">
+  <h1>Config B vs Config </h1>
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div align="right" class="btn_crear mb-3">
+                Actualizar configuraciones <a href="{% url 'sitio:update-config-sites'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-right"></i></a>
+
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-controll">
+                        <label for="search"><i class="icon-search"></i></label>
+                        <!-- <input class="table-filter" type="search" data-table="advanced-web-table" placeholder="Search..."> -->
+                      </div>
+                      <!--  Table  -->
+                      <div class="table-responsive">
+                        <table id="sitios-remotos-table" class="advanced-web-table">
+                          <thead>
+                            <button class="btn btn-sm btn-primary show-hide-config">Show config</button>
+
+                            <tr>
+                              <th>Id</th>
+                              <th>HostB</th>
+                              <th>StatusB</th>
+                              <th>Last UpdateB</th>
+                              <th>ConfigurationsB
+                              </th>
+                              
+                              <th>Host</th>
+                              <th>Status</th>
+                              <th>Last Update</th>
+                              <th>
+                                Configurations 
+
+                              </th>
+                              <th>Diffs</th>
+
+
+                              
+                              
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for sitio in configs %} 
+                            <tr>
+                              <td>{{sitio.idB}}</td>
+                              <td>{{sitio.ipB}}</td>
+                                <td>{{sitio.statusB}}</td>
+                                <td>{{sitio.last_updateB}}</td>
+
+                                <td>
+                                  <div class="config" >
+                                    <p >-{{sitio.confB|safe}}</p>
+                                  </div>
+                                </td>
+
+
+                                <td>{{sitio.ipA}}</td>
+                                <td>{{sitio.statusA}}</td>
+                                <td>{{sitio.last_updateA}}</td>
+
+                                <td>
+                                  <div class="config" >
+                                    <p >- {{sitio.confA|safe}}</p>
+                                  </div>
+                                </td>
+                                {% if sitio.diff == 1 %}
+                                <td class="text-white text-center bg-danger">{{sitio.diff}}</td>
+                                {% elif sitio.diff == 0 %}
+                                <td class="text-white text-center bg-success">{{sitio.diff}}</td>
+                                {% else %}
+                                <td class="text-white text-center bg-warning">{{sitio.diff}}</td>
+                                {% endif %}
+
+                            </tr>
+                            {% endfor %}
+
+                            
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</main>
+{% endblock %}

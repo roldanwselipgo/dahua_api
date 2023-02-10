@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %} {% block title %}Monitor camaras{% endblock %}{% block content %}
+{% load static %}
+
+<main role="main">
+  <h1>Mi calle</h1>
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <h3 align="left">Sitios Viva {{ username|capfirst }}</h3>
+            <div align="right" class="btn_crear mb-3">
+                Reload <a href="{% url 'sitio:update-config-sites'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-right"></i></a>
+
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-controll">
+                        <label for="search"><i class="icon-search"></i></label>
+                        <!-- <input class="table-filter" type="search" data-table="advanced-web-table" placeholder="Search..."> -->
+                      </div>
+                      <!--  Table  -->
+                      <div class="table-responsive">
+                        <table id="sitios-remotos-table" class="advanced-web-table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>host</th>
+                              <th>Status</th>
+                              <th>Last Update</th>
+                              <th>Opciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for sitio in sitio_list %} 
+                            <tr>
+                              <td>{{sitio.sitio}}</td>
+                              <td>{{sitio.ip}}</td>
+                                <td>{{sitio.status}}</td>
+                                <td>{{sitio.last_update}}</td>
+                                <td>
+                                  <a class="btn  btn-xs btn-primary btn-sm" href="{% url 'sitio:sitio' sitio.sitio %}" title="Ver" type="button" class="card-link">Info </a>
+                                  <a class="btn btn-secondary btn-sm" href="#" title="Ver" type="button" class="card-link">Configuracion </a>
+                  
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</main>
+{% endblock %}
