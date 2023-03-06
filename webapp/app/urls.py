@@ -23,6 +23,7 @@ from comparator.urls import comparator_patterns
 from device.urls import device_patterns
 from logs.urls import logs_patterns
 from procedures.urls import procedures_patterns
+from sucursales.urls import sucursal_patterns
 
 
 urlpatterns = [
@@ -35,7 +36,7 @@ urlpatterns = [
     path('', include(device_patterns)),
     path('', include(logs_patterns)),
     path('', include(procedures_patterns)),
-    
+    path('', include(sucursal_patterns)),
     
 ]
 

@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'logs',
     'procedures',
+    'sucursales',
     'django_celery_beat',
 ]
 
@@ -97,6 +98,14 @@ DATABASES = {
         'PORT': '3306',
         'USER': 'elipgo',
         'PASSWORD': '3l1pg0$123',
+    },
+    'bdb': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'bdb',
+        'HOST': '10.200.3.80',
+        'PORT': '3306',
+        'USER': 'elipgo',
+        'PASSWORD': '3l1pg0$123',
     }
 }
 
@@ -127,11 +136,11 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'America/Mexico_City'
 
-TIME_ZONE = 'UTC'
+#TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+#USE_L10N = True
 
 USE_TZ = True
 
@@ -160,13 +169,12 @@ CELERY_BROKER_URL = 'redis://redis:6379/0'
 
 
 
-#: Only add pickle to this list if your broker is secured
-#: from unwanted access (see userguide/security.html)
-
-#CELERY_ACCEPT_CONTENT = ['json']
-#CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
 CELERY_RESULT_BACKEND = 'django-db'
 
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 #CELERY_TASK_SERIALIZER = 'json'
+
+
+MEDIA_URL='/media/'
+MEDIA_ROOT=os.path.join(BASE_DIR,'media')

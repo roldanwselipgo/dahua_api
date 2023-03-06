@@ -2,8 +2,9 @@
 from .dahua_class import Dahua
 
 from datetime import datetime
+from .resolutions import Resolution
 
-#dvr = Dahua("10.200.3.101", 80, "admin", "Elipgo$123")
+
 class Config():
     def __init__(self, default_media_config = {}, default_general_config = {} , dvr = None ):
         self.dvr = dvr
@@ -11,6 +12,7 @@ class Config():
         self.current_media_config_substream = {}
         self.default_media_config = default_media_config
         self.default_general_config = default_general_config
+        self.resolution = Resolution()
 
     def ChannelCount(self):
         rdict = self.dvr.GetMediaEncode() 
@@ -79,10 +81,8 @@ class Config():
             self.current_media_config_substream["VideoEnable"] = None
             for el in rdict:
                 #print(el, rdict[el])
-                
                 if 'Encode[%d].MainFormat[%d]' % (channel, type) in el:
                     #print(el)
-                    
                     if 'Encode[%d].MainFormat[%d].Video.Compression' % (channel, type) in el:
                         prof="Main"
                         for el in rdict:
@@ -104,7 +104,6 @@ class Config():
                                                             self.current_media_config_mainstream["Compression"].append(option) 
                                                      
 
-                            
                     if 'Encode[%d].MainFormat[%d].Video.resolution' % (channel, type) in el:
                         self.current_media_config_mainstream["resolution"].append(rdict['table.Encode[%d].MainFormat[%d].Video.resolution'   % (channel, type)])
                         for caps in rdict_caps:
@@ -112,7 +111,9 @@ class Config():
                                 options = rdict_caps['caps[%d].MainFormat[%d].Video.ResolutionTypes'  % (channel, type)].split(",")
                                 #print("options",options)
                                 if len(options) > 1:
-                                    for option in options : self.current_media_config_mainstream["resolution"].append(option) 
+                                    for option in options: 
+                                        option = self.resolution.get_resolution(option)
+                                        self.current_media_config_mainstream["resolution"].append(option) 
 
                     if 'Encode[%d].MainFormat[%d].Video.FPS' % (channel, type) in el:
                         self.current_media_config_mainstream["FPS"].append(rdict['table.Encode[%d].MainFormat[%d].Video.FPS'          % (channel, type)])
@@ -123,8 +124,6 @@ class Config():
                                 if len(options) > 1:
                                     for option in options : self.current_media_config_mainstream["FPS"].append(option) 
 
-                                
-                        
                     if 'Encode[%d].MainFormat[%d].Video.Quality' % (channel, type) in el:
                         self.current_media_config_mainstream["Quality"] = rdict['table.Encode[%d].MainFormat[%d].Video.Quality'      % (channel, type)] , 0
                     if 'Encode[%d].MainFormat[%d].Video.BitRateControl' % (channel, type) in el:
@@ -133,8 +132,6 @@ class Config():
                         for option in options:
                             self.current_media_config_mainstream["BitRateControl"].append(option) if option not in self.current_media_config_mainstream["BitRateControl"] else 0
 
-
-                    
                     if 'Encode[%d].MainFormat[%d].Video.BitRate' % (channel, type) in el:
                         if rdict['table.Encode[%d].MainFormat[%d].Video.BitRate'      % (channel, type)] not in self.current_media_config_mainstream["BitRate"]:
                             self.current_media_config_mainstream["BitRate"].append(rdict['table.Encode[%d].MainFormat[%d].Video.BitRate'      % (channel, type)])
@@ -146,23 +143,9 @@ class Config():
                                        if value % int(options[0]) == 0:
                                            self.current_media_config_mainstream["BitRate"].append(value) if value not in self.current_media_config_mainstream["BitRate"] else 0
                                  
-                                #if len(options) > 1:
-                                #    for option in options:
-                                #        self.current_media_config_mainstream["BitRate"].append(option) if option not in self.current_media_config_mainstream["BitRate"] else 0
-                                            
                 
                 if 'Encode[%d].ExtraFormat[%d]' % (channel, type) in el:
-                    #print(el)
-                    
                     if 'Encode[%d].ExtraFormat[%d].Video.Compression' % (channel, type) in el:
-                        
-                        """self.current_media_config_substream["Compression"].append(rdict['table.Encode[%d].ExtraFormat[%d].Video.Compression'  % (channel, type)])
-                        for caps in rdict_caps:
-                            if 'caps[%d].ExtraFormat[%d].Video.CompressionTypes' % (channel, type) in caps:
-                                options = rdict_caps['caps[%d].ExtraFormat[%d].Video.CompressionTypes'  % (channel, type)].split(",")
-                                if len(options) > 1:
-                                    for option in options : self.current_media_config_substream["Compression"].append(option) """
-                        
                         prof = "Main"
                         for el in rdict:
                             if 'Encode[%d].ExtraFormat[%d].Video.Profile' % (channel, type) in el:
@@ -182,14 +165,15 @@ class Config():
                                                         if option not in self.current_media_config_substream["Compression"]:
                                                             self.current_media_config_substream["Compression"].append(option)
 
-
                     if 'Encode[%d].ExtraFormat[%d].Video.resolution' % (channel, type) in el:
                         self.current_media_config_substream["resolution"].append(rdict['table.Encode[%d].ExtraFormat[%d].Video.resolution'   % (channel, type)])
                         for caps in rdict_caps:
                             if 'caps[%d].ExtraFormat[%d].Video.ResolutionTypes' % (channel, type) in caps:
                                 options = rdict_caps['caps[%d].ExtraFormat[%d].Video.ResolutionTypes'  % (channel, type)].split(",")
                                 if len(options) > 1:
-                                    for option in options : self.current_media_config_substream["resolution"].append(option) 
+                                    for option in options: 
+                                        option = self.resolution.get_resolution(option)
+                                        self.current_media_config_substream["resolution"].append(option) 
 
                     if 'Encode[%d].ExtraFormat[%d].Video.FPS' % (channel, type) in el:
                         self.current_media_config_substream["FPS"].append(rdict['table.Encode[%d].ExtraFormat[%d].Video.FPS'          % (channel, type)])
@@ -219,8 +203,6 @@ class Config():
                                         if value % int(options[0]) == 0:
                                             self.current_media_config_substream["BitRate"].append(value) if value not in self.current_media_config_substream["BitRate"] else 0
                                             
-                                #for option in options:
-                                #    self.current_media_config_substream["BitRate"].append(option) if option not in self.current_media_config_substream["BitRate"] else 0
                     if 'Encode[%d].ExtraFormat[%d].VideoEnable' % (channel, type) in el:
                         self.current_media_config_substream["VideoEnable"] = rdict['table.Encode[%d].ExtraFormat[%d].VideoEnable'      % (channel, type)], 0
             self.current_media_config_mainstream["Channel"] = channel, 0
@@ -237,7 +219,6 @@ class Config():
 
     def GetMediaEncodeConfig(self, channels = 0, type = 0):
         rdict = self.dvr.GetMediaEncode()
-
         #Conteo canales
         channels = []
         for el in rdict:
@@ -247,7 +228,6 @@ class Config():
                         channels.append(i)
                     break
         print("Channels: ",channels)
-
         #Recorrer informacion por canal
         result = []
         
@@ -276,10 +256,8 @@ class Config():
             self.current_media_config_substream["VideoEnable"] = None
             for el in rdict:
                 #print(el, rdict[el])
-                
                 if 'Encode[%d].MainFormat[%d]' % (channel, type) in el:
                     #print(el)
-                    
                     if 'Encode[%d].MainFormat[%d].Video.Compression' % (channel, type) in el:
                         self.current_media_config_mainstream["Compression"] = rdict['table.Encode[%d].MainFormat[%d].Video.Compression'  % (channel, type)] 
                     if 'Encode[%d].MainFormat[%d].Video.resolution' % (channel, type) in el:
@@ -295,7 +273,6 @@ class Config():
                 
                 if 'Encode[%d].ExtraFormat[%d]' % (channel, type) in el:
                     #print(el)
-                    
                     if 'Encode[%d].ExtraFormat[%d].Video.Compression' % (channel, type) in el:
                         self.current_media_config_substream["Compression"] = rdict['table.Encode[%d].ExtraFormat[%d].Video.Compression'  % (channel, type)]
                     if 'Encode[%d].ExtraFormat[%d].Video.resolution' % (channel, type) in el:
@@ -354,6 +331,27 @@ class Config():
         device_type = rdict['type']  if 'type'  in rdict else ""
         return device_type
 
+    def getHDDevInfo(self):
+        rdict =  self.dvr.GetHDDevInfo()
+        storage = {}
+        storages = []
+        for index in range(0,10):
+            try:
+                storage={}
+                storage['Path']=rdict['list.info[0].Detail[%s].Path' % (index)]  if rdict['list.info[0].Detail[%s].Path' % (index)] else 0
+                storage['isError']=rdict['list.info[0].Detail[%s].IsError' % (index)]  if rdict['list.info[0].Detail[%s].IsError' % (index)] else 0
+                storage['Total']=rdict['list.info[0].Detail[%s].TotalBytes' % (index)]  if rdict['list.info[0].Detail[%s].TotalBytes' % (index)] else 0
+                storage['Type']=rdict['list.info[0].Detail[%s].Type' % (index)]  if rdict['list.info[0].Detail[%s].Type' % (index)] else 0
+                storage['Used']=rdict['list.info[0].Detail[%s].UsedBytes' % (index)]  if rdict['list.info[0].Detail[%s].UsedBytes' % (index)] else 0
+                storage["Total"] = str(int(float(storage["Total"])/1000000000)) + " GB"
+                storage["Used"] = str(int(float(storage["Used"])/1000000000)) + " GB"
+                storages.append(storage)
+            except:
+                pass
+        #print("storages: ",storages)
+        return storages
+
+
     
 
     def setCurrentTime(self, time=None):
@@ -378,45 +376,6 @@ class Config():
         if response:
             print("Conf Success 200")
         print(">> Current Config:",self.GetMediaEncodeConfig(0,0))
-
-        #self.setDefaultMediaEncode(0,2)
-        #self.setDefaultMediaEncode(0,3)
-        #self.setDefaultMediaEncode(0,4)
-        #self.setDefaultMediaEncode(0,5)
         self.setLanguage()
         self.setCurrentTime()
         print(">> Current Config:",self.GetMediaEncodeConfig(0,0))
-
-
-"""
-def main():
-    #print("Dahua config---")
-    
-    #Media config
-    default_media_config = {}
-    default_general_config = {}
-    default_media_config["Compression"] = "H.264"
-    default_media_config["resolution"] = "720P"
-    default_media_config["SmartCodec"] = "Off"
-    default_media_config["FPS"] = 5
-    default_media_config["BitRateControl"] = "VBR"
-    default_media_config["Quality"] = 4
-    default_media_config["BitRate"] = 512
-
-    #General config
-    default_general_config["Language"] = "English"
-
-    #Conexion
-    host = "elipgomexico.ddns.net"
-    port = "elipgomexico.ddns.net"
-    user = "test"
-    password = "test$2022"
-    dvr = Dahua(host, port, user, password)
-    config = Config(default_media_config, default_general_config, dvr)
-    #config.set_default_config()
-    
-
-if __name__ == '__main__':
-    #main()
-    pass
-"""

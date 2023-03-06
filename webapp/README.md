@@ -23,3 +23,11 @@ celery -A app flower
 
 [ dependences ]
 sudo apt install default-libmysqlclient-dev
+
+
+[ Comandos Docker ]
+
+Detener contenedores: docker stop $(docker ps -a -q)
+Borrar contenedores   docker rm $(docker ps -a -q)
+Borrar imagenes:      docker rmi $(docker images -q)
+Forzar borrado de imagen: docker rmi -f 587b1bc803b3

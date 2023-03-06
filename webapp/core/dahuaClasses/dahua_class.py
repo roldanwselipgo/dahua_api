@@ -363,7 +363,7 @@ class Dahua:
       if response:
          self.Name = response['table.General.MachineName'] if 'table.General.MachineName' in response else ""
       else:
-         print("Response:", response['status_code'])
+         print("Response:", response)
       return response 
 
 
@@ -408,7 +408,7 @@ class Dahua:
       if response:
          self.DevType = response['type'] if 'type' in response else ""
       else:
-         print("Response:", response['status_code'])
+         #print("Response:", response['status_code'])
          print("Response:", response)
       return response 
 
@@ -718,26 +718,29 @@ class Dahua:
          pass
 
       #print(response)
-      if response.status_code == 200:
-         rdict = {}
-         list = response.text.split(sep='\r\n')
-         for rec in list:
-            srec  = rec.split(sep='=')
-            if srec[0] != '':
-               rdict[srec[0]] = srec[1]
+      if response:
+         if response.status_code == 200:
+            rdict = {}
+            list = response.text.split(sep='\r\n')
+            for rec in list:
+               srec  = rec.split(sep='=')
+               if srec[0] != '':
+                  rdict[srec[0]] = srec[1]
 
-         print(rdict)
-         index = 0
-         for index in range(4):
-            print("Index", index)
-            self.HDIsError =     rdict['list.info[0].Detail[%s].IsError' % (index)]
-            self.HDPath =        rdict['list.info[0].Detail[%s].Path' % (index)]
-            self.HDTotBytes =    rdict['list.info[0].Detail[%s].TotalBytes' % (index)]
-            self.HDType      =   rdict['list.info[0].Detail[%s].Type' % (index)]
-            self.HDUsedBytes =   rdict['list.info[0].Detail[%s].UsedBytes' % (index)]
-            print(self.HDIsError, self.HDPath, self.HDType, self.HDTotBytes, self.HDUsedBytes)
-
-      return response
+            #print(rdict)
+            index = 0
+            for index in range(4):
+               #print("Index", index)
+               self.HDIsError =     rdict['list.info[0].Detail[%s].IsError' % (index)]
+               self.HDPath =        rdict['list.info[0].Detail[%s].Path' % (index)]
+               self.HDTotBytes =    rdict['list.info[0].Detail[%s].TotalBytes' % (index)]
+               self.HDType      =   rdict['list.info[0].Detail[%s].Type' % (index)]
+               self.HDUsedBytes =   rdict['list.info[0].Detail[%s].UsedBytes' % (index)]
+               #print(self.HDIsError, self.HDPath, self.HDType, self.HDTotBytes, self.HDUsedBytes)
+         return rdict
+      else:
+         return 0
+      
 
 
    ###############################################################################

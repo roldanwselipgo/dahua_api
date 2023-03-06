@@ -8,6 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 
+from datetime import datetime
 import os
 import shutil
 from .models import Device, DefaultConfig
@@ -22,9 +23,6 @@ from core.dahuaClasses.dahua_class import Dahua
 from core.db import BDBDatabase
 # Create your views here.
 
-
-
-    
 class DeviceDetailView(DetailView):
     """ Vista encargada de detallar el dispositivo seleccionado """
     model = Device
@@ -37,21 +35,17 @@ class DeviceDetailView(DetailView):
         user = self.object.usuario
         password = self.object.password
         dvr = Dahua(host, port, user, password) 
-        
-
         general = dvr.GetGeneralConfig()
         device_type = dvr.GetDeviceType()
         device_type = device_type['type']  if 'type' in device_type else ""
-
         hardware_version = dvr.GetHardwareVersion()
         hardware_version = hardware_version['version']  if 'version' in hardware_version else ""
-
         serial_number = dvr.GetSerialNumber()
         serial_number = serial_number['sn']  if 'sn' in serial_number else ""
-
         current_time = dvr.GetCurrentTime()
-        locales = "device1.obtener_locales_config()"
         
+
+        locales = "device1.obtener_locales_config()"
         di = dvr.GetDeviceInfo() 
         video_encode_settings = dvr.GetMediaEncode() 
         snapshot = dvr.GetSnapshot() 
@@ -62,9 +56,6 @@ class DeviceDetailView(DetailView):
             with open("device/static/device/snapshot.jpg", 'wb') as f:
                 snapshot.raw.decode_content = True
                 shutil.copyfileobj(snapshot.raw, f) 
-
-
-
         context['general']=general
         context['current_time']=current_time
         context['locales']=locales
@@ -74,30 +65,6 @@ class DeviceDetailView(DetailView):
         context['video_encode_settings']=video_encode_settings
         return context
 
-        """
-        general = camera1.obtener_datos_generales()
-        current_time = camera1.obtener_current_time()
-        locales = camera1.obtener_locales_config()
-        device_type = camera1.obtener_device_type()
-        hardware_version = camera1.obtener_hardware_version()
-        
-        camera1.actualizar_motion_settings(estado="true")
-        motion_settings = camera1.obtener_motion_settings()
-
-        snapshot = camera1.obtener_snapshot()
-        with open("device/static/device/snapshot.jpg", 'wb') as f:
-            snapshot.raw.decode_content = True
-            shutil.copyfileobj(snapshot.raw, f)  
-
-
-        context['general']=general
-        context['current_time']=current_time
-        context['locales']=locales
-        context['device_type']=device_type
-        context['hardware_version']=hardware_version.text
-        context['motion_settings']=motion_settings
-        return context
-        """
 
 class DeviceListView(ListView):
     """ Vista encargada de listar los dispositivos registrados """
@@ -105,7 +72,6 @@ class DeviceListView(ListView):
     def get_queryset(self):
         device=Device.objects.all()
         return device
-
 
 class DeviceCreateView(CreateView):
     model = Device
@@ -122,7 +88,6 @@ class DeviceUpdateView(UpdateView):
 class DeviceDeleteView(DeleteView):
     model = Device
     success_url = reverse_lazy('device:devices')
-
 
 
 def videoencodeform(request):
@@ -151,11 +116,6 @@ def update_one(request):
             user = device.usuario
             password = device.password
 
-            #host = "10.200.3.20"
-            #port = 1938
-            #user = "admin"
-            #password = "Elipgo$123
-            #---------- Conexion a camara -------------
             dvr = Dahua(host, port, user, password)
             if key == "Compression":
                 values = val.split(" ")
@@ -164,54 +124,29 @@ def update_one(request):
                     dvr.SetOneMediaEncode(int(channel),0,"Compression",values[0],stream)
                     dvr.SetOneMediaEncode(int(channel),0,"Profile",values[1],stream)
                     return HttpResponse("Update one ", content_type='text/plain')
-
             dvr.SetOneMediaEncode(int(channel),0,key,val,stream)
     return HttpResponse("Update one ", content_type='text/plain')
 
 
-
 class DefaultConfigTemplateView(TemplateView):
     template_name = "device/videoencode_detail.html"
-       
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        cameras = []
-        #import time
-        #time.sleep(5)
-        #Conexion
-        #print("path:",self.request.path)
-
-        #Obtener camara
         device_id = None
         if "device" in self.request.path:
             path = self.request.path.split("=")
             device_id = path[1]
-
-        print("device_id",device_id)
-
-
         device=Device.objects.filter(id = device_id).first()
-        print(device.ip)
-        print(device.puerto)
-
         id = device.id
         host = device.ip
         port = device.puerto
         user = device.usuario
         password = device.password
-
-        #host = "10.200.3.20"
-        #port = 1938
-        #user = "admin"
-        #password = "Elipgo$123
-        #---------- Conexion a camara -------------
         dvr = Dahua(host, port, user, password)
 
-        #Media config
         default_media_config = {}
         default_general_config = {}
-        
+        #Media config
         default_config=DefaultConfig.objects.all().first()
         default_media_config["Compression"] = default_config.Compression
         default_media_config["resolution"] = default_config.resolution
@@ -221,33 +156,9 @@ class DefaultConfigTemplateView(TemplateView):
         default_media_config["Quality"] = default_config.Quality
         default_media_config["BitRate"] = default_config.BitRate
         default_media_config["VideoEnable"] = default_config.VideoEnable
-        
         #General config
-        default_general_config["Language"] = "English"
-
-        config = Conf(default_media_config, default_general_config, dvr)
-        
-       
-        #---------- Obtener Configuracion de video -------------
-        channels = config.ChannelDetect()
-         
-        
-
-        array_config = config.GetMediaEncodeConfigCapability()
-
-        
-        langauge = config.getLanguage()
-        current_time = config.getCurrentTime()
-        device_type = config.getDeviceType()
-        print("Channels >> ", channels)                  
-        print("Language >> ", langauge)                  
-        print("CurTime >> ", current_time)                  
-        print("Device Type >> ", device_type)    
-        device_type_name = 'DVR' if 'DH-' in device_type else "Device" 
-
-        #print("ARRAY CONFIG >>", array_config)
-
-        #Validacion form
+        default_general_config["Language"] = default_config.Language
+        #Llenar form con valores por defecto
         default_data = {
             "Compression": default_media_config["Compression"],
             "resolution": default_media_config["resolution"],
@@ -258,12 +169,28 @@ class DefaultConfigTemplateView(TemplateView):
             "BitRate": default_media_config["BitRate"],
             "VideoEnable": default_media_config["VideoEnable"],
             "Language": default_general_config["Language"],
-            "VideoEnable": "true",
-            "CurrentTime": current_time,
+            "CurrentTime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         form = DefaultConfigForm(default_data)
+
+        #---------- Obtener Configuracion de video 
+        config = Conf(default_media_config, default_general_config, dvr)
+        channels = config.ChannelDetect()
+        array_config = config.GetMediaEncodeConfigCapability()
+        langauge = config.getLanguage()
+        current_time = config.getCurrentTime()
+        device_type = config.getDeviceType()
+        print("Channels >> ", channels)                  
+        print("Language >> ", langauge)                  
+        print("CurTime >> ", current_time)                  
+        print("Device Type >> ", device_type)    
+        device_type_name = 'DVR' if 'DH-' in device_type else "Device" 
+        storage_info = config.getHDDevInfo()
+
+        #print("Array config: ", array_config)
+
+
         if self.request.method == "GET":
-            #form = ConfigForm(data=self.request.GET)
             if self.request.GET.get('snapshots',''):
                 #GetSnapshot
                 paths = []
@@ -281,16 +208,19 @@ class DefaultConfigTemplateView(TemplateView):
                             path = f"ch{channel}"
                             paths.append(path)
                 context['snapshots'] = paths
-
             if form.is_valid():
-                compresion = self.request.GET.get('Compression','')
-                checkbox = self.request.GET.get('0','')
-                print("Values prob....",compresion,checkbox)
+                if self.request.GET.get('checkbox-time',''):
+                    print("Enviar hora actual")
+                    config.setCurrentTime()
+                else:
+                    print("Enviar hora del formulario", self.request.GET.get('CurrentTime','') )
+                    config.setCurrentTime(self.request.GET.get('CurrentTime',''))
+                    print(self.request.GET.get('CurrentTime',''))
+                #if self.request.GET.get('Language',''):
+                config.default_general_config["Language"] = self.request.GET.get('Language','')
+                config.setLanguage()
 
                 #---------- Actualizar configuracion si llego la peticion-------------
-                #tipo = self.request.GET.get('type')
-                #ch = self.request.GET.get('channel')
-                #if tipo and ch:
                 print("Comenzar actualizacion") 
                 channels_count = len(channels)
                 if channels_count: 
@@ -306,40 +236,19 @@ class DefaultConfigTemplateView(TemplateView):
                             config.default_media_config["VideoEnable"] = self.request.GET.get('VideoEnable','')
                             print(self.request.GET.get('VideoEnable',''), ">>>>>VideoEnable") 
                             print(self.request.GET.get('BitRate',''), ">>>>>BITR") 
-                            config.default_general_config["Language"] = self.request.GET.get('Language','')
                             if self.request.GET.get('mainstream',''):
                                 print("Se incluye mainstream")
                                 config.setDefaultMediaEncode(channel,0, "MainFormat")
                             if self.request.GET.get('substream',''):
                                 print("Se incluye substream")
                                 config.setDefaultMediaEncode(channel,0, "ExtraFormat")
-                            if self.request.GET.get('checkbox-time',''):
-                                print("Enviar hora actual")
-                                config.setCurrentTime()
-                            else:
-                                print("Enviar hora del formulario", self.request.GET.get('CurrentTime','') )
-                                config.setCurrentTime(self.request.GET.get('CurrentTime',''))
-                                print(self.request.GET.get('CurrentTime',''))
-                            #config.setCurrentTime()
-                            config.setLanguage()
                             
                     #----------Volver a obtener Configuracion de video -------------
                     if self.request.GET.get('Compression',''):
                         #channels = config.ChannelCount()
                         array_config = config.GetMediaEncodeConfigCapability()
-                        """if channels:
-                            for channel in range(0,channels):
-                                print("chian",channel)
-                                array_config = config.GetMediaEncodeConfig(channel,0)"""
-
-                            
-
             else:
                 print(form.is_valid())
-
-
-        configs_mainstream = []
-        configs_substream = []
 
         context['id']=id
         context['ip']=host
@@ -347,6 +256,7 @@ class DefaultConfigTemplateView(TemplateView):
         context['device_type_name']=device_type_name
         context['language']=langauge
         context['current_time']=current_time
+        context['storage_info']=storage_info
         context['channels']=channels
         context['channels_reverse']=channels[::-1]
         context['array_config']=array_config

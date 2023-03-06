@@ -16,7 +16,23 @@
             Actualizar videos perdidios de todos los sitios <a href="{% url 'procedures:update_lost'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a>
         </div>
 
-        <div class="row">
+        <form method="post" enctype="multipart/form-data">
+          <h4>Obtener estatus de conexion desde archivo</h4>
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-6">
+              <input type="file" name="file" >
+            </div>
+            <div class="col-2">
+               <input type="text" placeholder="port" name="port" >
+            </div>
+            <div class="col-4">
+              <button class="btn btn-primary btn-sm" type="submit">Enviar</button>
+            </div>
+          </div>
+        </form>
+
+        <div class="row mt-5">
             <div class="col-lg-12">
                 <div class="form-controll">
                     <label for="search"><i class="icon-search"></i></label>
@@ -50,10 +66,6 @@
                             <td>
                                 <a href="{% url 'procedures:procedures'%}" type="button" class="btn btn-primary btn-sm"> <i class="fa-solid fa-pen"></i></a>
                             </td>
-
-
-                          
-
                         </tr>
                         {% endfor %}
 

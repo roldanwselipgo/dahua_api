@@ -84,7 +84,6 @@ class VRecWSClient():
 
     def CheckPort(self):
         logging.info(f"CheckPort('{self.host}',{self.port})")
-
         host = ""
         try:
             ipaddress.ip_network(self.host)
@@ -103,7 +102,6 @@ class VRecWSClient():
             else:
                 print("Port is not open")
                 return False
-
 
     # Obtiene la información de los Repositorios
     def GetRepositories(self):

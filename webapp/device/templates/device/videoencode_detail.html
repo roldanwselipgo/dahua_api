@@ -13,43 +13,70 @@
                     Reload <a href="{% url 'device:video-encode' id%}" type="sumbit" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a>
                 </div>
                 <hr>
-                <table class="table">
-                    <thead class="thead-light">
-                    <tr>
-                        <th  class="bg-light" scope="col">General Info</th>
-                        <th  class="bg-light" scope="col"></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><label class="">Ip</label> </td>
-                            <td> <label class=""><a target="blank" class="link" href="{% url 'device:device' id %}"> {{ip}}</a></label> </td>
-                        </tr>
-                        <tr>
-                            <td><label class="">Language</label> </td>
-                            <td> <label class="">{{ language }}</label> </td>
-                        </tr>
-                        <tr>
-                            <td><label class="">Current time</label> </td>
-                            <td> <label class="">{{ current_time }} </label> </td>
-                        </tr>
-                        <tr>
-                            <td><label class="">Device type</label> </td>
-                            
-                            <td> <label class="">{{ device_type_name }} {{ device_type }}</label> </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="row">
+                    <div class="col-6">
+                        <table class="table">
+                            <thead class="thead-light">
+                            <tr>
+                                <th  class="bg-light" scope="col">General Info</th>
+                                <th  class="bg-light" scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><label class="">Ip</label> </td>
+                                    <td> <label class=""><a target="blank" class="link" href="{% url 'device:device' id %}"> {{ip}}</a></label> </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="">Language</label> </td>
+                                    <td> <label class="">{{ language }}</label> </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="">Current time</label> </td>
+                                    <td> <label class="">{{ current_time }} </label> </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="">Device type</label> </td>
+                                    
+                                    <td> <label class="">{{ device_type_name }} {{ device_type }}</label> </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <table class="table">
-                <thead class="thead-light">
-                    <tr>
-                        <th scope="col">Video Encode Info</th>
-                        <th scope="col"></th>
-                    </tr>
-                    </thead>
-                </table>
+                    <div class="col-6">
+                        <select class="text-primary mb-1" id="selector">
+                            {% for storage in storage_info %}
+                            <option  value="sd{{forloop.counter0}}"> Storage {{storage.Path}}</option> 
+                            {% for st in storage %}
+                                 
+                                {% endfor %}
+                            {% endfor %}
+                        </select>
+                        {% for storage in storage_info %}
+                        <div id="sd{{forloop.counter0}}"  class="options">
+                            <table class="table">
+                               
+                                
+                                <tbody>
+                                    {% for key,value in storage.items %}
+                                    <tr>
+                                        <td><label class="">{{ key }}</label> </td>
+                                        <td> 
+                                        {{value}}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endfor %}
+                    </div>
 
+                </div>
+                
+
+                
 
                 <!--Size dropdown menu-->
 <!-- <select id="size_select">
@@ -91,44 +118,19 @@
   </select>
 
 
-  <!-- <select id="size_select">
-    {% for channels in array_config %}
-    <option value="ch{{forloop.counter0}}">Channel{{forloop.counter0}}</option> 
-    {% for element in channels %}
-         
-        {% endfor %}
-    {% endfor %}
-    
-  </select>
-   -->
-  <!--Size dropdown content-->
-
-  <!-- {% for channels_config in array_config %}
-  {{ channels|index:forloop.counter0 }}   
-
-  {% endfor %} -->
-
-
-
 
   {% for channels_config in array_config %}
   <div id="{{channels|index:forloop.counter0}}" value="{{channels|index:forloop.counter0}}" class="size_chart">
-
     {% for element in channels_config %}
-
     <table class="table">
         <thead class="thead-light">
-           
             {% if forloop.counter0 == 0 %}           
             <th class="bg-light" scope="col">Mainstream {{stream}}</th>
             <th class="bg-light" scope="col"></th>
-
             {% else %}
-
             <th class="bg-light" scope="col">Substream</th>
             <th  class="bg-light" scope="col"></th>
             {% endif %}
-
         </tr>
         </thead>
         <tbody>
@@ -171,9 +173,6 @@
 
   </div>
   {% endfor %}
-
-
-                
                     
                     </tbody>
                 </table>
@@ -224,12 +223,7 @@
                         </tbody>
                     </table>
 
-                    
-
                     <!-- obtiene datos del modelo -->
-                    
-                    
-
                     <table class="table">
                         <thead class="thead-light">
                         <tr>
@@ -339,12 +333,7 @@
 
 <script>
 $(document).ready(function(){
-	//listen to dropdown for change
 	$(".opciones").change(function(){
-	  //rehide content on change
-	  //$('.size_chart').hide();
-	  //alert(this.url)
-	  //console.log(this.url)
       this.key = $(this).attr("label")
 	  this.val = $(this).val();
       this.channel =  $('#size_select').val()

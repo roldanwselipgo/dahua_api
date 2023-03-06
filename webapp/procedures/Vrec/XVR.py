@@ -8,14 +8,17 @@ from   .VRecCamera      import ProcessVideoList
 from   .VRecWSClient    import VRecWSClient
 from   .BDB_dbClass     import BDBDatabase
 
+from    .mysqlmodels.models import CamaraVideoLost
+from    datetime        import datetime
 
 
 
 class XVR():
-    def __init__(self) -> None:
+    def __init__(self,bdb) -> None:
         count = 0
-        self.bdb = BDBDatabase()
-        self.XVRIP = self.bdb.GetVRecIP()
+        #self.bdb = BDBDatabase()
+        self.bdb = bdb
+        #self.XVRIP = self.bdb.GetVRecIP()
     
     def update_sucursal_cameras_status(self,sucursal):
         #logging.info(f"ProcessXVR.update_sucursal_cameras ({sucursal})")
@@ -48,12 +51,27 @@ class XVR():
         camerasInfo = []
         if (vrec.client): # and numeroSuc == 105):
             cameras = vrec.GetCameraList()
+            print("Len cameraList():",len(cameras))
             for cameraId in cameras:
                 camera = vrec.GetCameraData(cameraId)
                 videoList = vrec.GetCameraVideoList(cameraId)
+                if not videoList:
+                    print(f"videoList returned None{videoList}{cameraId}")
+                    videoList = vrec.GetCameraVideoList(cameraId)
+                    videoList = vrec.GetCameraVideoList(cameraId)
+
+                #print(f"\n videos:{len(videoList)}")
+                #f = open('camera_list.txt','a+')  
+                #f.write(f"\n videos:{len(videoList)}")
+                #f.close()
                 if (videoList):
                     #print("VideoList: ", videoList)
                     firstDate, lastDate, lost = ProcessVideoList(videoList)
+
+                    f = open('camera_list.txt','a+')  
+                    f.write(f"\n sucursal: {numeroSuc} cameras:{len(cameras)} cameraId:{cameraId} videos: {len(videoList)}videoLost:{len(lost)}")
+                    print(f"\n sucursal:{numeroSuc}cameras:{len(cameras)}cameraId:{cameraId}videos:{len(videoList)}videoLost:{len(lost)}")
+                    f.close()
 
                     camaraInfo = {}
                     camaraInfo['sucursal']       = numeroSuc
@@ -73,18 +91,45 @@ class XVR():
                     camaraInfo['lastDate']       = str(lastDate)
                     camaraInfo['lost']           = lost
                     camerasInfo.append(camaraInfo)
+                    
+                    """file = open('logslost22.txt','a+')  
+                    if lost:
+                        for lost_segment in lost:
+                            logging.info(f"Lost(): {camaraInfo['sucursal'] , camaraInfo['camara'] ,lost_segment } ")
+                            if len(lost_segment) == 2:
+                                #queryStr = f"INSERT INTO camara_video_lost VALUES({camaraInfo['sucursal']}, {camaraInfo['camara']}, '{lost_segment[0]}'," \
+                                #        f"'{lost_segment[1]}','{0}', '2022-12-07 10:00:09')"
+                                print(lost_segment)
+                                file.write("\n")
+                                file.write(f"video_lost {camaraInfo['sucursal']} {camaraInfo['camara']} - {lost_segment[0]} {lost_segment[1]} ")"""
+                    self.bdb.UpdateCameraRecord(camaraInfo)
+                    self.bdb.UpdateCameraLost(camaraInfo, lost)
+                    #return camerasInfo
 
-                    #self.bdb.UpdateCameraRecord(camaraInfo)
-                    #self.bdb.UpdateCameraLost(camaraInfo, lost)
-        return camerasInfo
+        return "Terminado"
     
 
     def update_video_lost(self, sucursalCameraInfo):
         logging.info(f"ProcessXVR.update_video_lost ()")
 
         for cameraInfo in sucursalCameraInfo:
+            
+            """logging.info(f"UpdateCameraLost()")
+            #print(cameraInfo)
+            lost = cameraInfo['lost']
+            if lost:
+                for lost_segment in lost:
+                    logging.info(f"Lost(): {cameraInfo['sucursal'] , cameraInfo['camara'] ,lost_segment } ")
+                    if len(lost_segment) == 2:
+                        #queryStr = f"INSERT INTO camara_video_lost VALUES({cameraInfo['sucursal']}, {cameraInfo['camara']}, '{lost_segment[0]}'," \
+                         #       f"'{lost_segment[1]}','{0}','{datetime.now()}')"
+
+                        CamaraVideoLost.objects.using('bdb').create(sucursal=cameraInfo['sucursal'], camara=cameraInfo['camara'], segmento_inicio=lost_segment[0], segmento_fin=lost_segment[1], tiempo_total=0, last_update=datetime.now())"""
+                    
             self.bdb.UpdateCameraRecord(cameraInfo)
             self.bdb.UpdateCameraLost(cameraInfo, cameraInfo['lost'])
+
+
             #self.bdb.UpdateCameraLost(camaraInfo, lost)
 
     def truncate_table(self,table):

@@ -26,22 +26,6 @@ class SitioListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sitios = []
-        
-        """
-        proyecto = 'MF'
-        id_sitio = 1
-        ip = f"mc{id_sitio}.c5cdmx.elipgodns.com"
-        status = 'ups'
-        is_alive = None
-        last_update = "2022-08-13 21:02:45"
-        vc = Config.objects.filter(id=1).first()
-        obj, created = Sitio.objects.update_or_create(
-                sitio=id_sitio,proyecto=proyecto, ip=ip,
-                status=status,is_alive=is_alive,last_update=last_update,
-                videoencode_config_id=vc
-            )"""
-
-        
         if 0:
             #print("Conection success mysql")
             bd = BDBDatabase()
@@ -94,8 +78,6 @@ class SitioDetail2View(DetailView):
         sitios = []
         import time
         time.sleep(5)
-        #Conexion
-        #print("path:",self.request.path)
 
         #Obtener camara
         camara_id = None
@@ -104,21 +86,13 @@ class SitioDetail2View(DetailView):
             camara_id = path[1]
 
         print("camara_id",camara_id)
-
-
         camera=Camera.objects.filter(id = camara_id).first()
         print(camera.ip)
         print(camera.puerto)
-
         host = camera.ip
         port = camera.puerto
         user = camera.usuario
         password = camera.password
-
-        #host = "10.200.3.20"
-        #port = 1938
-        #user = "admin"
-        #password = "Elipgo$123
         #---------- Conexion a camara -------------
         dvr = Dahua(host, port, user, password)
         dvr.GetMediaEncode() 
@@ -136,21 +110,15 @@ class SitioDetailView(DetailView):
         user = "admin"
         password = "Elipgo$123"
         dvr = Dahua(host, port, user, password) 
-        
-
         general = dvr.GetGeneralConfig()
         device_type = dvr.GetDeviceType()
         device_type = device_type['type']  if 'type' in device_type else ""
-
         hardware_version = dvr.GetHardwareVersion()
         hardware_version = hardware_version['version']  if 'version' in hardware_version else ""
-
         serial_number = dvr.GetSerialNumber()
         serial_number = serial_number['sn']  if 'sn' in serial_number else ""
-
         current_time = dvr.GetCurrentTime()
         locales = "device1.obtener_locales_config()"
-        
         di = dvr.GetDeviceInfo() 
         video_encode_settings = dvr.GetMediaEncode() 
         snapshot = dvr.GetSnapshot() 
@@ -162,8 +130,6 @@ class SitioDetailView(DetailView):
                 snapshot.raw.decode_content = True
                 shutil.copyfileobj(snapshot.raw, f) 
 
-
-
         context['general']=general
         context['current_time']=current_time
         context['locales']=locales
@@ -173,56 +139,6 @@ class SitioDetailView(DetailView):
         context['video_encode_settings']=video_encode_settings
         return context
 
-'''
-class SitioDetailView(DetailView):
-    """ Vista encargada de detallar el dispositivo seleccionado """
-    model = Sitio
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        #---------- Conexion a camara -------------
-
-
-        host = self.object.ip
-        port = 8011
-        user = "admin"
-        password = "Elipgo$123"
-        dvr = Dahua(host, port, user, password)
-        
-
-        
-        general = "camera1.obtener_datos_generales()"
-        current_time = "camera1.obtener_current_time()"
-        locales = "camera1.obtener_locales_config()"
-        device_type = "camera1.obtener_device_type()"
-        machine_name = "camera1.obtener_machine_name()"
-        
-        #video_encode_settings = dvr.GetMediaEncode() 
-        #print(video_encode_settings, type(video_encode_settings))
-        print("QWESTAPASANDO")
-        video_encode_settings = ""
-        try: 
-            result = tasks.GetAllMediaEncode.delay(host, port, user, password)
-            video_encode_settings = result.get(timeout=5)
-        #except TimeoutError as error:
-        except:
-            print("TimeoutError 5 secs")
-        else:
-            print("Result task Get all >>> ", video_encode_settings)
-
-        """snapshot = camera1.obtener_snapshot()
-        with open("monitor/static/monitor/snapshot.jpg", 'wb') as f:
-            snapshot.raw.decode_content = True
-            shutil.copyfileobj(snapshot.raw, f) """ 
-
-        context['general']=general
-        context['current_time']=current_time
-        context['locales']=locales
-        context['device_type']=device_type
-        context['machine_name']="machine_name.text"
-        context['video_encode_settings']=video_encode_settings
-        return context
-'''
 
 def truncate_model(model):
     model.objects.all().delete()
@@ -234,10 +150,6 @@ def registrar_configuracion_sitio(configs, sitio):
     host = sitio.ip
     print(sitio.ip)
     if 1: 
-        #result = tasks.GetMediaEncodeA.delay(host, port, user, password, id_sitio)
-        #result = tasks.GetMediaEncodeA.delay(host, port, user, password, id_sitio)
-        #configs = result.get(timeout=5)
-        #configs = result.get()
         if configs:
             config_sitios.append(configs)
             for channels in configs:
@@ -268,7 +180,6 @@ def registrar_configuracion_sitio(configs, sitio):
                             config = Config(**dict2)
                             print("Se crea nueva config", stream['Channel'], stream['Stream'], config )
                             config.save()
-                        
                         # Buscamos si existe el stream, sino lo creamos
                         try:
                             streamsss = Stream.objects.filter(name="MainFormat", id_config=config)
@@ -279,8 +190,6 @@ def registrar_configuracion_sitio(configs, sitio):
                             stream_obj_main = Stream(name="MainFormat", id_config=config)
                             print("Se crea nuevo Stream", stream['Channel'], stream['Stream'], stream_obj_main )
                             stream_obj_main.save()
-                        
-                        
                     elif stream['Stream'] == "ExtraFormat":
                         try:
                             config = Config.objects.get(**dict2)
@@ -289,7 +198,6 @@ def registrar_configuracion_sitio(configs, sitio):
                             config = Config(**dict2)
                             print("Se crea nueva config", stream['Channel'], stream['Stream'], config )
                             config.save()
-
                         
                         # Buscamos si existe el stream, sino lo creamos
                         try:
@@ -300,28 +208,17 @@ def registrar_configuracion_sitio(configs, sitio):
                             print("Se crea nuevo Stream", stream['Channel'], stream['Stream'], stream_obj_extra )
                             stream_obj_extra.save()
                 
-
                 s = Sitio.objects.filter(sitio=id_sitio).first()
                 print("Channel : > , id_sitio > , s > stream_obj >", channels[0]['Channel'], id_sitio, s, stream_obj_main, stream_obj_extra )
 
-                #Buscamos si existe el canal, sino lo creamos 
-                #try:
-                #    s = Sitio.objects.filter(sitio=id_sitio).first()
-                #    channel = Channel.objects.get(number=stream['Channel'], streams=stream_obj_main, sitio=s)
-                #    print("Se encontro Channel>>>>")
-                #except Channel.DoesNotExist:
+               
                 if 1:
                     channel = Channel(number=stream['Channel'], sitio = s)
                     channel.save()
                     #channel.sitios.add(s)
                     channel.streams.add(stream_obj_main,stream_obj_extra)
                     print("Se crea nuevo channel", stream['Channel'], channel )
-                    #channel.save()
-                    
 
-    #except Exception as e:
-        #logging.exception("La except es: ")
-    #    print("Err: ", e, type(e))
 
 def update_config_sites(request):
     #Borramos la configuracion existente
@@ -367,32 +264,3 @@ def update_config_sites(request):
                     break
 
     return HttpResponse("Success "+str(len(sitios)), content_type='text/plain')
-    
-
-    for sitio in sitios:
-        print(sitio.ip)
-        id_sitio = sitio.sitio
-        host = sitio.ip
-        port = 8011
-        user = "admin"
-        password = "Elipgo$123"
-        #if 1: 
-        
-
-            #print("Result task Get all >>> ", config_sitios)
-
-    #for sitios in config_sitios:
-    #    for channel in sitios:
-            #print(channel)
-    #        pass
-
-    return HttpResponse(config_sitios, content_type='text/plain')
-    #try: 
-    #    result = tasks.GetAllMediaEncode.delay(host, port, user, password)
-    #    video_encode_settings = result.get(timeout=5)
-    ##except TimeoutError as error:
-    #except:
-    #    print("TimeoutError 5 secs")
-    #else:
-    #    print("Result task Get all >>> ", video_encode_settings)
-    #return "<h1>Updating config sites...</h1>"

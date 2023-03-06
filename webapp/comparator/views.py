@@ -28,9 +28,7 @@ class SitioBListView(ListView):
         data = []
         #Obtener configuraciones del sitio
         if 1:
-            #for i in range
             sitiosB=SitioB.objects.all().order_by('sitio')[:1000]
-
             for sitioB in sitiosB:
                 sitioA=Sitio.objects.filter(sitio=sitioB.sitio).first()
 
@@ -45,7 +43,6 @@ class SitioBListView(ListView):
                     #print(channel, channel.number)
                     confB = confB + f"<h5>Channel {channelB.number}: <h5>"
                     streamsB = channelB.streams.all().order_by('name')
-                    
                     for streamB in streamsB:
                         stb=StreamB.objects.filter(id=streamB.id).first()
                         cfb=ConfigB.objects.filter(id=stb.id_config.id).first()
@@ -94,7 +91,6 @@ class SitioBListView(ListView):
                 configs["last_updateA"] = sitioA.last_update
                 configs["confA"] = confA
 
-
                 if confB == confA:
                     configs["diff"] = 0
                 else: 
@@ -103,79 +99,7 @@ class SitioBListView(ListView):
                 if confA == "0" and confB == "0":
                     configs["diff"] = "n/a"
 
-
-                #dataB.append(configsB)
                 data.append(configs)
-
-            
         context["configs"] = data
         print("Finished")
         return context
-
-                    
-        sitios=SitioB.objects.all()
-
-        
-        return context
-        
-        """
-        proyecto = 'MF'
-        id_sitio = 1
-        ip = f"mc{id_sitio}.c5cdmx.elipgodns.com"
-        status = 'ups'
-        is_alive = None
-        last_update = "2022-08-13 21:02:45"
-        vc = Config.objects.filter(id=1).first()
-        obj, created = Sitio.objects.update_or_create(
-                sitio=id_sitio,proyecto=proyecto, ip=ip,
-                status=status,is_alive=is_alive,last_update=last_update,
-                videoencode_config_id=vc
-            )"""
-
-        """
-        
-        if 0:
-            #print("Conection success mysql")
-            bd = BDBDatabase()
-            vc = Config.objects.filter(id=1).first()
-            sitios = bd.GetSitios()
-            for sitio in sitios:
-                if 0:
-                #if len(sitio):
-                    proyecto = sitio[0]
-                    id_sitio = sitio[1]
-                    ip = f"mc{id_sitio}.c5cdmx.elipgodns.com"
-                    status = sitio[3]
-                    is_alive = sitio[4]
-                    last_update = sitio[5]
-                    data = {
-                        'sitio':id_sitio,
-                        'proyecto':proyecto,
-                        'ip':ip,
-                        'status':status,
-                        'is_alive':is_alive,
-                        'last_update':last_update,
-                        'videoencode_config_id':vc,
-                    }
-                    print(sitio,len(sitio))
-                    print(id_sitio,proyecto,ip,status,is_alive,last_update,vc)
-                    #Update_or_create
-                    try:
-                        item = Sitio.objects.get(sitio=id_sitio)
-                    except Sitio.DoesNotExist:
-                        Sitio.objects.create(sitio=id_sitio,proyecto=proyecto, ip=ip,
-                            status=status,is_alive=is_alive,last_update=last_update,
-                            videoencode_config_id=vc)
-                    else:
-                        item = Sitio.objects.filter(
-                            sitio=id_sitio
-                        ).update(
-                            ip=ip, status=status, is_alive=is_alive,
-                            last_update=last_update, videoencode_config_id=vc
-                        )
-                    print(item)
-                    
-            context['sitios'] = Sitio.objects.all()
-        return context
-        """
-

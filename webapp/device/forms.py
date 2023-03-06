@@ -15,21 +15,6 @@ class DeviceForm(forms.ModelForm):
            'ip':'', 'puerto':'' , 'usuario':'', 'password': '',
         }
 
-"""
-class CustomerForm(forms.ModelForm):
-
-    class Meta:
-        model = Customer
-        fields = ['name', 'paternal_surname', 'email']
-        widgets = {
-            'name': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Nombre'}),
-            'paternal_surname': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Apellido Paterno'}),
-            'email': forms.EmailInput(attrs={'class':'form-control', 'placeholder':'Correo  '}),
-        }
-        labels = {
-            'name':'', 'email':'', 'paternal_surname': ''
-        }
-"""
 class DefaultConfigForm(forms.Form):
     Compression = forms.CharField(label = "Compression", required=True, widget=forms.TextInput(
         attrs={'class':'', 'placeholder':'Compression'}
@@ -59,5 +44,5 @@ class DefaultConfigForm(forms.Form):
         attrs={'class':'', 'placeholder':'VideoEnable'}
     ))  
     CurrentTime = forms.CharField(label = "CurrentTime", required=True, widget=forms.TextInput(
-        attrs={'class':' input-current', 'placeholder':'Y-m-d H:M:S'}
+        attrs={'class':' input-current', 'placeholder':'Y-m-d H:M:S', 'disabled':'true'}
     ))  

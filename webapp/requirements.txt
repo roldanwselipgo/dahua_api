@@ -16,7 +16,7 @@ icmplib
 Django
 django-bootstrap4==22.3
 mysql-connector-python
-django-crispy-forms
+django-crispy-forms==1.14.0
 
 sqlalchemy>=1.2.18
 celery>=5.0.5
@@ -26,7 +26,10 @@ flower
 mysqlclient
 django-celery-beat
 
+python-nmap
+
 
 #Vrec
 zeep
 pandas
+suds

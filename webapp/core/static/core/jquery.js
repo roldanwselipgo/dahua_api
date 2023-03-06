@@ -114,5 +114,25 @@ $(document).ready(function(){
 	
   });
 
+  
+$(document).ready(function(){
+
+	//hides dropdown content
+	$(".options").hide();
+	
+	//unhides first option content
+	$("#sd0").show();
+	
+	//listen to dropdown for change
+	$("#selector").change(function(){
+	  //rehide content on change
+	  $('.options').hide();
+	  //unhides current item
+	  $('#'+$(this).val()).show();
+	});
+	
+  });
+
+
 
 

@@ -27,7 +27,11 @@ class BDBDatabase:
         self.user       = user
         self.password   = password
         self.lock       = Lock()
+        self.connection = None
 
+        
+
+    def open_connection(self):
         try:
             self.connection = mysql.connector.connect(user      = self.user,
                                                       password  = self.password,
@@ -40,28 +44,9 @@ class BDBDatabase:
                 print("La base de datos no existe.")
             else:
                 print(err)
-
-        """print("Conection success", self.GetXVRIP()[:5] )
-
-        if 1:
-            #print("Existe, se debe actualizar")
-            queryStr = f"UPDATE camara SET status='oked' " \
-                       f"WHERE sucursal=101 and camara=34882"
-
-        queryStr =  "INSERT INTO camara_video_lost VALUES(100, 7690, '2022-10-04 23:00:00','2022-10-07 01:00:00','0')"
-        print(queryStr)
-        #try:
-        if 1:
-            self.lock.acquire()
-            mycursor = self.connection.cursor()
-            mycursor.execute(queryStr)
-            self.connection.commit()
-            mycursor.close()
-            self.lock.release()
-        #except:
-        else:
-            pass
-            self.lock.release()"""
+    def close_connection(self):
+        if self.connection:
+            self.connection.close()
 
 
     def GetXVRIP(self):
@@ -176,28 +161,42 @@ class BDBDatabase:
                             f"'{lost_segment[1]}','{0}','{datetime.now()}')"
 
                     
-                    
+                    #Buscar si existe el elemento
+                    query1=f"SELECT * from camara_video_lost where sucursal={cameraInfo['sucursal']} and camara={cameraInfo['camara']} and segmento_inicio='{lost_segment[0]}'"
                     #print(queryStr)
-                    
-                    #logging.info(f"Insertar:({queryStr})")
-
-                    if 1:
+                    myresult=None
+                    try:
                         self.lock.acquire()
                         mycursor = self.connection.cursor()
-                        mycursor.execute(queryStr)
-                        self.connection.commit()
+                        mycursor.execute(query1)
+                        myresult = mycursor.fetchall()
                         mycursor.close()
                         self.lock.release()
-                    else:
+                    except:
                         pass
-                        self.lock.release()
-            #else:
-                #print("Existe, se debe actualizar")
-                #queryStr = f"UPDATE camara SET status='{cameraInfo['status']}', enable='{cameraInfo['enable']}', " \
-                #           f"first_video='{cameraInfo['firstDate']}', last_video='{cameraInfo['lastDate']}' "      \
-                #           f"WHERE sucursal={cameraInfo['sucursal']} and camara={cameraInfo['camara']}"
-            #    pass
-            #print(queryStr)
+
+                    if myresult:
+                        logging.info(f"YaExisteElRegistro(): {myresult} ")
+                        logging.info(f"YaExisteElRegistro(): {myresult} ")
+                    else:
+                        logging.info(f"\n\n\nNoExisteElRegistro(): CreandoNuevoRegistro\n\n\n ")
+                        #if len(lost_segment) == 2:
+                        #    queryStr = f"INSERT INTO camara_video_lost VALUES({cameraInfo['sucursal']}, {cameraInfo['camara']}, '{lost_segment[0]}'," \
+                        #            f"'{lost_segment[1]}','{0}', '2022-12-07 10:00:09')"
+                        
+                        #logging.info(f"Insertar:({queryStr})")
+
+                        try:
+                            self.lock.acquire()
+                            mycursor = self.connection.cursor()
+                            mycursor.execute(queryStr)
+                            self.connection.commit()
+                            mycursor.close()
+                            self.lock.release()
+                        except:
+                            logging.warning(f"Error adding CameraLost()")
+                            pass
+                            self.lock.release()
         
 
 
@@ -229,7 +228,6 @@ class BDBDatabase:
             mycursor.close()
             self.lock.release()
         except:
-            pass
             self.lock.release()
 
 

@@ -5,9 +5,6 @@ from datetime import datetime
 # Create your models here.
 class Sitio(models.Model):
     sitio = models.IntegerField(primary_key=True,verbose_name='Sitio')
-    #no_local = models.IntegerField(verbose_name='LocalNo', null=False, blank=False)
-    #machine_name = models.CharField(max_length=200, verbose_name = 'Machine name', null=True, blank=True)
-    #machine_adress = models.CharField(max_length=200, verbose_name = 'Machine address', null=True, blank=True)
     proyecto = models.CharField(max_length=20, verbose_name = 'Proyecto', null=True, blank=True)
     ip = models.CharField(max_length=80, verbose_name = 'Ip', null=True, blank=True)
     status = models.CharField(max_length=50, verbose_name = 'Status', null=True, blank=True)
