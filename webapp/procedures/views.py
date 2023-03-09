@@ -111,7 +111,11 @@ def update_sucursal_cameras_status(request):
     return HttpResponse("Success "+str("."), content_type='text/plain')
 
 
-    
+def update_one_lost(request):
+    tasks.update_one()
+    return HttpResponse("Success video lost "+str("."), content_type='text/plain')
+
+  
 def update_lost(request):
     tasks.task_video_lost()
     """xvr = XVR()

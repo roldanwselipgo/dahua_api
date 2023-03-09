@@ -41,7 +41,7 @@ class XVR():
 
         return "Terminado"
 
-    def update_sucursal_cameras(self,sucursal):
+    def update_sucursal_cameras2(self,sucursal):
         logging.info(f"ProcessXVR.update_sucursal_cameras ({sucursal})")
         numeroSuc = sucursal[0]
         vrecHost  = sucursal[1]
@@ -107,6 +107,77 @@ class XVR():
                     #return camerasInfo
 
         return "Terminado"
+    
+    def update_sucursal_cameras(self,sucursal):
+        logging.info(f"ProcessXVR.update_sucursal_cameras ({sucursal})")
+        numeroSuc = sucursal[0]
+        vrecHost  = sucursal[1]
+        vrecPost  = sucursal[2]
+        logging.info(f" Procesando Sucursal: {numeroSuc} {sucursal}")  
+        self.bdb.WriteLog(numeroSuc, "Started")
+
+        vrec = VRecWSClient(vrecHost, port=vrecPost, sucursal=numeroSuc)
+
+        if (vrec.exception):
+            self.bdb.WriteLog(numeroSuc, vrec.exception)
+            self.bdb.UpdateStatus(numeroSuc, vrec.exception)
+        else:
+            self.bdb.UpdateStatus(numeroSuc, "Online")
+        
+        if (vrec.client and not vrec.exception): # and numeroSuc == 105):
+            self.bdb.WriteLog(numeroSuc, "CameraList")        
+            cameras = vrec.GetCameraList()
+            for cameraId in cameras:
+                self.bdb.WriteLog(numeroSuc, f"CameraId:{cameraId}")
+
+                camera = vrec.GetCameraData(cameraId)
+                videoList = vrec.GetCameraVideoList(cameraId)
+                if (videoList):
+                    self.bdb.WriteLog(numeroSuc, f"VideoListt:{cameraId}")
+
+                    #print("VideoList: ", videoList)
+                    firstDate, lastDate, lost = ProcessVideoList(videoList)
+
+                    camaraInfo = {}
+                    camaraInfo['sucursal']       = numeroSuc
+                    camaraInfo['camara']         = camera["CameraID"]
+                    camaraInfo['nombre']         = camera["Name"]
+                    camaraInfo['host']           = camera["Host"]
+                    camaraInfo['port']           = camera["PortHTTP"]
+                    camaraInfo['sdk']            = camera["SDK"]
+                    camaraInfo['user']           = camera["User"]
+                    camaraInfo['password']       = camera["Password"]
+                    camaraInfo['fps']            = camera["FrameRate"]
+                    camaraInfo['status']         = camera["Status"]
+                    camaraInfo['enable']         = camera["Enable"]
+                    camaraInfo['recycle_mode']   = camera["RecycleMode"]
+                    camaraInfo['recycle_status'] = camera["RecycleStatus"]
+                    camaraInfo['firstDate']      = str(firstDate)
+                    camaraInfo['lastDate']       = str(lastDate)
+                    camaraInfo['lost']           = lost
+
+                    file = open('logslost22.txt','a+')  
+                    if lost:
+                        for lost_segment in lost:
+                            logging.info(f"Lost(): {camaraInfo['sucursal'] , camaraInfo['camara'] ,lost_segment } ")
+                            if len(lost_segment) == 2:
+                                #queryStr = f"INSERT INTO camara_video_lost VALUES({camaraInfo['sucursal']}, {camaraInfo['camara']}, '{lost_segment[0]}'," \
+                                #        f"'{lost_segment[1]}','{0}', '2022-12-07 10:00:09')"
+                                print(lost_segment)
+                                file.write("\n")
+                                file.write(f"video_lost {camaraInfo['sucursal']} {camaraInfo['camara']} - {lost_segment[0]} {lost_segment[1]} ")
+                    self.bdb.UpdateCameraRecord(camaraInfo)
+                    self.bdb.UpdateCameraLost(camaraInfo, lost)
+        try:
+            vrec = None
+            self.bdb.WriteLog(numeroSuc, "Finished")
+            return f"Terminando Sucursal: {numeroSuc}:'{vrecHost}'"
+        except:
+            self.bdb.WriteLog(numeroSuc, "Exception")
+            return "EXCEPTION"
+        #return "Terminado"
+
+    
     
 
     def update_video_lost(self, sucursalCameraInfo):

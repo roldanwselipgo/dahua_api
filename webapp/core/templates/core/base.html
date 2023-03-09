@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <link rel="stylesheet" href="{% static 'core/style.css' %}"> 
     <script src="{% static 'core/jquery.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.0/jquery.bootstrap-growl.min.js"></script>
 </head>
 <body>
     <div id="wrapper">
@@ -67,6 +68,11 @@
                 
                 <ul class="navbar-nav ">
     
+                    <li role="presentation" > <a href="http://192.168.60.199:5555" class="a"><h4 class="h"> <img class="imagen m-2" width="30" heigth="30" src="{% static 'core/imgs/celery_logo.png' %}"></h4></a></li>
+                    <li role="presentation" ><a href="http://10.200.3.80:3300" class="a"><h4 class="h"><img class="imagen m-2" width="30" heigth="30" src="{% static 'core/imgs/grafana_icon.svg' %}"></h4></a></li>
+               
+
+                    
                     {% if request.user.is_authenticated %}
     
                     <li class="nav-item active"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>

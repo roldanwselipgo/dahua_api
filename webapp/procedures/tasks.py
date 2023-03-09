@@ -10,6 +10,7 @@ from procedures.Vrec.VRecWSClient import VRecWSClient
 from procedures.Vrec.VRecCamera import ProcessVideoList
 import logging
 import nmap
+import requests
 #from procedures.views import update_lost 
 
 
@@ -218,10 +219,26 @@ def update_sucursal_cameras(sucursal):
     print("time:", end_time - start_time)
     return cameraInfo
 
-@shared_task(name="status_sucursal", time_limit=32)
-def sucursal():
-    xvr.update_sucursal_cameras_status(101)
+@shared_task(name="update_one", time_limit=32)
+def update_one():
+    bdb.open_connection()
+    XVRIP = bdb.GetVRecIP()
+    xvr = XVR(bdb)
+    for sucursal in XVRIP:
+        if sucursal[0]==101:
+            xvr.update_sucursal_cameras(sucursal)
+    bdb.close_connection()
     return 'Sucursal procesada'
+
+@shared_task(name="video_lost")
+def video_lost():
+    response = requests.get('http://192.168.60.199:8000/camera_video_lost/')
+    return response
+
+@shared_task(name="test", time_limit=32)
+def test():
+    a = 2
+    return a*a
 
 
 """

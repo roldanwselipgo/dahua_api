@@ -315,7 +315,12 @@ class Config():
         if len(values) == 2:
             Compression = values[0]
             Profile = values[1]
-        self.dvr.SetMediaEncode(channel,type, Compression, resolution, FPS, BitRateControl, Quality, BitRate, VideoEnable, stream, Profile)
+
+        if stream=="ExtraFormat":
+            resolution="640x480" #VGA for substream 
+        
+        response = self.dvr.SetMediaEncode(channel,type, Compression, resolution, FPS, BitRateControl, Quality, BitRate, VideoEnable, stream, Profile)
+        return response
 
     def setLanguage(self):
         Language = self.default_general_config["Language"]

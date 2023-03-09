@@ -7,6 +7,55 @@
         
         <br>
         <div class="row">
+            
+
+            <script>
+                function bootstrapAlert(msg){
+                    $.bootstrapGrowl(msg,{
+                        type:"danger",
+                        stackup_spacing:10,
+                        width:250,
+                        allow_dismiss:true
+                    });
+                }
+            </script>
+            <script>
+                function bootstrapSuccessAlert(msg){
+                    $.bootstrapGrowl(msg,{
+                        type:"success",
+                        stackup_spacing:10,
+                        width:250,
+                        allow_dismiss:true
+                    });
+                }
+            </script>
+
+            {% if request.GET.Language %}
+                {% if failure_m %}
+                <script>
+                    bootstrapAlert("Failed MainFormat"+"{{failure_m}}")
+                </script>
+                {% else %}
+                <script>
+                    bootstrapSuccessAlert("Success MainFormat")
+                    </script>
+                {% endif %}
+
+                {% if failure_e %}
+                <script>
+                    bootstrapAlert("Failed ExtraFormat: "+"{{failure_e}}")
+                </script>
+                {% else %}
+                <script>
+                    bootstrapSuccessAlert("Success ExtraFormat")
+                </script>
+                {% endif %}
+            {% endif %}
+            
+
+          
+           
+            
             <div class="col-6">
                 <h4 class="mb-5">Current configuration</h4> 
                 <div align="left" class="btn_crear mb-3">
@@ -293,6 +342,7 @@
                     </table>
 
                     <!-- {{ form|crispy }}  -->
+                    <label class="" hidden><input name="snapshots" type="text" value=1>snaps</label>
                     
                     <button  type="submit" class="btn  btn-outline-success">Enviar</button>
                     <!-- <a href="./" type="submit" class="btn btn-primary">Cancelar</a> -->

@@ -48,5 +48,5 @@ def ProcessVideoList(videoList):
     #print(loosen)
 
     #print("fll:",datetime.strptime(str(first), "%Y%m%d%H"), datetime.strptime(str(last), "%Y%m%d%H"), lost)
-    #print(">>first last:",first,last)
+    print(">>first last:",first,last)
     return datetime.strptime(str(first), "%Y%m%d%H"), datetime.strptime(str(last), "%Y%m%d%H"), lost

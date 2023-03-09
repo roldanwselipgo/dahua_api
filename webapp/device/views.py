@@ -3,10 +3,9 @@ from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 
 from datetime import datetime
 import os
@@ -19,6 +18,7 @@ from requests.auth import HTTPDigestAuth
 from core.dahuaClasses.dahua_config import Config as Conf
 from core.dahuaClasses.dahua_class import Dahua
 
+from django.contrib import messages
 
 from core.db import BDBDatabase
 # Create your views here.
@@ -69,6 +69,24 @@ class DeviceDetailView(DetailView):
 class DeviceListView(ListView):
     """ Vista encargada de listar los dispositivos registrados """
     model = Device
+    success_url = reverse_lazy('device:devices')
+    def post(self, request, *args, **kwargs):
+        #form = self.form_class(request.POST)
+        #if form.is_valid():
+        if self.request.method == "POST":
+            # <process form cleaned data>
+            if 1:
+                
+            
+                print("Post method")
+                ip = self.request.POST.get("ip","")
+                Device.objects.create(usuario="admin", password="Elipgo$123", ip=ip, puerto="8011")
+                print(ip, type(ip))
+                #df = pd.read_csv(file)
+                #print(df.values[0])
+        return HttpResponseRedirect(reverse_lazy('device:devices'))
+                
+        
     def get_queryset(self):
         device=Device.objects.all()
         return device
@@ -224,6 +242,8 @@ class DefaultConfigTemplateView(TemplateView):
                 print("Comenzar actualizacion") 
                 channels_count = len(channels)
                 if channels_count: 
+                    failure_m = ""
+                    failure_e = ""
                     for channel in range(0,channels_count):
                         if self.request.GET.get(str(channel),''):
                             print("Configurando canal: ",channel)
@@ -238,10 +258,28 @@ class DefaultConfigTemplateView(TemplateView):
                             print(self.request.GET.get('BitRate',''), ">>>>>BITR") 
                             if self.request.GET.get('mainstream',''):
                                 print("Se incluye mainstream")
-                                config.setDefaultMediaEncode(channel,0, "MainFormat")
+                                response = config.setDefaultMediaEncode(channel,0, "MainFormat")
+                                if not response:
+                                    failure_m = failure_m +  "," + str(channel) 
                             if self.request.GET.get('substream',''):
                                 print("Se incluye substream")
-                                config.setDefaultMediaEncode(channel,0, "ExtraFormat")
+                                response = config.setDefaultMediaEncode(channel,0, "ExtraFormat")
+                                if not response:
+                                    failure_e = failure_e +  "," + str(channel) 
+                    #if failure_m == "":
+                    #    messages.success(self.request,f"Success MainFormat All")
+                    #else: 
+                    #    messages.success(self.request,f"Failed MainFormat {failure_m}")
+
+                    #if failure_e == "":
+                    #    messages.success(self.request,f"Success ExtraFormat All")
+                    #else: 
+                    #    messages.success(self.request,f"Failed ExtraFormat {failure_e}")
+                    context['failure_m']=failure_m
+                    context['failure_e']=failure_e
+                    
+
+
                             
                     #----------Volver a obtener Configuracion de video -------------
                     if self.request.GET.get('Compression',''):
@@ -250,6 +288,7 @@ class DefaultConfigTemplateView(TemplateView):
             else:
                 print(form.is_valid())
 
+        
         context['id']=id
         context['ip']=host
         context['device_type']=device_type

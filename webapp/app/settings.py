@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8b*n@37(-rwtctmxd3)z_k0vo^(64l34=q+4p*ijj01^4c1o93'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -155,8 +155,8 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = 'sitio:sitios'
-LOGOUT_REDIRECT_URL = 'sitio:sitios'
+LOGIN_REDIRECT_URL = 'device:devices'
+LOGOUT_REDIRECT_URL = 'device:devices'
 
 
 # Celery Configuration Options
