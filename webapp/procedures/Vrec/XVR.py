@@ -128,13 +128,16 @@ class XVR():
             self.bdb.WriteLog(numeroSuc, "CameraList")        
             cameras = vrec.GetCameraList()
             for cameraId in cameras:
+                
+                
+
                 self.bdb.WriteLog(numeroSuc, f"CameraId:{cameraId}")
 
                 camera = vrec.GetCameraData(cameraId)
                 videoList = vrec.GetCameraVideoList(cameraId)
                 if (videoList):
                     self.bdb.WriteLog(numeroSuc, f"VideoListt:{cameraId}")
-
+                    
                     #print("VideoList: ", videoList)
                     firstDate, lastDate, lost = ProcessVideoList(videoList)
 
@@ -156,6 +159,9 @@ class XVR():
                     camaraInfo['lastDate']       = str(lastDate)
                     camaraInfo['lost']           = lost
 
+                    file = open('resumenProceso.txt','a+')  
+                    file.write("\n")
+                    file.write(f"sucursal:{numeroSuc}, cameras:{len(cameras)},videos_lost:{len(lost)} ")
                     file = open('logslost22.txt','a+')  
                     if lost:
                         for lost_segment in lost:

@@ -115,6 +115,10 @@ def update_one_lost(request):
     tasks.update_one()
     return HttpResponse("Success video lost "+str("."), content_type='text/plain')
 
+def summary(request):
+    tasks.summary()
+    return HttpResponse("Success summary " + str("."), content_type='text/plain')
+
   
 def update_lost(request):
     tasks.task_video_lost()

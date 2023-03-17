@@ -178,3 +178,11 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 
 MEDIA_URL='/media/'
 MEDIA_ROOT=os.path.join(BASE_DIR,'media')
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'rodrigo.roldan@elipgo.com'
+EMAIL_HOST_PASSWORD = 'gnyjylabspgvakia'

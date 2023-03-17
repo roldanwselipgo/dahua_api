@@ -21,11 +21,11 @@
                         <table id="sitios-remotos-table" class="advanced-web-table">
                           <thead>
                             <tr>
-                              <th>ID</th>
-                              <th>host</th>
-                              <th>Status</th>
-                              <th>Type</th>
-                              <th>Last Update</th>
+                              <th>Sucursal</th>
+                              <th>Dvr</th>
+                              <th>Model</th>
+                              <th>Serial</th>
+                              <th>Cameras info</th>
                               <th>Opciones</th>
                             </tr>
                           </thead>
@@ -35,9 +35,15 @@
                             <tr>
                               <td>{{sucursal.sucursal}}</td>
                               <td>{{sucursal.direccion}}</td>
-                                <td>{{sucursal.status}}</td>
                                 <td>{{sucursal.type}}</td>
-                                <td>{{sucursal.last_update}}</td>
+                                <td>{{sucursal.serial}}</td>
+                                <td>
+                                  {% for camera_info in sucursal.cameras_info %} 
+                                  {{camera_info}}
+                                  <br>
+
+                                  {% endfor %}
+                                </td>
                                 <td>
                                   <a class="btn  btn-xs btn-primary btn-sm" href="{% url 'sucursal:sucursal' sucursal.sucursal %}" title="Ver" type="button" class="card-link">Info </a>
                                   <a class="btn btn-secondary btn-sm" href="#" title="Ver" type="button" class="card-link">Configuracion </a>

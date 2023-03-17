@@ -230,6 +230,13 @@ def update_one():
     bdb.close_connection()
     return 'Sucursal procesada'
 
+@shared_task(name="summary", time_limit=32)
+def summary():
+    bdb.open_connection()
+    summary = bdb.GetSummary()
+    bdb.close_connection()
+    return 'Sucursal procesada'
+
 @shared_task(name="video_lost")
 def video_lost():
     response = requests.get('http://192.168.60.199:8000/camera_video_lost/')

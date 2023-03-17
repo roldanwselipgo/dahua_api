@@ -50,6 +50,7 @@ DAHUA_HDSTORAGE     = '/cgi-bin/storageDevice.cgi?action=getCaps'
 DAHUA_GETSTGROUP    = '/cgi-bin/configManager.cgi?action=getConfig&name=StorageGroup'
 DAHUA_SETHOLDTIME   = '/cgi-bin/configManager.cgi?action=setConfig'
 DAHUA_FINDACCSREC   = '/cgi-bin/recordFinder.cgi?action=find&name=AccessControlCardRec'
+DAHUA_REMOTEDEV     = '/cgi-bin/configManager.cgi?action=getConfig&name=RemoteDevice'
 DAHUA_DISCOVERDEV   = '/cgi-bin/deviceDiscovery.cgi?action=attach'
 DAHUA_FINDLOGS      = '/cgi-bin/log.cgi?action=startFind'
 DAHUA_BACKUPLOG     = '/cgi-bin/Log.backup?action='
@@ -392,6 +393,7 @@ class Dahua:
       #if response != "":
       if response:
          self.SerialNo = response['sn'] if 'sn' in response else ""
+         return self.SerialNo
       else:
          print("Response:", response['status_code'])
       return response 
@@ -407,12 +409,14 @@ class Dahua:
       #if response != "":
       if response:
          self.DevType = response['type'] if 'type' in response else ""
+         return self.DevType 
       else:
          #print("Response:", response['status_code'])
          print("Response:", response)
       return response 
 
 
+   
    # Get Device Info
    def GetDeviceInfo(self):
       self.GetGeneralConfig()
@@ -897,8 +901,22 @@ class Dahua:
          return(response)
 
 
+   def RemoteDevices(self,timeout=DAHUA_TIMEOUT):
+      print("RemoteDevices()")
+      print(">> GetGeneralConfig")
+      response = self.CommonCall2(DAHUA_REMOTEDEV)
+      #print(response)
+
+      if response:
+         pass
+      else:
+         print("Response:", response)
+      
+      return response 
+      
+
    def DiscoverDevices(self, timeout=DAHUA_TIMEOUT):
-      #print("DiscoverDevices()")
+      print("DiscoverDevices()")
 
       response = self.CommonCall(DAHUA_DISCOVERDEV, timeout)
       if response['status_code'] == 200:
@@ -920,8 +938,7 @@ class Dahua:
          if index:
             self.devices.append(dict)
 
-      #pprint.pprint(self.devices)
-      return response
+      return self.devices,response
 
 
    def FindLogs(self, startTime, endTime, type='All'):

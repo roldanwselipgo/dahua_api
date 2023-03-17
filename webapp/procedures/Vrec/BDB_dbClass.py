@@ -4,8 +4,10 @@ import pandas as pd
 import logging
 from   mysql.connector import errorcode
 from   multiprocessing import Lock
-from   datetime import datetime
+from   datetime import datetime, timedelta
 
+from django.core.mail import EmailMultiAlternatives
+from django.conf import settings
 
 ELIPGO_DDNSDomain = 'elipgodns.com'
 DB_Host           = '10.200.3.80'
@@ -75,8 +77,9 @@ class BDBDatabase:
         columns  = mycursor.description
         mycursor.close()
         self.lock.release()
+        return(myresult)   
 
-        return(myresult)        
+
 
 
     def UpdateStatus(self, sucursal, status):
@@ -111,6 +114,164 @@ class BDBDatabase:
         except mysql.connector.Error as err:
             print(f"Error: {err}")
             self.lock.release()
+
+
+    def GetSummary(self):
+        logging.info(f"GetVFRecIP()")
+        # Generar resumen de status de xvr
+        offline = None
+        self.lock.acquire()
+        mycursor = self.connection.cursor()
+        mycursor.execute("SELECT status,count(status) FROM camara group by status")
+        myresult = mycursor.fetchall()
+        summary_text = ""
+        if myresult:
+            camera_status = {}
+            summary_text = summary_text + f"<br>[ Camaras con incidentes ] <br>"
+            for result in myresult:   
+                print(result[0],result[1])
+                llave = result[0]
+                valor = result[1]
+                if llave=="Stopped":
+                    llave="Camaras Detenidos"
+                elif llave=="Starting":
+                    llave="Camaras Reconectando"
+                elif llave=="Error":
+                    llave="Camaras Con Errores"
+                elif llave=="RetryWait":
+                    llave="Camaras Reintentando"
+                elif llave=="Started":
+                    llave="Camaras En linea"
+
+                summary_text = summary_text + f"<br>{llave}:{valor}"
+                camera_status[str(result[0])] = result[1]
+        print(camera_status)
+
+        mycursor.execute("SELECT status,count(status) FROM sucursal group by status")
+        myresult = mycursor.fetchall()
+        if myresult:
+            sucursal_status = {}
+            summary_text = summary_text + f"<br><br>[ Estado de sucursales ]<br>"
+            for result in myresult:   
+                print(result[0],result[1])
+                llave = result[0]
+                valor = result[1]
+                summary_text = summary_text + f"<br>{llave}: {valor}"
+                sucursal_status[str(result[0])] = result[1]
+        print(sucursal_status)
+        
+        #mycursor.execute("SELECT * FROM camara_video_lost where last_update between '2023-03-11 00:00:00' and '2023-03-15 00:00:00' order by segmento_inicio desc")
+        #myresult = mycursor.fetchall()
+        #if myresult:
+        #    sucursal_status = {}
+        #    for result in myresult:   
+        #        print(result[0],result[1])
+        #        sucursal_status[str(result[0])] = result[1]
+        #print(sucursal_status)
+        
+        queryStr =  f"select distinct video_lost.sucursal, sucursal.nombre,video_lost.camara,first_video, " \
+                    f"last_video,segmento_inicio, segmento_fin," \
+                    f"CONCAT(FLOOR(HOUR(TIMEDIFF(segmento_inicio, segmento_fin)) / 24), 'd , '," \
+                    f"MOD(HOUR(TIMEDIFF(segmento_inicio, segmento_fin )), 24), 'h') as 'tiempo_segmento'," \
+                    f"video_lost.last_update" \
+                    f" FROM bdb.camara_video_lost video_lost " \
+                    f" INNER JOIN bdb.camara camara ON video_lost.camara = camara.camara" \
+                    f" INNER JOIN bdb.sucursal sucursal ON video_lost.sucursal = sucursal.sucursal" \
+                    f" WHERE video_lost.segmento_inicio BETWEEN camara.first_video and camara.last_video" \
+                    f" AND video_lost.segmento_fin BETWEEN camara.first_video and camara.last_video" \
+        
+        mycursor.execute(queryStr)
+        myresult = mycursor.fetchall()
+        columns  = mycursor.description
+        headers = []
+        for column in columns:
+            headers.append(str(column[0]))
+        print(headers)
+        if myresult:
+            pd.DataFrame(myresult).to_csv("camera_lost.csv",header=headers)
+
+        today = datetime.now().date()
+        yesterday = today.today() - timedelta(1)
+        news =  f"select distinct video_lost.sucursal, sucursal.nombre,video_lost.camara,first_video, " \
+                    f"last_video,segmento_inicio, segmento_fin," \
+                    f"CONCAT(FLOOR(HOUR(TIMEDIFF(segmento_inicio, segmento_fin)) / 24), 'd , '," \
+                    f"MOD(HOUR(TIMEDIFF(segmento_inicio, segmento_fin )), 24), 'h') as 'tiempo_segmento'," \
+                    f"video_lost.last_update" \
+                    f" FROM bdb.camara_video_lost video_lost " \
+                    f" INNER JOIN bdb.camara camara ON video_lost.camara = camara.camara" \
+                    f" INNER JOIN bdb.sucursal sucursal ON video_lost.sucursal = sucursal.sucursal" \
+                    f" WHERE video_lost.segmento_inicio BETWEEN camara.first_video and camara.last_video and segmento_inicio between '{yesterday}' and '{today}' " \
+                    f" AND video_lost.segmento_fin BETWEEN camara.first_video and camara.last_video" \
+                    
+        mycursor.execute(news)
+        myresult = mycursor.fetchall()
+
+        summary_text = summary_text + f"<br><br>[ Errores en la grabacion ] <br>"
+        summary_text = summary_text + f"Segmentos de video perdidos nuevos: {len(myresult)}<br>"
+        summary_text = summary_text + f"Sucursales con incidencias de video perdidos: 11 <br>"
+
+        columns  = mycursor.description
+        headers = []
+        for column in columns:
+            headers.append(str(column[0]))
+        print(headers)
+        if myresult:
+            pd.DataFrame(myresult).to_csv("news.csv",header=headers)
+
+        
+        mycursor.execute("SELECT * FROM camara")
+        myresult = mycursor.fetchall()
+        columns  = mycursor.description
+        headers = []
+        for column in columns:
+            headers.append(str(column[0]))
+        print(headers)
+        if myresult:
+            pd.DataFrame(myresult).to_csv("summary.csv",header=headers)
+                    
+        #email_from=settings.EMAIL_HOST_USER
+        #recipient_list=["roldan096@gmail.com"]
+        #send_mail("TestMail", "Testing...", email_from, recipient_list)
+
+        #email = EmailMessage(
+        #    "Test",
+        #    "msg1",
+        #    settings.EMAIL_HOST_USER,
+        #    ['roldan096@gmail.com']
+        #    )
+        #email.fail_silently = False
+        #email.send()
+        #self.send_email(["roldan096@gmail.com","jorge.pi@elipgo.com"],'summary.csv','news.csv', summary_text)
+        self.send_email(["roldan096@gmail.com","jorge.pi@elipgo.com"],'summary.csv','camera_lost.csv','news.csv', summary_text)
+        mycursor.close()
+        self.lock.release()
+        return(myresult)
+    
+    def send_email(self,receive_email_addr,file_path1,file_path2, file_path3, text_content):
+        print ('************** Comience a generar mensajes *********************')
+        asunto = '[ViVA-BANSEFI WatchDogRecordings] - Reporte de Grabadores'
+        text_content = text_content
+        html_content = f'<p> Resumen de incidentes . <br></ p> <p> {text_content} </ p> <br> <br>           \
+                        Para mayor informacion sobre los incidentes reportados, revisar los archivos    \
+                        adjuntos. <br>                                                                  \
+                        ESTE MENSAJE ES GENERADO AUTOMATICAMENTE POR UNA HERRAMIENTA: NO LO             \
+                        RESPONDA. '                                         
+        from_email = settings.EMAIL_HOST_USER
+        msg = EmailMultiAlternatives(asunto, text_content, from_email, receive_email_addr)
+        msg.attach_alternative(html_content, "text/html")
+        # enviar archivos adjuntos
+        print ('******************** Enviar archivo adjunto ********************')
+        msg.attach_file(file_path1)
+        msg.attach_file(file_path2)
+        msg.attach_file(file_path3)
+        #msg.attach_file('files/media/myexcel.xlsx')
+        msg.send()
+        if msg.send():
+                    print ('****************** enviado con éxito *********************')
+        else:
+                    print ('****************** Error de envío ************************')
+    
+    
 
 
     def UpdateCameraStatus(self, cameraInfo):
