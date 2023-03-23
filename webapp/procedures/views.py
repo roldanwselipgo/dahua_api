@@ -107,7 +107,7 @@ class ProceduresListView(ListView):
     
 
 def update_sucursal_cameras_status(request):
-    tasks.usucs()
+    tasks.task_cameras_status()
     return HttpResponse("Success "+str("."), content_type='text/plain')
 
 

@@ -91,12 +91,14 @@ class SucursalListView(ListView):
             port = 80
             user = "admin"
             password = "Elipgo$123"
+            #host="192.168.226.114"
             task=get_sucursal_info_task.delay(host,port,user,password)
             print("Task added: ", task)
             task_queue.append((task,host,suc))
 
         
         sucursales_result=[]
+        sucursales_succes_count = 0
         while len(task_queue):
             for i,task in enumerate(task_queue):
                 #print("Scanning in: ", i)
@@ -112,20 +114,19 @@ class SucursalListView(ListView):
                             print(f"Result {result} ")
                             dict_result={}
                             
-                            if 0:
-                            #if result:
+                            if result:
+                                type = result[0]
                                 serial_dvr = result[1]
                                 cameras_info = result[2]
-                                type = result[0]
-                                if type:
-                                    
-                                    print(task[1],type)
+                                if cameras_info:
                                     dict_result['sucursal']=task[2]
                                     dict_result['direccion']=task[1]
                                     dict_result['type']=type
                                     dict_result['serial']=serial_dvr
                                     dict_result['cameras_info']=cameras_info
                                     sucursales_result.append(dict_result)
+                                    sucursales_succes_count = sucursales_succes_count + 1
+
                             else:
                                 dict_result['sucursal']=task[2]
                                 dict_result['direccion']=task[1]
@@ -153,7 +154,7 @@ class SucursalListView(ListView):
             #sucursal = sorted(sucursal, key = sucursal['sucursal'])
             for camera in sucursal['cameras_info']:
                 try:
-                    file.write(f"{sucursal['sucursal']},{sucursal['direccion']},{sucursal['type']},{sucursal['serial']}, {camera[0]}, {camera[1]}, {camera[2]}, {camera[3]}")      
+                    file.write(f"{sucursal['sucursal']},{sucursal['direccion']},{sucursal['type']},{sucursal['serial']}, {camera[0]}, {camera[1]}, {camera[2]}, {camera[3]}, {camera[4]}, {camera[5]}, {camera[6]}, {camera[7]}, {camera[8]}, {camera[9]}, {camera[10]}")      
                 except:
                     file.write(f"{sucursal['sucursal']},{sucursal['direccion']},{sucursal['type']},{sucursal['serial']}, '', '', '', ''")      
 
@@ -161,6 +162,7 @@ class SucursalListView(ListView):
         
         file.close()
         context['sucursales']=sucursales_result
+        context['sucursales_len']=sucursales_succes_count
         return context
 
     '''

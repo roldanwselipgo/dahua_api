@@ -189,21 +189,64 @@ def task_video_lost():
     bdb.close_connection()
     
 
-@shared_task(name="update_sucursal_cameras_status")
-def update_sucursal_cameras_status(sucursal):
-    start_time = time.time()
-    #print(xvr.XVRIP)
-    #try:
-        #rs = ResultSet([update_sucursal_cameras_status_task.delay(address) for address in xvr.XVRIP])
-        #rs = ResultSet([xvr.update_sucursal_cameras_status(address) for address in xvr.XVRIP])
-    if 1:
-        xvr.update_sucursal_cameras_status(sucursal) 
-    #except:
-    #    pass
 
-    end_time = time.time()
-    print("time:", end_time - start_time)
-    return str(end_time - start_time)
+
+
+@shared_task(name="task_camera_status")
+def task_camera_status():
+    bdb.open_connection()
+    XVRIP = bdb.GetVRecIP()
+    xvr = XVR(bdb)
+    task_queue = []
+    #xvr.truncate_table('camara_camera_status')
+    for sucursal in XVRIP:
+        #if sucursal[0]==101:
+        if 1:
+            print("Sucursal: ",sucursal)
+            task = update_sucursal_cameras.delay(sucursal)
+            print("Task added: ", task)
+            task_queue.append((task,sucursal))
+        #    break
+    
+    print(">>>>>>TASKS: ", task_queue)
+    print("task_queue:", task_queue)
+    logging.warning("Init while:")    
+    while len(task_queue):
+        for i,task in enumerate(task_queue):
+            #print("Scanning in: ", i)
+            #if task[0].ready():
+            #print(f"result : {task[0].state} state <--")
+            if task[0].state == "SUCCESS":
+                print(f"Tarea {task} terminada")
+                try:
+                    with allow_join_result():
+                        result = task[0].get()
+                    #print("Resultado de tarea: ", result)
+                    task_queue.remove(task)
+                    print("\nlen task_queue:", len(task_queue))
+                except Exception as e: 
+                    print(f"Err en {task}: ", e)
+                    task_queue.remove(task)
+                    print("len task_queue:", len(task_queue))
+                    break
+                finally:
+                    """file = open('logslost22.txt','a+') 
+                    print(".")
+                    print("result",result)
+                    if result:   
+                        for cameraInfo in result:
+                            lost = cameraInfo['lost']
+                            for lost_segment in lost:
+                                file.write("\n")
+                                file.write(f"sucursal:  {cameraInfo['sucursal']} > camera_status:  {lost_segment[0]} , {lost_segment[1]} ")
+                    file.close()"""
+                    #xvr.update_video_lost(result)
+                    break
+            elif task[0].state == "FAILURE":
+                task_queue.remove(task)
+                print("len task_queue:", len(task_queue))
+                break
+    bdb.close_connection()
 
 
 @shared_task(name="update_sucursal_cameras", time_limit=80)
@@ -232,7 +275,9 @@ def update_one():
 
 @shared_task(name="summary", time_limit=32)
 def summary():
+    print("summary()")
     bdb.open_connection()
+    print("bdopen()")
     summary = bdb.GetSummary()
     bdb.close_connection()
     return 'Sucursal procesada'

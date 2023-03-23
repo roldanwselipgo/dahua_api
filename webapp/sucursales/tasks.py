@@ -5,16 +5,46 @@ import time
 from core.dahuaClasses.dahua_class import Dahua
 
 
+def get_camera_info(camera_id,devs):
+    tmp = []
+    tmp.append(f'c{camera_id+1}')
+    tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.Address']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.Address' in devs else tmp.append(None)
+    tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.Name']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.Name' in devs else tmp.append(None)
+    tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.DeviceType']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.DeviceType' in devs else tmp.append(None)
+    tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.HttpPort']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.HttpPort' in devs else tmp.append(None)
+    tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.HttpsPort']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.HttpsPort' in devs else tmp.append(None)
+    tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.Port']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.Port' in devs else tmp.append(None)
+    tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.Version']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.Version' in devs else tmp.append(None)
+    tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.AudioInputChannels']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.AudioInputChannels' in devs else tmp.append(None)
+    tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.VideoInputChannels']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.VideoInputChannels' in devs else tmp.append(None)
+    tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.VideoInputs[0].Name']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.VideoInputs[0].Name' in devs else tmp.append(None)
+    return tmp 
+
 @shared_task(name="get_sucursal_info", time_limit=40)
 def get_sucursal_info_task(host, port, user, password):
     try:
-        print("Host new:",host)
         dvr = Dahua(host, port, user, password)
-        #general = dvr.GetGeneralConfig()
         device_type = dvr.GetDeviceType()
-        return device_type,'1','2'
+        dvr_serial_number = dvr.GetSerialNumber()
+        
+        #Get info cameras
+        info = []
+        devs=dvr.RemoteDevices()
+
+        #print(f"Devs: {host} {devs} ")
+        
+        info.append(get_camera_info(0,devs))
+        info.append(get_camera_info(1,devs))
+        info.append(get_camera_info(2,devs))
+        info.append(get_camera_info(3,devs))
+        info.append(get_camera_info(4,devs))
+        info.append(get_camera_info(5,devs))
+        print(info)
+        
+        #print(devs)
+        return device_type,dvr_serial_number,info
     except:
-        return 0
+        return None
     '''
         dvr_serial_number = dvr.GetSerialNumber()
         d = dvr.DiscoverDevices()

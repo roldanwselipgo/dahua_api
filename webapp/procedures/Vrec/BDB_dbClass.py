@@ -6,7 +6,11 @@ from   mysql.connector import errorcode
 from   multiprocessing import Lock
 from   datetime import datetime, timedelta
 
-from django.core.mail import EmailMultiAlternatives
+#EmailMessage
+import smtplib
+import ssl
+from email.message import EmailMessage
+import mimetypes
 from django.conf import settings
 
 ELIPGO_DDNSDomain = 'elipgodns.com'
@@ -127,7 +131,7 @@ class BDBDatabase:
         summary_text = ""
         if myresult:
             camera_status = {}
-            summary_text = summary_text + f"<br>[ Camaras con incidentes ] <br>"
+            summary_text = summary_text + f"\n\n[ Camaras con incidentes ]"
             for result in myresult:   
                 print(result[0],result[1])
                 llave = result[0]
@@ -143,20 +147,20 @@ class BDBDatabase:
                 elif llave=="Started":
                     llave="Camaras En linea"
 
-                summary_text = summary_text + f"<br>{llave}:{valor}"
+                summary_text = summary_text + f"\n{llave}:{valor}"
                 camera_status[str(result[0])] = result[1]
         print(camera_status)
 
-        mycursor.execute("SELECT status,count(status) FROM sucursal group by status")
+        mycursor.execute("SELECT status,count(status) FROM sucursal where fase=1 group by status")
         myresult = mycursor.fetchall()
         if myresult:
             sucursal_status = {}
-            summary_text = summary_text + f"<br><br>[ Estado de sucursales ]<br>"
+            summary_text = summary_text + f"\n\n[ Estado de sucursales ]"
             for result in myresult:   
                 print(result[0],result[1])
                 llave = result[0]
                 valor = result[1]
-                summary_text = summary_text + f"<br>{llave}: {valor}"
+                summary_text = summary_text + f"\n{llave}: {valor}"
                 sucursal_status[str(result[0])] = result[1]
         print(sucursal_status)
         
@@ -206,9 +210,12 @@ class BDBDatabase:
         mycursor.execute(news)
         myresult = mycursor.fetchall()
 
-        summary_text = summary_text + f"<br><br>[ Errores en la grabacion ] <br>"
-        summary_text = summary_text + f"Segmentos de video perdidos nuevos: {len(myresult)}<br>"
-        summary_text = summary_text + f"Sucursales con incidencias de video perdidos: 11 <br>"
+        summary_text = summary_text + f"\n\n[ Errores en la grabacion ]"
+        summary_text = summary_text + f"\nSegmentos de video perdidos nuevos: {len(myresult)}"
+        summary_text = summary_text + f"\nSucursales con incidencias de video perdidos: 11 "
+
+        summary_text = summary_text + "\n\n\n\nPara mayor informacion sobre los incidentes reportados, revisar los archivos adjuntos."
+        summary_text = summary_text + "\n\nESTE MENSAJE ES GENERADO AUTOMATICAMENTE POR UNA HERRAMIENTA: NO LORESPONDA."
 
         columns  = mycursor.description
         headers = []
@@ -242,13 +249,20 @@ class BDBDatabase:
         #email.fail_silently = False
         #email.send()
         #self.send_email(["roldan096@gmail.com","jorge.pi@elipgo.com"],'summary.csv','news.csv', summary_text)
-        self.send_email(["roldan096@gmail.com","jorge.pi@elipgo.com"],'summary.csv','camera_lost.csv','news.csv', summary_text)
+        self.send_email(["roldan096@gmail.com"],'summary.csv','camera_lost.csv','news.csv', summary_text)
         mycursor.close()
         self.lock.release()
         return(myresult)
     
+    def attach_file_to_email(self,email, filename):
+        """Attach a file identified by filename, to an email message"""
+        with open(filename, 'rb') as fp:
+            file_data = fp.read()
+            maintype, _, subtype = (mimetypes.guess_type(filename)[0] or 'application/octet-stream').partition("/")
+            email.add_attachment(file_data, maintype=maintype, subtype=subtype, filename=filename)
+
     def send_email(self,receive_email_addr,file_path1,file_path2, file_path3, text_content):
-        print ('************** Comience a generar mensajes *********************')
+        """print ('************** Comience a generar mensajes *********************')
         asunto = '[ViVA-BANSEFI WatchDogRecordings] - Reporte de Grabadores'
         text_content = text_content
         html_content = f'<p> Resumen de incidentes . <br></ p> <p> {text_content} </ p> <br> <br>           \
@@ -270,6 +284,34 @@ class BDBDatabase:
                     print ('****************** enviado con éxito *********************')
         else:
                     print ('****************** Error de envío ************************')
+        """
+        
+        # Define email sender and receiver
+        email_sender = 'rodrigo.roldan@elipgo.com'
+        email_password = 'gnyjylabspgvakia'
+        email_receiver = receive_email_addr
+
+        # Set the subject and body of the email
+        subject = '[ViVA-BANSEFI WatchDogRecordings] - Reporte de Grabadores'
+        body = text_content
+
+        em = EmailMessage()
+        em['From'] = email_sender
+        em['To'] = email_receiver
+        em['Subject'] = subject
+        em.set_content(body)
+        
+        self.attach_file_to_email(em, file_path1)
+        self.attach_file_to_email(em, file_path2)
+        self.attach_file_to_email(em, file_path3)
+
+        # Add SSL (layer of security)
+        context = ssl.create_default_context()
+
+        # Log in and send the email
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as smtp:
+            smtp.login(email_sender, email_password)
+            smtp.sendmail(email_sender, email_receiver, em.as_string())
     
     
 
