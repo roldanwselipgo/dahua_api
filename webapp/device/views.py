@@ -76,8 +76,6 @@ class DeviceListView(ListView):
         if self.request.method == "POST":
             # <process form cleaned data>
             if 1:
-                
-            
                 print("Post method")
                 ip = self.request.POST.get("ip","")
                 Device.objects.create(usuario="admin", password="Elipgo$123", ip=ip, puerto="8011")

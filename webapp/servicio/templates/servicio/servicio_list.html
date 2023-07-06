@@ -1,0 +1,72 @@
+{% extends 'core/base.html' %} {% block title %}Monitor Servicios{% endblock %}{% block content %}
+{% load static %}
+
+<main role="main">
+  <h1>Monitor de Servicios Elipgo</h1>
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <h3 align="left">Monitor Servicios {{ username|capfirst }}</h3>
+            <div align="right" class="btn_crear mb-3">
+                Reload <a href="#" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-right"></i></a>
+
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="form-controll">
+                        <label for="search"><i class="icon-search"></i></label>
+                        <!-- <input class="table-filter" type="search" data-table="advanced-web-table" placeholder="Search..."> -->
+                      </div>
+                      <!--  Table  -->
+                      <div class="table-responsive">
+                        <table id="servicios-remotos-table" class="advanced-web-table">
+                          <thead>
+                            <tr>
+                              <th>servicio</th>
+                              <th>descripcion</th>
+                              <th>tiempo de tolerancia (segundos)</th>
+                              <th>status</th>
+                              <th>servidor</th>
+                              <th>bd</th>
+                              <th>tabla</th>
+                              <th>columna</th>
+                              <th>ultima vez activo</th>
+                              <th>acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for servicio in servicio_list %} 
+                            <tr>
+                              <td>{{servicio.nombre}}</td>
+                              <td>{{servicio.descripcion}}</td>
+                                <td >{{servicio.tiempo_de_toleracia}}</td>
+                                {% if servicio.status == "offline" %} 
+                                <td class="text-danger">{{servicio.status}}</td>
+                                {% elif servicio.status == "online" %} 
+                                <td class="text-success">{{servicio.status}}</td>
+                                {% endif %} 
+
+                                <td>{{servicio.servidor}}</td>
+                                <td>{{servicio.bd}}</td>
+                                <td>{{servicio.tabla}}</td>
+                                <td>{{servicio.columna}}</td>
+                                <td>{{servicio.ultima_vez_activo}}</td>
+                                <td>
+                                  <a class="btn  btn-xs btn-primary btn-sm" href="{% url 'servicio:servicio' servicio.servicio %}" title="Ver" type="button" class="card-link">Info </a>
+                                  <a class="btn btn-secondary btn-sm" href="#" title="Ver" type="button" class="card-link">Editar </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</main>
+{% endblock %}

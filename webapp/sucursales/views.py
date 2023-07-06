@@ -4,7 +4,9 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.urls import reverse, reverse_lazy
 from core.dahuaClasses.dahua_class import Dahua
-from core.db import BDBDatabase
+#from core.db import BDBDatabase
+from procedures.Vrec.BDB_dbClass import BDBDatabase
+
 from core.dahuaClasses.dahua_config import Config as Conf
 from sucursales.tasks import get_sucursal_info_task
 import time
@@ -15,6 +17,7 @@ from procedures.Vrec.mysqlmodels.models import Sucursal as S
 from procedures.Vrec.mysqlmodels.models import Direccionamiento , DireccionamientoPrv, CamarasPrv
 from celery.result import allow_join_result
 import pandas as pd
+from datetime import datetime, timedelta
 
 # Create your views here.
 
@@ -28,8 +31,189 @@ class SucursalListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         sucursales=S.objects.using('bdb').exclude(fase=1)
+        #sucursales=S.objects.using('bdb').filter(sucursal=1104)
         #sucursales=DireccionamientoPrv.objects.using('bdb')[:12]
         data=[]
+
+        '''
+        #Consultar segmentos de un dia dahua
+        day="2023-04-12"
+        starttime = f"{day}%2000:00:00"
+        endtime = f"{day}%2023:00:00"
+        print("...",starttime,endtime)
+        if 1:
+            dvr = Dahua("192.168.228.18", 80, "admin", "Elipgo$123")
+            by_channels = []
+            dvr.MediaFindFileCreate() 
+            if 1:
+                rsp = dvr.MediaFindFile(-1, starttime, endtime)
+                var = 2
+                segmentos = []
+                while (var):
+                    rdict = dvr.MediaFindNextFile(100)
+                    if rdict!=-1:
+                        for i in range(0,100):
+                            channel = rdict[f'items[{i}].Channel']  if f'items[{i}].Channel' in rdict else ""
+                            starttime = rdict[f'items[{i}].StartTime']  if f'items[{i}].StartTime' in rdict else ""
+                            endtime = rdict[f'items[{i}].EndTime']  if f'items[{i}].EndTime' in rdict else ""
+                            if channel and starttime and endtime:
+                                segmentos.append((channel,starttime,endtime))
+                                print(channel,starttime,endtime)
+                    else:
+                        var = 0
+        #print(segmentos)
+        print("count:",len(segmentos))
+        return context
+        '''
+        
+        
+
+        """
+        #----------------------- Insertar segmentos de video desde CSV file  -----------------------
+        bdb   = BDBDatabase() 
+        bdb.open_connection()
+        with open('result_segmentos.csv') as f:
+            lines = f.readlines()
+            for line in lines:
+                line=line.strip()
+                df = line.split(",")
+                #print(df[0],df[1],df[2],df[3],df[4])
+                bdb.lock.acquire()
+                mycursor = bdb.connection.cursor()
+                mycursor.execute(f"INSERT INTO segmento_video (sucursal,ip,channel, starttime,endtime) VALUES ({df[0]}, '{df[1]}',{int(df[2])},'{df[3]}','{df[4]}');")
+                bdb.connection.commit()
+                mycursor.close()
+                bdb.lock.release()
+
+        bdb.close_connection()
+        #return context
+        #----------------------- Insertar segmentos de video desde CSV file  -----------------------
+        
+        
+        
+        
+        #----------------------- Buscar e insertar segmentos de video perdidos  -----------------------
+        bdb   = BDBDatabase() 
+        bdb.open_connection()
+        bdb.lock.acquire()
+        mycursor = bdb.connection.cursor()
+        mycursor.execute(f"SELECT distinct * FROM bdb.segmento_video ORDER BY sucursal DESC, channel, starttime;")
+        result = mycursor.fetchall()
+        #Today dates
+        today = datetime.now() 
+        today = today - timedelta(days=1)
+        #today = datetime.strptime("2023-04-16", "%Y-%m-%d") 
+        yesterday = today - timedelta(days=1)
+        today.strftime('%Y-%m-%d')
+        yesterday.strftime('%Y-%m-%d')
+        today = str(today.date())
+        yesterday = str(yesterday.date())
+
+
+        count = 0
+        perdidas = 0
+        fin_del_video = 0
+        channel_tmp = -1
+        endtime_tmp = datetime.strptime(f"{today} 23:00:00", "%Y-%m-%d %H:%M:%S")
+        sucursal_tmp = 0
+        j = 0
+        h = 0
+
+        
+        if result:
+            for res in result:
+                #print(res[0],res[1],res[2],res[3], res[4])
+                #diff = res[4] - res[3]
+                #segundos = diff / timedelta(seconds=1)
+                #if segundos > 3901:
+                #print("Actual",res[3],res[4])
+                #------------------------Verificar que el primer registro empieze a las 00:00:00 o similar
+                
+                if channel_tmp != int(res[2]):
+                    channel_tmp = int(res[2])
+                    
+                    
+                    #print(j,channel_tmp,res)
+                    #if  res[3],res[4] # if res[3] between 2023-04-11 23:00 and 2023-04-12 01:00:00
+                
+                    b = datetime.strptime(f"{yesterday} 22:59:00", "%Y-%m-%d %H:%M:%S")
+                    c = datetime.strptime(f"{today} 01:00:00", "%Y-%m-%d %H:%M:%S")
+                    if b < res[3] < c:
+                        pass
+                    else:
+                        j=j+1
+                        print(res[0],res[1],res[2],res[3],res[4],j)
+                        diff =  res[3] - b
+                        segundos = diff / timedelta(seconds=1)
+                        mins = segundos / 60
+                        mycursor.execute(f"INSERT INTO segmento_video2 (sucursal,ip,channel, starttime, endtime, diff) VALUES ({res[0]}, '{res[1]}',{int(res[2])},'{b}','{res[3]}','{mins}');")
+                        bdb.connection.commit()
+                
+                #------------------------Verificar que el ultimo registro termine a las 23:00:00 o similar
+                    b = datetime.strptime(f"{today} 22:30:00", "%Y-%m-%d %H:%M:%S")
+                    c = datetime.strptime(f"{today} 23:59:00", "%Y-%m-%d %H:%M:%S")
+                    if b < endtime_tmp < c:
+                        pass
+                    else:
+                        h=h+1
+                        print(res[0],res[1],res[2],res[3],res[4],"h",h,endtime_tmp, sucursal_tmp)
+                        diff =  c - endtime_tmp
+                        segundos = diff / timedelta(seconds=1)
+                        mins = segundos / 60
+                        mycursor.execute(f"INSERT INTO segmento_video2 (sucursal,ip,channel, starttime, endtime, diff) VALUES ({res[0]}, '{res[1]}',{int(res[2])},'{endtime_tmp}','{c}','{mins}');")
+                        bdb.connection.commit()
+                        
+                        
+                endtime_tmp = res[4]
+                sucursal_tmp = res[0]
+                
+                
+                if (fin_del_video != res[3]) and count: # Si fin del video anterior es diferente al inicio del video actual, hay perdida de video
+                    diff =  res[3] - fin_del_video
+                    segundos = diff / timedelta(seconds=1)
+                    mins = segundos / 60
+                    if mins>1:
+                        mycursor.execute(f"INSERT INTO segmento_video2 (sucursal,ip,channel, starttime, endtime, diff) VALUES ({res[0]}, '{res[1]}',{int(res[2])},'{fin_del_video}','{res[3]}','{mins}');")
+                        bdb.connection.commit()
+                        perdidas = perdidas + 1
+                        print(res[3],res[4],fin_del_video,segundos,perdidas)
+                fin_del_video = res[4]
+                print("Fin del anterior",fin_del_video)
+                
+                count = count + 1
+
+            print(count)
+
+        else:
+            print("Err...")
+            pass
+        mycursor.close()
+        bdb.lock.release()
+        bdb.close_connection()
+        return context
+        """
+
+
+        
+
+        """
+        #Comparativo con nuevo direccionamiento
+        df = pd.read_csv('nuevoDirec.csv', delimiter=',')
+        old = []
+        news = []
+        for row in df.values:
+            print(row[0],row[1])
+            sucursal=Direccionamiento.objects.using('bdb').filter(sucursal=row[0],xvr=row[1])
+            if sucursal:
+                old.append((row[0],row[1]))
+            else:
+                news.append((row[0],row[1]))
+        print("\n\nOld vs news",len(old),len(news))
+        for new in news:
+            print(new[0],new[1])
+        """
+        
+    
         """
         
         df = pd.read_csv('sucursales_con_direccionamiento_1.csv')
@@ -61,6 +245,35 @@ class SucursalListView(ListView):
         print("Count_new",len(count_new),count_new)
         """
         #sucursales = [1401, 2432, 2240, 2246, 2689, 1323, 2761, 2074, 2904, 2048, 2297, 1592, 1737, 1835, 2137, 2419, 1517, 2055, 1674, 2272, 2505, 1630, 2255, 2554, 2567, 2261, 1699, 2906, 1303, 2462, 2747, 1989, 1828, 2210, 2457, 2694]
+        
+        dvr = Dahua("10.200.3.20", 80, "admin", "Elipgo$123")
+        #dvr = Dahua("189.146.107.106", 8401, "admin", "Elipgo$123")
+        
+        dict_data={}
+        dict_data['sucursal']="102"
+        dict_data['direccion']="pumas.cantera1.elipgodns.com"
+        data.append(dict_data)
+        
+        """dict_data={}
+        dict_data['sucursal']="101"
+        dict_data['direccion']="cantera1.auditorio.elipgodns.com"
+        data.append(dict_data)
+        
+        dict_data={}
+        dict_data['sucursal']="103"
+        dict_data['direccion']="cantera.equipo.elipgodns.com"
+        data.append(dict_data)
+        dict_data={}
+        dict_data['sucursal']="104"
+        dict_data['direccion']="pumas.cantera2.elipgodns.com"
+        data.append(dict_data)
+        dict_data={}
+        dict_data['sucursal']="105"
+        dict_data['direccion']="pumas.acceso.elipgodns.com"
+        data.append(dict_data)"""
+        
+
+        '''
         for sucursal in sucursales:
             dict_data={}
             direccion_dvr=Direccionamiento.objects.using('bdb').filter(sucursal=sucursal.sucursal).first()
@@ -68,18 +281,17 @@ class SucursalListView(ListView):
             print(sucursal.sucursal,len(sucursales))
             direccion=1
             #direccion_dvr=None
-            if direccion_dvr.xvr:
+            if direccion_dvr.xvr :
                 print(direccion_dvr.xvr)
 
                 dict_data['sucursal']=sucursal.sucursal
                 dict_data['direccion']=direccion_dvr.xvr
                 
-                
                 #dict_data['sucursal']=sucursal.xvr
                 #dict_data['direccion']=sucursal.cam1
                 data.append(dict_data)
+        '''   
 
-        #union = direcciones.union(sucursales)
 
 
         task_queue = []
@@ -88,11 +300,12 @@ class SucursalListView(ListView):
             #---------- Conexion a device -------------
             suc = sucursal['sucursal']
             host = sucursal['direccion']
-            port = 80
+            #port = 80
+            port = 8009
             user = "admin"
             password = "Elipgo$123"
             #host="192.168.226.114"
-            task=get_sucursal_info_task.delay(host,port,user,password)
+            task=get_sucursal_info_task.delay(host,port,user,password,suc)
             print("Task added: ", task)
             task_queue.append((task,host,suc))
 
@@ -103,7 +316,8 @@ class SucursalListView(ListView):
             for i,task in enumerate(task_queue):
                 #print("Scanning in: ", i)
                 #if task[0].ready():
-                #print(f"result : {task[0].state} state <--")
+                time.sleep(.5)
+                print(f"result : {task[0].state} state <--")
                 #if task[0].state == "SUCCESS" or task[0].state == "FAILURE":
                 if task[0].state == "SUCCESS":
                     
@@ -150,8 +364,15 @@ class SucursalListView(ListView):
                     break
 
         file = open('info_sucursales.csv','a+')  
+        file2 = open('info_solo_sucursales.csv','a+')  
         for sucursal in sucursales_result:
             #sucursal = sorted(sucursal, key = sucursal['sucursal'])
+            try:
+                file2.write(f"{sucursal['sucursal']},{sucursal['direccion']},{sucursal['type']},{sucursal['serial']}")      
+            except:
+                file2.write(f"{sucursal['sucursal']},{sucursal['direccion']}, '', ''")   
+            file2.write("\n")    
+
             for camera in sucursal['cameras_info']:
                 try:
                     file.write(f"{sucursal['sucursal']},{sucursal['direccion']},{sucursal['type']},{sucursal['serial']}, {camera[0]}, {camera[1]}, {camera[2]}, {camera[3]}, {camera[4]}, {camera[5]}, {camera[6]}, {camera[7]}, {camera[8]}, {camera[9]}, {camera[10]}")      
@@ -161,6 +382,7 @@ class SucursalListView(ListView):
                 file.write("\n")      
         
         file.close()
+        file2.close()
         context['sucursales']=sucursales_result
         context['sucursales_len']=sucursales_succes_count
         return context

@@ -1,0 +1,52 @@
+[36mapp            |[0m {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[36mapp            |[0m {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 19:26:06,784: ERROR/MainProcess] Task handler raised error: TimeLimitExceeded(40)
+[34mworker_1       |[0m [2023-04-03 19:27:36,748: ERROR/MainProcess] Task handler raised error: TimeLimitExceeded(40)
+[34mworker_1       |[0m [2023-04-03 19:42:21,340: ERROR/MainProcess] Task handler raised error: TimeLimitExceeded(40)
+[34mworker_1       |[0m [2023-04-03 19:45:16,282: ERROR/MainProcess] Task handler raised error: TimeLimitExceeded(40)
+[34mworker_1       |[0m [2023-04-03 19:55:35,690: ERROR/MainProcess] Task handler raised error: TimeLimitExceeded(40)
+[36mapp            |[0m _mysql_connector.MySQLInterfaceError: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '','2023-02-01 00:00:00','2023-02-01 01:00:00')' at line 1
+[36mapp            |[0m mysql.connector.errors.ProgrammingError: 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '','2023-02-01 00:00:00','2023-02-01 01:00:00')' at line 1
+[34mworker_1       |[0m [2023-04-03 20:19:15,657: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:19:15,754: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:19:25,375: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:19:25,518: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:20:22,116: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:20:22,162: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m     fail(error)
+[34mworker_1       |[0m     lambda error: self._disconnect_raise_connect(conn, error),
+[34mworker_1       |[0m     raise error
+[34mworker_1       |[0m [2023-04-03 20:35:20,403: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:35:20,463: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:36:11,151: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:36:11,191: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:39:56,650: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:39:56,694: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:39:56,768: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:39:56,809: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:39:56,845: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:39:56,895: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:39:56,964: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:39:57,002: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:39:57,037: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:40:27,214: WARNING/ForkPoolWorker-1] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:40:27,270: WARNING/ForkPoolWorker-1] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:40:27,317: WARNING/ForkPoolWorker-1] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:40:27,383: WARNING/ForkPoolWorker-1] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:40:27,421: WARNING/ForkPoolWorker-1] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:40:27,461: WARNING/ForkPoolWorker-1] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:40:27,502: WARNING/ForkPoolWorker-1] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:44:12,228: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 20:44:12,281: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:20:23,815: WARNING/ForkPoolWorker-1] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:20:23,953: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:20:24,454: WARNING/ForkPoolWorker-10] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:20:24,805: WARNING/ForkPoolWorker-4] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:20:24,815: WARNING/ForkPoolWorker-5] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:20:25,033: WARNING/ForkPoolWorker-3] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:20:25,033: WARNING/ForkPoolWorker-7] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:20:25,068: WARNING/ForkPoolWorker-6] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:20:25,865: WARNING/ForkPoolWorker-9] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:21:06,028: WARNING/ForkPoolWorker-2] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:21:26,889: WARNING/ForkPoolWorker-8] {"error":{"code":287637505,"message":"Invalid session in request data!"},"result":false}
+[34mworker_1       |[0m [2023-04-03 21:21:27,246: WARNING/ForkPoolWorker-1] {"error":{"code":287637505,"message":"Invalid session in request d

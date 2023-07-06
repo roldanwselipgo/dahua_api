@@ -1,0 +1,200 @@
+{% extends 'core/base.html' %} {% block title %}Monitor camaras{% endblock %}{% block content %}
+{% load static %}
+
+<main role="main">
+    <div class="container-fluid mb-4">
+        <br>
+        <div class="row">
+            <div class="col-6">
+                <h4 class="mb-5">Current configuration</h4> 
+                <hr>
+                <table class="table">
+                    <thead class="thead-light">
+                    <tr>
+                        <th scope="col">General Info</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><label class="">Language</label> </td>
+                            <td> <label class="">{{ language }}</label> </td>
+                        </tr>
+                        <tr>
+                            <td><label class="">Current time</label> </td>
+                            <td> <label class="">{{ current_time }} </label> </td>
+                        </tr>
+                        <tr>
+                            <td><label class="">Device type</label> </td>
+                            
+                            <td> <label class="">{{ device_type_name }} {{ device_type }}</label> </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table class="table">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col">Video Encode Info</th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                </table>
+                
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    {% for tupla in array_config %}
+                      
+                    <li class="nav-item"><a class="nav-link " id="home-tab" data-toggle="tab" href="#ch{{forloop.counter0}}" role="tab" aria-controls="home" aria-selected="true">Channel {{ forloop.counter0}}</a></li>
+
+
+                    {% for element in tupla %}
+
+                        {% endfor %}
+                    {% endfor %}
+
+                  </ul>
+                  
+
+
+                  <div class="tab-content" id="myTabContent">
+                    
+                        {% for tupla in array_config %}
+                        <div class="tab-pane fade" id="ch{{forloop.counter0}}" role="tabpanel" aria-labelledby="home-tab">
+
+                            {% for element in tupla %}
+                            <table class="table">
+                                <thead class="thead-light">
+                                <tr>
+                                    {% if forloop.counter0 == 0 %}
+                                    <th scope="col">Mainstream</th>
+                                    <th scope="col"></th>
+
+                                    {% else %}
+                                    <th scope="col">Substream</th>
+                                    <th scope="col"></th>
+                                    {% endif %}
+
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for key,value in element.items %}
+                                    <tr>
+                                        <td><label class="">{{ key }}</label> </td>
+                                        <td> <label class="">{{ value }}</label> </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% endfor %}
+                         </div>
+
+                        {% endfor %}
+
+                  </div>
+
+                  
+
+
+                  
+                 
+
+                
+               
+                
+                    <!-- <tr>
+                        <td>Type : <label class="compresion">General</label> </td>
+                        <td>Video Enable : <label class="compresion">on</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Compresion : <label class="">-</label> </td>
+                        <td>Compresion : <label class="">-</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Resolution : <label class="">-</label> </td>
+                        <td>Resolution : <label class="">-</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Frame Rate (FPS) : <label class="">-</label> </td>
+                        <td>Frame Rate (FPS) : <label class="">-</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Bit Rate Type : <label class="">-</label> </td>
+                        <td>Bit Rate Type : <label class="">-</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Image Quality : <label class="">-</label> </td>
+                        <td>Image Quality : <label class="">-</label> </td>
+                    </tr>
+                    <tr>
+                        <td>Bit Rate : <label class="">-</label> </td>
+                        <td>Bit Rate : <label class="">-</label> </td>
+                    </tr> -->
+                    
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-5 ml-5 ">
+                <h4 class="mb-5">Default configuration</h4>
+                <hr>
+                
+                
+                <!-- Contenido del form-->
+                {%load crispy_forms_tags %} 
+                <form action="" method="GET" enctype="multipart/form-data">{% csrf_token %}
+
+                    <div class="form-group col-12 ">
+                        <label class="control-label ">Type</label>
+                        <select name="type" class="form-control channel ">
+                            <option value="0">Regular encode </option>
+                            <option value="1">Motion detection encode</option>
+                            <option value="2">Alarm encode</option>
+                            <option value="3">Emergency encode</option>
+
+                        </select>
+                    </div>
+
+                    <div class="form-group col-12 ">
+                        <div class="row">
+                            
+                            {% for tupla in array_config %}
+                            <div class="col-3">
+                                <!-- <label class="checkbox-inline"> -->
+                                <label class="checkbox-inline">
+                                    <input class="checkbox-f" name="{{forloop.counter0}}" type="checkbox" value=1 checked> <h5>{{forloop.counter0}}</h5>
+                                </label>
+                            </div>
+                            {% endfor %}
+                            <div class="col-3">
+                                <label class="checkbox-inline">
+                                    <input  id="checkbox-all" name="channel" type="checkbox" value="all" checked>  <h5 class="ml-4">All channels</h5>
+                                </label>
+                            </div>
+                        </div>
+                        
+                            
+                    </div>
+
+                    <!-- obtiene datos del modelo -->
+                    {{ form|crispy }}
+                    <div class="col-4">
+                        <label class="checkbox-inline ">
+                            <input id="checkbox-time" name="checkbox-time" type="checkbox" value="time" checked> <h5  class="ml-5">Now</h5>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                    <!-- <a href="./" type="submit" class="btn btn-primary">Cancelar</a> -->
+                </form>
+                
+
+                
+            </div>
+        </div>
+
+    </div>
+
+        
+
+    </div>
+</main>
+
+{% endblock %}

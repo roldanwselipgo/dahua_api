@@ -5,6 +5,7 @@ import logging
 from   mysql.connector import errorcode
 from   multiprocessing import Lock
 from   datetime import datetime, timedelta
+import collections
 
 #EmailMessage
 import smtplib
@@ -85,6 +86,18 @@ class BDBDatabase:
 
 
 
+    def UpdateStatusNoIp(self, sucursal, status):
+        logging.info(f"WriteStatus({sucursal}, '{status}')")
+        queryStr = f"UPDATE devices.dvrDevices SET status={status}, lastStatus='{datetime.now()}' WHERE hostname= '{sucursal}'"
+        try:
+            self.lock.acquire()
+            mycursor = self.connection.cursor()
+            mycursor.execute(queryStr)
+            self.connection.commit()
+            mycursor.close()
+        except:
+            pass
+        self.lock.release()
 
     def UpdateStatus(self, sucursal, status):
         logging.info(f"WriteStatus({sucursal}, '{status}')")
@@ -120,9 +133,70 @@ class BDBDatabase:
             self.lock.release()
 
 
+    def GetSummaryDahua(self):
+        logging.info(f"GetVFRecIP()")
+        # Generar resumen de status de xvr
+        self.lock.acquire()
+        mycursor = self.connection.cursor()
+        mycursor.execute("SELECT distinct sucursal,channel FROM bdb.segmento_video")
+        myresult = mycursor.fetchall()
+        mycursor.execute("SELECT distinct sucursal FROM bdb.segmento_video")
+        sucursales = mycursor.fetchall()
+        summary_text = ""
+        if myresult:
+            camera_status = {}
+            summary_text = summary_text + f"\n\n[ Estado de Grabacion ]"
+            summary_text = summary_text + f"\n Grabando: {len(myresult)} camaras de {len(sucursales)} sucursales disponibles "
+
+        mycursor.execute("SELECT status,count(status) FROM sucursal where fase!=1 group by status")
+        myresult = mycursor.fetchall()
+        if myresult:
+            sucursal_status = {}
+            summary_text = summary_text + f"\n\n[ Estado de sucursales ]"
+            for result in myresult:   
+                print(result[0],result[1])
+                llave = result[0]
+                valor = result[1]
+                summary_text = summary_text + f"\n{llave}: {valor}"
+                sucursal_status[str(result[0])] = result[1]
+                
+        print(sucursal_status)
+
+        queryStr = "SELECT segmento_video2.sucursal ,sucursal.nombre, segmento_video2.ip," \
+                "segmento_video2.channel, segmento_video2.starttime, segmento_video2.endtime, segmento_video2.diff  " \
+                " FROM bdb.sucursal sucursal INNER JOIN bdb.segmento_video2 segmento_video2 ON sucursal.sucursal = segmento_video2.sucursal"
+
+        mycursor.execute(queryStr)
+        myresult = mycursor.fetchall()
+
+        summary_text = summary_text + f"\n\n[ Errores en la grabacion ]"
+        summary_text = summary_text + f"\nSegmentos de video perdidos nuevos: {len(myresult)}"
+        #summary_text = summary_text + f"\nSucursales con incidencias de video perdidos: 11 "
+
+        summary_text = summary_text + "\n\n\n\nPara mayor informacion sobre los incidentes reportados, revisar los archivos adjuntos."
+        summary_text = summary_text + "\n\nESTE MENSAJE ES GENERADO AUTOMATICAMENTE POR UNA HERRAMIENTA: NO LORESPONDA."
+
+        columns  = mycursor.description
+        headers = []
+        for column in columns:
+            headers.append(str(column[0]))
+        print(headers)
+        if myresult:
+            pd.DataFrame(myresult).to_csv("news_f2.csv",header=headers)
+
+        #self.send_email(["roldan096@gmail.com","jorge.pi@elipgo.com"],'summary.csv','camera_lost.csv','news.csv', summary_text)
+        self.send_email(["roldan096@gmail.com","jorge.pi@elipgo.com"],'news_f2.csv','news_f2.csv','news_f2.csv', summary_text)
+        mycursor.close()
+        self.lock.release()
+        return(myresult)
+
+
     def GetSummary(self):
         logging.info(f"GetVFRecIP()")
         # Generar resumen de status de xvr
+        
+
+
         offline = None
         self.lock.acquire()
         mycursor = self.connection.cursor()
@@ -209,10 +283,12 @@ class BDBDatabase:
                     
         mycursor.execute(news)
         myresult = mycursor.fetchall()
+        counter = collections.Counter(myresult)
+        print("Counter sucursales vlost:", counter)
 
         summary_text = summary_text + f"\n\n[ Errores en la grabacion ]"
         summary_text = summary_text + f"\nSegmentos de video perdidos nuevos: {len(myresult)}"
-        summary_text = summary_text + f"\nSucursales con incidencias de video perdidos: 11 "
+        #summary_text = summary_text + f"\nSucursales con incidencias de video perdidos: 11 "
 
         summary_text = summary_text + "\n\n\n\nPara mayor informacion sobre los incidentes reportados, revisar los archivos adjuntos."
         summary_text = summary_text + "\n\nESTE MENSAJE ES GENERADO AUTOMATICAMENTE POR UNA HERRAMIENTA: NO LORESPONDA."
@@ -249,7 +325,9 @@ class BDBDatabase:
         #email.fail_silently = False
         #email.send()
         #self.send_email(["roldan096@gmail.com","jorge.pi@elipgo.com"],'summary.csv','news.csv', summary_text)
-        self.send_email(["roldan096@gmail.com"],'summary.csv','camera_lost.csv','news.csv', summary_text)
+        #self.send_email(["roldan096@gmail.com"],'summary.csv','camera_lost.csv','news.csv', summary_text)
+        self.send_email(["roldan096@gmail.com","brian.pichardo@viva-telmex.com","jorge.pi@elipgo.com"],'summary.csv','camera_lost.csv','news.csv', summary_text)
+        
         mycursor.close()
         self.lock.release()
         return(myresult)

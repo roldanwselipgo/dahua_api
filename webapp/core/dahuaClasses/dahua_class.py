@@ -81,11 +81,14 @@ DAHUA_FINDREC       = '/cgi-bin/recordFinder.cgi?action=find'
 DAHUA_CLOSEFINDER   = '/cgi-bin/mediaFileFind.cgi?action=close'
 DAHUA_DESTROYFINDER = '/cgi-bin/mediaFileFind.cgi?action=destroy'
 DAHUA_MEDIAGLOBAL   = '/cgi-bin/configManager.cgi?action=getConfig&name=MediaGlobal'
+DAHUA_RECORDSTATE   = '/cgi-bin/api/recordManager/getStateAll'
+
+
 
 
 #DAHUA_TIMEOUT      = 120
 #DAHUA_TIMEOUT      = 300
-DAHUA_TIMEOUT      = 20
+DAHUA_TIMEOUT      = 120
 DAHUA_PORT1        = 8011
 DAHUA_PORT2        = 8012
 DAHUA_PORT3        = 8013
@@ -402,7 +405,7 @@ class Dahua:
 
    # Get Serial Number
    def GetDeviceType(self):
-      #print(">> GetDeviceType")
+      print(">> GetDeviceType")
       response = self.CommonCall2(DAHUA_GETDEVTYPE)
 
       self.DevType = ""
@@ -1227,6 +1230,18 @@ class Dahua:
       Langauge = rdict['table.Language']  if 'table.Language' in rdict else ""
       print(response,response.text, Langauge)
       return Langauge
+   
+   def GetRecordStatus(self):
+      print("GetRedcordStatus() del sitio '%s'" % (self.sitio))
+      response = self.CommonCall2(DAHUA_RECORDSTATE)
+      print(response)
+      if response:
+         self.SerialNo = response['sn'] if 'sn' in response else ""
+         return self.SerialNo
+      else:
+         print("Response:", response['status_code'])
+      return response 
+      
 
 
    def ResponseToDict(self, response):
@@ -1467,10 +1482,13 @@ class Dahua:
             if srec[0] != '':
                rdict[srec[0]] = srec[1]
                self.MFINDObject  = rdict['result']
-
-               #print("RESULT:", self.MFINDObject)
+               print("RESULT:", self.MFINDObject)
+               return self.MFINDObject
       else:
          print(f"ResponseCode: {response.status_code}")
+
+
+
 
 
    def MediaFindFile(self, channel, startTime, endTime):
@@ -1564,7 +1582,6 @@ class Dahua:
 
    def MediaFindNextFile(self, count=100):
       print("MediaFindNextFile()")
-
       req = 'http://%s:%d%s' % (self.url, self.port, DAHUA_MFIND_NEXT)
       req = req + '&object=%s'   % (self.MFINDObject)
       req = req + '&count=%s'    % (count)
@@ -1574,8 +1591,20 @@ class Dahua:
       response = requests.get(req, auth=HTTPDigestAuth(self.user, self.password), timeout=DAHUA_TIMEOUT)
       print(response, len(response.content))
       if response.status_code == 200:
-         print(response.text)
-         return response
+         #print(response.text)
+         #if "Invalid session" in response.text:
+         #   print("Invalid session")
+         #try:
+         found = int(re.findall(r'\d+', response.text[0:9])[0])
+         #except:
+         #   found = 0
+         if not found:
+            return -1
+         rdict = self.ResponseToDict(response)
+         return rdict
+      else: 
+         #return "2"
+         return -1
 
 
    # Cierra el Finder previamente generado

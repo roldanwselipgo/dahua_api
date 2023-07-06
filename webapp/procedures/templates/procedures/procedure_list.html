@@ -16,9 +16,38 @@
             Actualizar videos perdidios de todos los sitios <a href="{% url 'procedures:update_lost'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a>
         </div>
         <div align="left" class="btn_crear mb-3">
+          Actualizar videos perdidios de todos los sitios dahua <a href="{% url 'procedures:update_lost_dahua'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a>
+      </div>
+        <div align="left" class="btn_crear mb-3">
           Obtener resumen  <a href="{% url 'procedures:summary'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a>
       </div>
+      <div align="left" class="btn_crear mb-3">
+        Obtener status sucursales fase 2  <a href="{% url 'procedures:update_sucursales_status'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a>
+    </div>
+    <div align="left" class="btn_crear mb-3">
+      Obtener status noip  <a href="{% url 'procedures:update_noip_status'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a>
+  </div>
+    <div align="left" class="btn_crear mb-3">
+      Obtener status DNS  <a href="{% url 'procedures:update_sucursales_status'%}" type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a>
+  </div>
+      
 
+        <form method="post" enctype="multipart/form-data">
+          <h4>Actualizar o crear direccionamiento y sucursales de bdb desde csv</h4>
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-6">
+              <input type="file" name="file" >
+            </div>
+            <div class="col-2">
+               <input type="text" placeholder="opcion" name="opcion" >
+            </div>
+            <div class="col-4">
+              <button class="btn btn-primary btn-sm" type="submit">Enviar</button>
+            </div>
+          </div>
+        </form>
+        <br>
         <form method="post" enctype="multipart/form-data">
           <h4>Obtener estatus de conexion desde archivo</h4>
           {% csrf_token %}

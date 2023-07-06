@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import requests
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8b*n@37(-rwtctmxd3)z_k0vo^(64l34=q+4p*ijj01^4c1o93'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -40,12 +42,14 @@ INSTALLED_APPS = [
     'comparator',
     'sitios',
     'device',
-    #'monitor',
+    'dns',
+    'servicio',
     'crispy_forms',
     'django_celery_results',
     'logs',
     'procedures',
     'sucursales',
+    'mikrotik',
     'django_celery_beat',
 ]
 
@@ -159,6 +163,7 @@ LOGIN_REDIRECT_URL = 'device:devices'
 LOGOUT_REDIRECT_URL = 'device:devices'
 
 
+"""
 # Celery Configuration Options
 CELERY_TIMEZONE = "America/Mexico_city"
 CELERY_TASK_TRACK_STARTED = True
@@ -167,10 +172,18 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_BROKER_URL = 'redis://redis:6379/0'
 
-
-
 CELERY_RESULT_BACKEND = 'django-db'
 
+"""
+
+#CELERY_BROKER_URL = 'redis://localhost:6379/0'
+#CELERY_RESULT_BACKEND= 'redis://localhost:6379/0'
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND= 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TIMEZONE = "America/Mexico_City"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 1 * 60
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 20000
 #CELERY_TASK_SERIALIZER = 'json'

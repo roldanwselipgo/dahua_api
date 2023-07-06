@@ -17,13 +17,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import urls
 from core.urls import core_patterns
-#from monitor.urls import camera_patterns
+#from servicio.urls import camera_patterns
 from sitios.urls import sitio_patterns
 from comparator.urls import comparator_patterns
 from device.urls import device_patterns
 from logs.urls import logs_patterns
 from procedures.urls import procedures_patterns
 from sucursales.urls import sucursal_patterns
+from dns.urls import dns_patterns
+from servicio.urls import servicio_patterns
+from mikrotik.urls import mikrotik_patterns
 
 
 urlpatterns = [
@@ -37,7 +40,9 @@ urlpatterns = [
     path('', include(logs_patterns)),
     path('', include(procedures_patterns)),
     path('', include(sucursal_patterns)),
-    
+    path('', include(dns_patterns)),
+    path('', include(servicio_patterns)),
+    path('', include(mikrotik_patterns)),
 ]
 
 

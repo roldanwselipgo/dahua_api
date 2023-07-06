@@ -1,0 +1,61 @@
+{% extends 'core/base.html' %} {% block content %}
+
+
+<main role="main">
+    <div class="container mb-4">
+        <h2 class="m-10">Detalle camara</h2>
+        <p>Id: {{camera.id}}</p>
+        <p>Usuario: {{camera.usuario|striptags|safe|truncatechars:"200"}}</p>
+        <p>Ip: {{camera.ip|striptags|safe|truncatechars:"200"}}</p>
+        <p>puerto: {{camera.puerto|striptags|safe|truncatechars:"200"}}</p>
+
+        <h5>Informacion general: </h5>
+        <ul>
+            {% for key,value in general.items %}
+            <li>
+                {{ key }} : {{ value }}
+            </li>
+            {% endfor %}
+        </ul>
+        <h5>Hora actual: </h5>
+        <ul>
+            {% for key,value in current_time.items %}
+            <li>
+                {{ key }} : {{ value }}
+            </li>
+            {% endfor %}
+        </ul>
+        <h5>Locales: </h5>
+        <ul>
+            {% for key,value in locales.items %}
+            <li>
+                {{ key }} : {{ value }}
+            </li>
+            {% endfor %}
+        </ul>
+        <p>Tipo del dispositivo: </p>
+        <ul>
+            {% for key,value in device_type.items %}
+            <li>
+                {{ key }} : {{ value }}
+            </li>
+            {% endfor %}
+        </ul>
+        <p>Nombre de la maquina: {{machine_name}} </p>
+
+        <p>Motion Settings: </p>
+        <ul>
+            {% for key,value in motion_settings.items %}
+            <li>
+                {{ key }} : {{ value }}
+            </li>
+            {% endfor %}
+        </ul>
+
+        <p>Imagen capturada:</p>
+        {% load static %}
+        <img src="{% static 'monitor/snapshot.jpg' %}" alt="Imagen capturada">
+
+    </div>
+</main>
+{% endblock %}

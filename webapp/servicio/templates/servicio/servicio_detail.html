@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %} {% block content %}
+
+<main role="main">
+    <div class="container mb-4">
+        <h2 class="m-10">Servicio details</h2>
+        <div class="row">
+
+                <p>Servicio: {{sitio.ip|striptags|safe|truncatechars:"200"}}</p>
+                <p>Status: {{sitio.puerto|striptags|safe|truncatechars:"200"}}</p>
+                
+        </div>
+        
+    </div>
+</main>
+{% endblock %}

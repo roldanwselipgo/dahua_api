@@ -12,9 +12,12 @@ import logging
 import nmap
 import requests
 #from procedures.views import update_lost 
+from core.dahuaClasses.dahua_class import Dahua
+from datetime import date
+from datetime import timedelta
+import pydig
 
-
-bdb   = BDBDatabase() 
+bdb   = BDBDatabase()
 
 
 @shared_task(name="ProcessXVRTask")
@@ -96,18 +99,61 @@ def ProcessXVR(sucursal):
         print("EXCEPTION")
         
 
-@shared_task(name="port_scanner")
-def port_scanner(address, port):
-    
+
+@shared_task(name="ip_scanner")
+def ip_scanner(address, port, sucursal):
     timeout=10
     response=1
     i="ok"
+
+
+    bdb.open_connection()    
+    
+    if 1:
+
+        if 1:
+            nm = nmap.PortScanner()
+            nm.scan(hosts=address, arguments='-sP', timeout=30)
+
+            response = nm[address].state()
+            print(nm,response)
+            if response:
+                print(response)
+
+            if response == "up":
+                print (address, 'is up!', response)
+                file = open('status_file.csv','a+')  
+                file.write(f"{sucursal},{address},1\n")
+                file.close()
+                #bdb.UpdateStatus(sucursal,"Online")
+            else:
+                print (address, 'is down!', response)
+                file = open('status_file.csv','a+')  
+                file.write(f"{sucursal},{address},0\n")
+                file.close()
+                #bdb.UpdateStatus(sucursal,"Sin Acceso")
+
+        else:
+            print (i,address, 'unresolve!', response)
+            file = open('status_file.csv','a+')  
+            file.write(f"{sucursal},{address},2\n")
+            file.close()
+    bdb.close_connection()
+    
+
+@shared_task(name="port_scanner")
+def port_scanner(address, port, sucursal):
+    timeout=10
+    response=1
+    i="ok"
+
+    bdb.open_connection()    
     if 1:
         print(f"port_scanner()", flush=True)
-        
         try:
             nm = nmap.PortScanner()
-            r = nm.scan(address, str(port), arguments='-Pn  --max-retries 10 --host-timeout 11s')
+            r = nm.scan(address, str(port), arguments='-Pn  --max-retries 10 --host-timeout 30s')
+            print(r)
             response = nm.all_hosts()[0]
             if response:
                 host = nm.all_hosts()[0]
@@ -116,20 +162,92 @@ def port_scanner(address, port):
             if response == "open":
                 print (address, 'is up!', response)
                 file = open('status_file.csv','a+')  
-                file.write(f"{address},1\n")
+                file.write(f"{sucursal},{address},1\n")
                 file.close()
+                bdb.UpdateStatus(sucursal,"Online")
+                #Actualizar status NoIp
+                #bdb.UpdateStatusNoIp(address,1)
             else:
                 print (address, 'is down!', response)
                 file = open('status_file.csv','a+')  
-                file.write(f"{address},0\n")
+                file.write(f"{sucursal},{address},0\n")
                 file.close()
+                #bdb.UpdateStatus(sucursal,"Sin Acceso")
+
         except:
             print (i,address, 'unresolve!', response)
             file = open('status_file.csv','a+')  
             file.write(f"{address},2\n")
             file.close()
+    bdb.close_connection()
+    
 
 
+
+@shared_task(name="task_video_lost_dahua", time_limit=180)
+def task_video_lost_dahua(host, port, suc):
+
+    today = date.today()
+    yesterday = today - timedelta(days = 1)
+    yesterday = yesterday.strftime('%Y-%m-%d')
+    yesterday = '2023-06-08'
+    starttime = f"{yesterday}%2000:00:00"
+    endtime = f"{yesterday}%2023:00:00"
+    print("...",starttime,endtime)
+    #print("Today is: ", today, yesterday, type(today))
+    #return 0
+    if 1:
+        dvr = Dahua(host, port, "admin", "Elipgo$123")
+        by_channels = []
+
+        bdb.open_connection()  
+        file = open('result_segmentos.csv','a+')
+
+        dvr.MediaFindFileCreate() 
+        if 1:
+            rsp = dvr.MediaFindFile(-1, starttime, endtime)
+            var = 2
+            segmentos = []
+            while (var):
+                rdict = dvr.MediaFindNextFile(100)
+                if rdict!=-1:
+                    for i in range(0,100):
+                        channel = rdict[f'items[{i}].Channel']  if f'items[{i}].Channel' in rdict else ""
+                        starttime = rdict[f'items[{i}].StartTime']  if f'items[{i}].StartTime' in rdict else ""
+                        endtime = rdict[f'items[{i}].EndTime']  if f'items[{i}].EndTime' in rdict else ""
+                        if channel and starttime and endtime:
+                            segmentos.append((channel,starttime,endtime))
+                            file.write(f"{suc},{host},{channel},{starttime},{endtime} \n")
+                            
+                            """
+                            #Insertar a base
+                            bdb.lock.acquire()
+                            mycursor = bdb.connection.cursor()
+                            query1=f"SELECT * from segmento_video where sucursal={suc} and ip='{host}' and channel={int(channel)} and starttime='{starttime}' and endtime='{endtime}'"
+                            #print(queryStr)
+                            result=None
+                            if 1:
+                                mycursor.execute(query1)
+                                result = mycursor.fetchall()
+                                print("RESULTTTT", result)
+                            else:
+                                pass
+                            if not result:
+                                mycursor.execute(f"INSERT INTO segmento_video (sucursal,ip,channel, starttime,endtime) VALUES ({suc}, '{host}',{int(channel)},'{starttime}','{endtime}');")
+                                bdb.connection.commit()
+                            mycursor.close()
+                            bdb.lock.release()
+                            """
+                else:
+                    var = 0
+            by_channels.append(segmentos)
+            #print(segmentos)
+        #print(by_channels)
+        file.close()
+        bdb.close_connection() 
+        return None
+    else:
+        return None
 
 @shared_task(name="task_video_lost")
 def task_video_lost():
@@ -278,6 +396,7 @@ def summary():
     print("summary()")
     bdb.open_connection()
     print("bdopen()")
+    summary = bdb.GetSummaryDahua()
     summary = bdb.GetSummary()
     bdb.close_connection()
     return 'Sucursal procesada'

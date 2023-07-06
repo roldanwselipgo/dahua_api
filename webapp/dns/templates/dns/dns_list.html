@@ -1,0 +1,61 @@
+{% extends 'core/base.html' %} {% block title %}Dns list{% endblock %}{% block content %}
+{% load static %}
+
+<main role="main">
+  <h3>Listado de Dominios</h3>
+
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            
+            
+            
+
+            <div align="left" class="btn_crear mt-3">
+              Registrar nuevo dominio <a href="{% url 'dns:create'%}" type="button" class="btn btn-success btn-sm">Create</a>
+            </div>
+
+
+            <div class="row mt-3">
+                <div class="col-lg-12">
+
+                    <div class="form-controll">
+                        <label for="search"><i class="icon-search"></i></label>
+                        <input class="table-filter" type="search" data-table="advanced-web-table" placeholder="Search...">
+                      </div>
+                      <!--  Table  -->
+                      <div class="table-responsive">
+                        <table id="sitios-local-table" class="advanced-web-table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>hostname</th>
+                              <th>ip</th>
+                              <th>Ultima actualizacion</th>
+                              <th>Opciones</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for dns in dns_list %} 
+                            <tr>
+                              <td>{{dns.id}}</td>
+                              <td>{{dns.hostname}}</td>
+                              <td>{{dns.ip}}</td>
+                              <td>{{dns.updated}}</td>
+                              <td>
+                                <a href="{% url 'dns:dns' dns.id%}" type="button" class="btn btn-success btn-sm">   <i class="fa-solid fa-circle-info"> </i></a>
+                                <a href="{% url 'dns:update' dns.id%}" type="button" class="btn btn-primary btn-sm">   <i class="fa-solid fa-pen"></i></a>
+                                <a href="{% url 'dns:delete' dns.id%}" type="button" class="btn btn-danger btn-sm">  <i class="fa-solid fa-trash"></i></a>
+                              </td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+{% endblock %}

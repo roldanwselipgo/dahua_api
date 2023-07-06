@@ -1,0 +1,62 @@
+{% extends 'core/base.html' %} {% block content %}
+
+
+<main role="main">
+    <div class="container mb-4">
+        <h2 class="m-10">Device details</h2>
+        <div class="row">
+
+                
+                <p>Ip: {{device.ip|striptags|safe|truncatechars:"200"}}</p>
+                <p>puerto: {{device.puerto|striptags|safe|truncatechars:"200"}}</p>
+                <p>Usuario: {{device.usuario|striptags|safe|truncatechars:"200"}}</p>
+                
+
+                <p>Hardware version: {{hardware_version}}</p>
+               
+
+                <p>Serial number:  {{serial_number}} </p>
+              
+
+                <p>Hora actual:  {{ current_time }} </p>
+                
+                
+                <p>Tipo del dispositivo: {{device_type}} </p>
+                
+                <p>Informacion general: </p>
+                <ul>
+                    {% for key,value in general.items %}
+                    <li>
+                        {{ key }} : {{ value }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+
+                <p>Imagen capturada:</p>
+                {% load static %}
+                <img src="{% static 'device/snapshot.jpg' %}" style="width:100%;" alt="Img">
+
+
+                <p class="mt-5">Video Encode Settings: </p>
+                <ul>
+                    {% for key,value in video_encode_settings.items %}
+                    <li>
+                        {{ key }} : {{ value }}
+                    </li>
+                    {% endfor %}
+                </ul>
+        </div>
+        
+
+        
+        
+        
+
+        
+
+        
+
+    </div>
+</main>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'core/base.html' %} {% block title %}Logs{% endblock %}{% block content %}
+{% load static %}
+
+<main role="main">
+  <h1>Mikrotik config </h1>
+    <div class="container-fluid mb-4">
+      <br>
+      <div class="row">
+        <div class="col-6">
+            <form method="post" enctype="multipart/form-data">
+              <h4>General</h4>
+              {% csrf_token %}
+                  <div class="row">
+                    <div class="col-6">
+                      <label for="">MC</label>
+                      <input type="text" placeholder="ej: 1000" name="mc" >
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <label for="">Puertos</label>
+                      <input type="text" placeholder="ej: 1000" name="puertos" >
+                    </div>
+                  </div>
+                <div class="row">
+                  <div class="col-6">
+                    <label for="">Cargar archivo manualmente</label>
+                    <input type="file" name="file" >
+                  </div>
+                  
+                </div>
+                <div class="row">
+                  
+                  <div class="col-4">
+                    <button class="btn btn-primary btn-sm" type="submit">Enviar</button>
+                  </div>
+                </div>
+            </form>
+          </div>
+          <!-- segunda columna-->
+          <div class="col-6">
+            <form method="post" enctype="multipart/form-data">
+              <h4>Connection</h4>
+              {% csrf_token %}
+                  <div class="row">
+                    <div class="col-6">
+                      <label for="">Ip</label>
+                       <input type="text" placeholder="" name="ip" >
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <label for="">ssh user</label>
+                      <input type="text" placeholder="" name="user" >
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <label for="">ssh password</label>
+                      <input type="text" placeholder="" name="pasword" >
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <label for="">ftp port</label>
+                      <input type="text" placeholder="" name="ftp" >
+                    </div>
+                  </div>
+                <div class="row">
+                  <div class="col-4">
+                    <button class="btn btn-primary btn-sm" type="submit">test</button>
+                  </div>
+                </div>
+            </form>
+          </div>
+      </div>
+    </div>
+
+
+        <br>
+        <form method="post" enctype="multipart/form-data">
+          <h4>Cargar nuevo listado de puertos</h4>
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-6">
+              <input type="file" name="file" >
+            </div>
+            <div class="col-2">
+               <input type="text" placeholder="port" name="port" >
+            </div>
+            <div class="col-4">
+              <button class="btn btn-primary btn-sm" type="submit">Enviar</button>
+            </div>
+          </div>
+        </form>
+
+        
+        <div class="row mt-5">
+          <div class="col-lg-12">
+              <div class="form-controll">
+                  <label for="search"><i class="icon-search"></i></label>
+                  <!-- <input class="table-filter" type="search" data-table="advanced-web-table" placeholder="Search..."> -->
+                </div>
+                <!--  Table  -->
+                <div class="table-responsive">
+                  <table id="sitios-remotos-table" class="advanced-web-table">
+                    <thead>
+
+                      <tr>
+                        <th>mc</th>
+                        <th>p1</th>
+                        <th>p2</th>
+                        <th>p3</th>
+                        <th>p4</th>
+                        <th>p5</th>
+                        <th>p6</th>
+                        <th>p7</th>
+                        <th>p8</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for mikrotik in mikrotik_list %} 
+                      <tr>
+                        <td>{{mikrotik.mc}}</td>
+                        <td>{{mikrotik.p1}}</td>
+                        <td>{{mikrotik.p2}}</td>
+                        <td>{{mikrotik.p3}}</td>
+                        <td>{{mikrotik.p4}}</td>
+                        <td>{{mikrotik.p5}}</td>
+                        <td>{{mikrotik.p6}}</td>
+                        <td>{{mikrotik.p7}}</td>
+                        <td>{{mikrotik.p8}}</td>
+
+                          <td>
+                              <a href="{% url 'mikrotiks:mikrotiks'%}" type="button" class="btn btn-primary btn-sm"> <i class="fa-solid fa-pen"></i></a>
+                          </td>
+                      </tr>
+                      {% endfor %}
+
+                      
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+          </div>
+
+</main>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'core/base.html' %} {% block content %}
+
+
+<main role="main">
+    <div class="container mb-4">
+        <h2 class="m-10">Dns details</h2>
+        <div class="row">
+
+                <p>Hostname: {{dns.hostname|striptags|safe|truncatechars:"200"}}</p>
+                <p>ip: {{dns.ip|striptags|safe|truncatechars:"200"}}</p>
+                
+        </div>
+    </div>
+</main>
+{% endblock %}

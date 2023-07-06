@@ -1,0 +1,409 @@
+{% extends 'core/base.html' %} {% block title %}Conf devices{% endblock %}{% block content %}
+{% load static %}
+{% load util %}
+<main role="main">
+
+    <div class="container-fluid mb-4">
+        
+        <br>
+        <div class="row">
+            
+
+            <script>
+                function bootstrapAlert(msg){
+                    $.bootstrapGrowl(msg,{
+                        type:"danger",
+                        stackup_spacing:10,
+                        width:250,
+                        allow_dismiss:true
+                    });
+                }
+            </script>
+            <script>
+                function bootstrapSuccessAlert(msg){
+                    $.bootstrapGrowl(msg,{
+                        type:"success",
+                        stackup_spacing:10,
+                        width:250,
+                        allow_dismiss:true
+                    });
+                }
+            </script>
+
+            {% if request.GET.Language %}
+                {% if failure_m %}
+                <script>
+                    bootstrapAlert("Failed MainFormat"+"{{failure_m}}")
+                </script>
+                {% else %}
+                <script>
+                    bootstrapSuccessAlert("Success MainFormat")
+                    </script>
+                {% endif %}
+
+                {% if failure_e %}
+                <script>
+                    bootstrapAlert("Failed ExtraFormat: "+"{{failure_e}}")
+                </script>
+                {% else %}
+                <script>
+                    bootstrapSuccessAlert("Success ExtraFormat")
+                </script>
+                {% endif %}
+            {% endif %}
+            
+
+          
+           
+            
+            <div class="col-6">
+                <h4 class="mb-5">Current configuration</h4> 
+                <div align="left" class="btn_crear mb-3">
+                    Reload <a href="{% url 'device:video-encode' id%}" type="sumbit" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-6">
+                        <table class="table">
+                            <thead class="thead-light">
+                            <tr>
+                                <th  class="bg-light" scope="col">General Info</th>
+                                <th  class="bg-light" scope="col"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><label class="">Ip</label> </td>
+                                    <td> <label class=""><a target="blank" class="link" href="{% url 'device:device' id %}"> {{ip}}</a></label> </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="">Language</label> </td>
+                                    <td> <label class="">{{ language }}</label> </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="">Current time</label> </td>
+                                    <td> <label class="">{{ current_time }} </label> </td>
+                                </tr>
+                                <tr>
+                                    <td><label class="">Device type</label> </td>
+                                    
+                                    <td> <label class="">{{ device_type_name }} {{ device_type }}</label> </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-6">
+                        <select class="text-primary mb-1" id="selector">
+                            {% for storage in storage_info %}
+                            <option  value="sd{{forloop.counter0}}"> Storage {{storage.Path}}</option> 
+                            {% for st in storage %}
+                                 
+                                {% endfor %}
+                            {% endfor %}
+                        </select>
+                        {% for storage in storage_info %}
+                        <div id="sd{{forloop.counter0}}"  class="options">
+                            <table class="table">
+                               
+                                
+                                <tbody>
+                                    {% for key,value in storage.items %}
+                                    <tr>
+                                        <td><label class="">{{ key }}</label> </td>
+                                        <td> 
+                                        {{value}}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endfor %}
+                    </div>
+
+                </div>
+                
+
+                
+
+                <!--Size dropdown menu-->
+<!-- <select id="size_select">
+    <option value="option1">Kids</option>
+    <option value="option2">Youth</option>
+    <option value="option3">XS</option>
+    <option value="option4">Small</option>
+    <option value="option5">Medium</option>
+    <option value="option6">Large</option>
+  </select>
+  
+  <div id="option1" class="size_chart">
+    Kids
+  </div>
+  <div id="option2" class="size_chart">
+    Youth
+  </div>
+  <div id="option3" class="size_chart">
+    XS
+  </div>
+  <div id="option4" class="size_chart">
+    Small
+  </div>
+  <div id="option5" class="size_chart">
+    Medium
+  </div>
+  <div id="option6" class="size_chart">
+    Large
+  </div> -->
+
+<select class="text-primary mb-1" id="size_select">
+    {% for channel in channels %}
+    <option  value="{{channel}}">Channel {{channel}}</option> 
+    {% for element in channels %}
+         
+        {% endfor %}
+    {% endfor %}
+    
+  </select>
+
+
+
+  {% for channels_config in array_config %}
+  <div id="{{channels|index:forloop.counter0}}" value="{{channels|index:forloop.counter0}}" class="size_chart">
+    {% for element in channels_config %}
+    <table class="table">
+        <thead class="thead-light">
+            {% if forloop.counter0 == 0 %}           
+            <th class="bg-light" scope="col">Mainstream {{stream}}</th>
+            <th class="bg-light" scope="col"></th>
+            {% else %}
+            <th class="bg-light" scope="col">Substream</th>
+            <th  class="bg-light" scope="col"></th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+            {% if forloop.counter0 == 0 %}           
+            {% for key,value in element.items %}
+            <tr>
+                <td><label class="">{{ key }}</label> </td>
+                <td> 
+                <select id="size_select22" label="{{key}}" stream="MainFormat" class="opciones">
+                    {% for capabilty_value in value %}
+                        <option value="{{capabilty_value}}">{{ capabilty_value }}</option>
+                    {% endfor %}
+
+                </select>
+                    <!-- <label class="">{{ value }}</label>  -->
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            {% for key,value in element.items %}
+            <tr>
+                <td><label class="">{{ key }}</label> </td>
+                <td> 
+                <select id="size_select22" label="{{key}}" stream="ExtraFormat" class="opciones">
+                    {% for capabilty_value in value %}
+                        <option value="{{capabilty_value}}">{{ capabilty_value }}</option>
+                    {% endfor %}
+
+                </select>
+                    <!-- <label class="">{{ value }}</label>  -->
+                </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+
+        </tbody>
+    </table>
+
+    {% endfor %}
+
+  </div>
+  {% endfor %}
+                    
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-5 ml-5 ">
+                <h4 class="mb-5">Default configuration</h4>
+                <br>
+                <hr>
+                
+                
+                <!-- Contenido del form-->
+                {%load crispy_forms_tags %} 
+                <form action="" method="GET" enctype="multipart/form-data">{% csrf_token %}
+
+                    <table class="table">
+                        <thead class="thead-light">
+                        <tr>
+                            <th class="bg-light" scope="col">Edit General</th>
+                            <th class="bg-light" scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr> 
+                                <td><label class="">Type</label> </td>
+                                <td>
+                                    <select name="type" class=" channel ">
+                                        <option value="0">Regular encode </option>
+                                        <option value="1">Motion detection encode</option>
+                                        <option value="2">Alarm encode</option>
+                                        <option value="3">Emergency encode</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">Language</label> </td>
+                                <td>{{form.Language}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">CurrentTime </label>
+                                </td>
+                                <td >{{form.CurrentTime}} 
+                                    <label align="right" class="checkbox-inline">
+                                    <input id="checkbox-time" name="checkbox-time" type="checkbox" value="time" checked> Now
+                                </label>
+                                </td>
+                            </tr>
+                           
+                        </tbody>
+                    </table>
+
+                    <!-- obtiene datos del modelo -->
+                    <table class="table">
+                        <thead class="thead-light">
+                        <tr>
+                            <th class="bg-light" scope="col">Edit</th>
+                            <th class="bg-light" scope="col"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><label for="">Filters</label></td>
+                                <td>
+                                    <div class="form-group col-12 ">
+                                        <div class="row">
+                                            {% for tupla in array_config %}
+                                            <div class="col-3">
+                                                <!-- <label class="checkbox-inline"> -->
+                                                <label class="checkbox-inline"><input class="checkbox-f" name="{{channels|index:forloop.counter0}}" type="checkbox" value=1 checked>ch{{channels|index:forloop.counter0}}</label>
+                                            </div>
+                                            {% endfor %}
+                                            <div class="col-3">
+                                                <label class="checkbox-inline"><input   name="mainstream" type="checkbox" value=1 checked>Main</label>
+                                            </div>
+                                            <div class="col-3">
+                                                <label class="checkbox-inline"><input   name="substream" type="checkbox" value=1 checked>Extra</label>
+                                            </div>
+                                            <div class="col-3">
+                                                <label class="checkbox-inline"><input  id="checkbox-all" name="channel" type="checkbox" value="all" checked>  All</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label class="">Compression</label> </td>
+                                <td>{{form.Compression}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">Resolution</label> </td>
+                                <td>{{form.resolution}}</td>
+                            </tr>
+                            
+                            <tr> 
+                                <td><label class="">SmartCodec</label> </td>
+                                <td>{{form.SmartCodec}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">FPS</label> </td>
+                                <td>{{form.FPS}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">BitRateControl</label> </td>
+                                <td>{{form.BitRateControl}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">Quality</label> </td>
+                                <td>{{form.Quality}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">BitRate</label> </td>
+                                <td>{{form.BitRate}}</td>
+                            </tr>
+                            <tr> 
+                                <td><label class="">VideoEnable</label> </td>
+                                <td>{{form.VideoEnable}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- {{ form|crispy }}  -->
+                    <label class="" hidden><input name="snapshots" type="text" value=1>snaps</label>
+                    
+                    <button  type="submit" class="btn  btn-outline-success">Enviar</button>
+                    <!-- <a href="./" type="submit" class="btn btn-primary">Cancelar</a> -->
+                </form>
+                
+
+                
+            </div>
+        </div>
+
+    </div>
+    </div>
+
+    
+        <div class="row">
+            <h4 class="mb-5">Channels Snapshots</h4> 
+            {% if not request.GET.snapshots %}
+            <form class="mb-5" action="" method="GET">
+                <label class="" hidden><input name="snapshots" type="text" value=1>snaps</label>
+                <!-- Obtener snapshotss <a type="sumbit" class="btn btn-success btn-sm"> <i class="fa-solid fa-rotate-left"></i></a> -->
+                <button  type="submit" class="btn  btn-outline-success">Get snapshots</button>
+            </form>
+            {% endif %}
+
+            {% for snapshot in snapshots %}
+            <div class="col-3">
+                <div class="card">
+                    {{snapshot}}
+                    {% with 'device/snapshots/'|add:snapshot|add:'.jpg' as image_static %}
+                    <img class="card-img-top" src="{% static image_static %}" alt="{{snapshot}}">
+                    {% endwith %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+</main>
+
+<script>
+$(document).ready(function(){
+	$(".opciones").change(function(){
+      this.key = $(this).attr("label")
+	  this.val = $(this).val();
+      this.channel =  $('#size_select').val()
+	  this.stream = $(this).attr("stream")
+
+	  $.ajax({
+		url: "update-one",
+		type: "GET",
+		data: { val: this.val, channel:this.channel, key:this.key, device_id:"{{id}}", stream:this.stream},
+		success: function () {
+			// something here on success
+		},
+		error: function () {
+		   // something here on error
+		}
+	});
+
+	});
+	
+  });
+</script>
+
+{% endblock %}

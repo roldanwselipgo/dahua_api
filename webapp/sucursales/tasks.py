@@ -3,7 +3,11 @@
 from celery import shared_task
 import time
 from core.dahuaClasses.dahua_class import Dahua
+from procedures.Vrec.BDB_dbClass import BDBDatabase
+from datetime import datetime, timedelta
 
+
+bdb   = BDBDatabase()
 
 def get_camera_info(camera_id,devs):
     tmp = []
@@ -20,25 +24,124 @@ def get_camera_info(camera_id,devs):
     tmp.append(devs[f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.VideoInputs[0].Name']) if f'table.RemoteDevice.uuid:System_CONFIG_NETCAMERA_INFO_{camera_id}.VideoInputs[0].Name' in devs else tmp.append(None)
     return tmp 
 
-@shared_task(name="get_sucursal_info", time_limit=40)
-def get_sucursal_info_task(host, port, user, password):
+def get_video_segment(channel,starttime,endtime):
+    tmp = []
+
+@shared_task(name="get_sucursal_info", time_limit=90)
+def get_sucursal_info_task(host, port, user, password, suc):
     try:
+        
         dvr = Dahua(host, port, user, password)
+        #dvr = Dahua("10.200.3.20", 80, "admin", "Elipgo$123")
         device_type = dvr.GetDeviceType()
+        #dvr_serial_number = dvr.GetSerialNumber()
         dvr_serial_number = dvr.GetSerialNumber()
+        print(">>>RecordStatusss")
+        print(">>>RecordStatusss")
+
+        by_channels = []
+        #file = open('result_segmentos.csv','w+')
+        #file.write("")
+        #file.close()
+        """
+        #Otro proces---------
+        bdb.open_connection()  
+        file = open('result_segmentos.csv','a+')
+
+        dvr.MediaFindFileCreate() 
+
+        #Ejecutar el proceso a la fecha de ayer
+        today = datetime.now() 
+        #today = datetime.strptime("2023-04-13", "%Y-%m-%d") 
+        yesterday = today - timedelta(days=1)
+        today.strftime('%Y-%m-%d')
+        yesterday.strftime('%Y-%m-%d')
+        today = str(today.date())
+        yesterday = str(yesterday.date())
+        #for channel in range(1,8):
+        if 1:
+            rsp = dvr.MediaFindFile(-1, f"{yesterday}%2018:00:00", f"{today}%2012:00:00")
+            var = 2
+            segmentos = []
+            while (var):
+                rdict = dvr.MediaFindNextFile(100)
+                if rdict!=-1:
+                    for i in range(0,100):
+                        channel = rdict[f'items[{i}].Channel']  if f'items[{i}].Channel' in rdict else ""
+                        starttime = rdict[f'items[{i}].StartTime']  if f'items[{i}].StartTime' in rdict else ""
+                        endtime = rdict[f'items[{i}].EndTime']  if f'items[{i}].EndTime' in rdict else ""
+                        if channel and starttime and endtime:
+                            segmentos.append((channel,starttime,endtime))
+                            file.write(f"{suc},{host},{channel},{starttime},{endtime} \n")
+                            #Insertar a base
+                            
+                            
+                            bdb.lock.acquire()
+                            mycursor = bdb.connection.cursor()
+                            query1=f"SELECT * from segmento_video where sucursal={suc} and ip='{host}' and channel={int(channel)} and starttime='{starttime}' and endtime='{endtime}'"
+                            #print(queryStr)
+                            result=None
+                            try:
+                                mycursor.execute(query1)
+                                result = mycursor.fetchall()
+                            except:
+                                pass
+
+                            if result:
+                                mycursor.execute(f"INSERT INTO segmento_video (sucursal,ip,channel, starttime,endtime) VALUES ({suc}, '{host}',{int(channel)},'{starttime}','{endtime}');")
+                                bdb.connection.commit()
+                            mycursor.close()
+                            bdb.lock.release()
+                        '''
+                        bdb   = BDBDatabase() 
+                        bdb.open_connection()
+                        for data in df:
+                            if len(str(data['a']))>2 and len(data['f'])>2:
+                            #if 1 :
+                                d = d+1
+                                print(data['a'], data['f'], data['g'], data['h'], int(data['p']))
+
+                                bdb.lock.acquire()
+                                mycursor = bdb.connection.cursor()
+
+                                mycursor.execute(f"INSERT INTO dispositivo (sucursal, tipo_id, numero_disp,ip,puerto,usuario,password,serie,modelo) VALUES ({data['a']}, 6,{int(data['p'])}, '{data['f']}',80,'admin','Elipgo$123','{data['g']}','{data['h']}');")
+                                bdb.connection.commit()
+                                #print(myresult)
+                                mycursor.close()
+                                bdb.lock.release()
+
+                        print(d)
+                        bdb.close_connection()'''
+
+                else:
+                    var = 0
+            by_channels.append(segmentos)
+            #print(segmentos)
+        #print(by_channels)
+        file.close()
+        bdb.close_connection() 
+        return None
+        """
+        
+        
+
+
+        #rsp = dvr.MediaFindFileFR(2, "2023-01-01%2008:00:00", "2023-01-04%2012:00:00")
+        #response = dvr.MediaFindNextFile(10)
         
         #Get info cameras
         info = []
         devs=dvr.RemoteDevices()
 
         #print(f"Devs: {host} {devs} ")
+        for i in range(0,29):
+            info.append(get_camera_info(i,devs))
+            #info.append(get_camera_info(i,devs))
+            #info.append(get_camera_info(i,devs))
+            #info.append(get_camera_info(i,devs))
+            #info.append(get_camera_info(i,devs))
+            #info.append(get_camera_info(i,devs))
         
-        info.append(get_camera_info(0,devs))
-        info.append(get_camera_info(1,devs))
-        info.append(get_camera_info(2,devs))
-        info.append(get_camera_info(3,devs))
-        info.append(get_camera_info(4,devs))
-        info.append(get_camera_info(5,devs))
         print(info)
         
         #print(devs)

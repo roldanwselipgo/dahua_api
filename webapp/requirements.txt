@@ -32,4 +32,10 @@ python-nmap
 #Vrec
 zeep
 pandas
+openpyxl
 suds
+
+pydig
+
+#ssh
+paramiko
